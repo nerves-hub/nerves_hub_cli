@@ -40,9 +40,9 @@ defmodule Mix.Tasks.NervesHub.Firmware do
 
   """
 
-  import Mix.NervesHub.Utils
-  alias NervesHub.API
-  alias Mix.NervesHub.Shell
+  import Mix.NervesHubCLI.Utils
+  alias NervesHubCLI.API
+  alias Mix.NervesHubCLI.Shell
 
   @switches [
     product: :string,
@@ -50,7 +50,7 @@ defmodule Mix.Tasks.NervesHub.Firmware do
   ]
 
   def run(args) do
-    Application.ensure_all_started(:nerves_hub)
+    Application.ensure_all_started(:nerves_hub_cli)
 
     {opts, args} = OptionParser.parse!(args, strict: @switches)
     product = opts[:product] || default_product()
@@ -77,7 +77,9 @@ defmodule Mix.Tasks.NervesHub.Firmware do
   end
 
   def list(product) do
-    case API.Firmware.list(product) do
+    auth = Shell.request_auth()
+
+    case API.Firmware.list(product, auth) do
       {:ok, %{"data" => []}} ->
         Shell.info("No firmware has been published for product: #{product}")
 
@@ -130,7 +132,9 @@ defmodule Mix.Tasks.NervesHub.Firmware do
   end
 
   defp publish(firmware, opts) do
-    case API.Firmware.create(firmware) do
+    auth = Shell.request_auth()
+
+    case API.Firmware.create(firmware, auth) do
       {:ok, %{"data" => %{} = firmware}} ->
         Shell.info("Firmware published successfully")
 
@@ -138,18 +142,20 @@ defmodule Mix.Tasks.NervesHub.Firmware do
         |> maybe_deploy(firmware)
 
       error ->
-        Shell.info("Failed to publish firmware \nreason: #{inspect(error)}")
+        Shell.error("Failed to publish firmware \nreason: #{inspect(error)}")
     end
   end
 
   defp delete(uuid) do
-    API.Firmware.delete(uuid) |> IO.inspect()
-    # case  do
-    #   {:ok, %{"data" => %{} = firmware}} ->
-    #     Shell.info("Firmware published successfully")
-    #   error ->
-    #     Shell.info("Failed to publish firmware \nreason: #{inspect error}")
-    # end
+    auth = Shell.request_auth()
+
+    case API.Firmware.delete(uuid, auth) do
+      {:ok, %{"data" => %{}}} ->
+        Shell.info("Firmware published successfully")
+
+      error ->
+        Shell.error("Failed to delete firmware \nreason: #{inspect(error)}")
+    end
   end
 
   defp maybe_deploy([], _), do: :ok

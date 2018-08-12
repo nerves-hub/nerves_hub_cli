@@ -1,44 +1,38 @@
-defmodule NervesHub.API do
+defmodule NervesHubCLI.API do
   @host "api.nerves-hub.org"
   @config [
     host: @host,
-    port: 443,
-    ssl: [
-      keyfile: "user-key.pem",
-      certfile: "user.pem",
-      cacertfile: "ca.pem",
-      server_name_indication: to_charlist(@host)
-    ]
+    port: 443
   ]
 
   def start_pool() do
-    pool = :nerves_hub
+    pool = :nerves_hub_cli
     pool_opts = [timeout: 150_000, max_connections: 10]
     :ok = :hackney_pool.start_pool(pool, pool_opts)
   end
 
-  def request(_verb, _path, _body_or_params \\ "")
+  def request(_verb, _path, _body_or_params, _auth \\ %{})
 
-  def request(:get, path, params) do
+  def request(:get, path, params, auth) when is_map(params) do
     url = url(path) <> "?" <> URI.encode_query(params)
 
-    :hackney.request(:get, url, headers(), "", opts())
+    :hackney.request(:get, url, headers(), "", opts(auth))
     |> resp()
   end
 
-  def request(verb, path, params) when is_map(params) do
+  def request(verb, path, params, auth) when is_map(params) do
     with {:ok, body} <- Jason.encode(params) do
-      request(verb, path, body)
+      request(verb, path, body, auth)
     end
   end
 
-  def request(verb, path, body) do
-    :hackney.request(verb, url(path), headers(), body, opts())
+  def request(verb, path, body, auth) do
+    :hackney.request(verb, url(path), headers(), body, opts(auth))
     |> resp()
   end
 
-  def file_request(verb, path, file) do
-    :hackney.request(verb, url(path), [], {:file, file}, opts())
+  def file_request(verb, path, file, auth) do
+    :hackney.request(verb, url(path), [], {:file, file}, opts(auth))
     |> resp()
   end
 
@@ -50,6 +44,27 @@ defmodule NervesHub.API do
 
       {:ok, body} ->
         Jason.decode(body)
+
+      error ->
+        error
+    end
+  after
+    :hackney.close(client_ref)
+  end
+
+  defp resp({:ok, _status_code, _headers, client_ref}) do
+    case :hackney.body(client_ref) do
+      {:ok, ""} ->
+        {:error, ""}
+
+      {:ok, body} ->
+        resp =
+          case Jason.decode(body) do
+            {:ok, body} -> body
+            body -> body
+          end
+
+        {:error, resp}
 
       error ->
         error
@@ -77,14 +92,29 @@ defmodule NervesHub.API do
     [{"Content-Type", "application/json"}]
   end
 
-  defp opts do
+  defp opts(auth) do
+    ssl_options =
+      auth
+      |> ssl_options()
+      |> Keyword.put(:cacerts, NervesHubCLI.User.ca_certs())
+
     [
-      pool: :nerves_hub,
-      ssl_options: Keyword.get(config(), :ssl, [])
+      pool: :nerves_hub_cli,
+      ssl_options: ssl_options
     ]
   end
 
+  defp ssl_options(%{key: key, cert: cert}) do
+    [
+      key: {:ECPrivateKey, key},
+      cert: cert,
+      server_name_indication: to_charlist(@host)
+    ]
+  end
+
+  defp ssl_options(_), do: []
+
   defp config do
-    Application.get_env(:nerves_hub, __MODULE__) || @config
+    Application.get_env(:nerves_hub_cli, __MODULE__) || @config
   end
 end

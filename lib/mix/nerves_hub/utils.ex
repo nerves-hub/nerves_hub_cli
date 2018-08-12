@@ -1,4 +1,6 @@
-defmodule Mix.NervesHub.Utils do
+defmodule Mix.NervesHubCLI.Utils do
+  alias Mix.NervesHubCLI.Shell
+
   def default_product do
     config()[:app]
   end
