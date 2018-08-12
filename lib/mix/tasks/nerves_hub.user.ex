@@ -31,7 +31,7 @@ defmodule Mix.Tasks.NervesHub.User do
   def run(args) do
     Application.ensure_all_started(:nerves_hub)
 
-    {opts, args} = OptionParser.parse!(args, strict: @switches)
+    {_opts, args} = OptionParser.parse!(args, strict: @switches)
 
     case args do
       ["whoami"] ->

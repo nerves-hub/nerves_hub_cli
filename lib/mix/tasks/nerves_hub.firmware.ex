@@ -78,10 +78,10 @@ defmodule Mix.Tasks.NervesHub.Firmware do
 
   def list(product) do
     case API.Firmware.list(product) do
-      {:ok, %{"data" => []} = resp} ->
+      {:ok, %{"data" => []}} ->
         Shell.info("No firmware has been published for product: #{product}")
 
-      {:ok, %{"data" => firmwares} = resp} ->
+      {:ok, %{"data" => firmwares}} ->
         Shell.info("")
         Shell.info("Firmwares:")
 

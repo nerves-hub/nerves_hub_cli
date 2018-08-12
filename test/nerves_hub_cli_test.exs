@@ -1,8 +1,6 @@
-defmodule NervesHubCliTest do
+defmodule NervesHubCLITest do
   use ExUnit.Case
-  doctest NervesHubCli
+  doctest NervesHubCLI
 
-  test "greets the world" do
-    assert NervesHubCli.hello() == :world
-  end
+  
 end
