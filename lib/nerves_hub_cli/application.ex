@@ -6,6 +6,7 @@ defmodule NervesHubCli.Application do
   use Application
 
   def start(_type, _args) do
+    NervesHub.API.start_pool()
     # List all child processes to be supervised
     children = [
       # Starts a worker by calling: NervesHubCli.Worker.start_link(arg)
