@@ -61,6 +61,16 @@ defmodule Mix.Tasks.NervesHub.Deployment do
     end
   end
 
+  def render_help() do
+    Shell.raise("""
+    Invalid arguments
+
+    Usage:
+      mix nerves_hub.deployment list
+      mix nerves_hub.deployment update [deployment_name] [key] [value]
+    """)
+  end
+
   def list(product) do
     auth = Shell.request_auth()
 
@@ -137,15 +147,5 @@ defmodule Mix.Tasks.NervesHub.Deployment do
     """
     tags: [#{Enum.join(tags, ", ")}]
     """
-  end
-
-  def render_help() do
-    Shell.raise("""
-    Invalid arguments
-
-    Usage:
-      mix nerves_hub.deployment list
-      mix nerves_hub.deployment update [deployment_name] [key] [value]
-    """)
   end
 end

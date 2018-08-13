@@ -150,8 +150,8 @@ defmodule Mix.Tasks.NervesHub.Firmware do
     auth = Shell.request_auth()
 
     case API.Firmware.delete(uuid, auth) do
-      {:ok, %{"data" => %{}}} ->
-        Shell.info("Firmware published successfully")
+      {:ok, ""} ->
+        Shell.info("Firmware deleted successfully")
 
       error ->
         Shell.error("Failed to delete firmware \nreason: #{inspect(error)}")
