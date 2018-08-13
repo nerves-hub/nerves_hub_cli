@@ -72,6 +72,8 @@ defmodule Mix.Tasks.NervesHub.Key do
 
     Usage:
       mix nerves_hub.key list
+      mix nerves_hub.key create [name]
+      mix nerves_hub.key delete [name]
     """)
   end
 
