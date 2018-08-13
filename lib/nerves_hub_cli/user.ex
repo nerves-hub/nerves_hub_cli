@@ -5,6 +5,11 @@ defmodule NervesHubCLI.User do
   @csr "csr.pem"
   @cert "cert.pem"
 
+  def init() do
+    data_dir()
+    |> File.mkdir_p()
+  end
+
   def generate_csr(username, certificate_password) do
     # Create the data dir
     cert_files =

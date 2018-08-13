@@ -19,7 +19,7 @@ defmodule Mix.NervesHubCLI.Shell do
     Mix.shell().yes?(output)
   end
 
-  def request_auth(prompt \\ "Local password:") do
+  def request_auth(prompt \\ "Local user password:") do
     password = password_get(prompt)
 
     case NervesHubCLI.User.auth(password) do

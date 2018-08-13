@@ -1,6 +1,4 @@
 defmodule Mix.NervesHubCLI.Utils do
-  alias Mix.NervesHubCLI.Shell
-
   def default_product do
     config()[:app]
   end
@@ -48,6 +46,10 @@ defmodule Mix.NervesHubCLI.Utils do
       {:ok, metadata_item} -> metadata_item
       {:error, :not_found} -> default
     end
+  end
+
+  def stringify(map) when is_map(map) do
+    for {key, val} <- map, do: {to_string(key), val}, into: %{}
   end
 
   defp config() do
