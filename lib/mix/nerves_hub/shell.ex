@@ -12,7 +12,7 @@ defmodule Mix.NervesHubCLI.Shell do
   end
 
   def prompt(output) do
-    Mix.shell().prompt(output)
+    Mix.shell().prompt(output) |> String.trim()
   end
 
   def yes?(output) do
