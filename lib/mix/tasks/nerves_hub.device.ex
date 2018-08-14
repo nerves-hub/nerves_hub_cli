@@ -56,7 +56,7 @@ defmodule Mix.Tasks.NervesHub.Device do
     tags = 
       if tags == [] do
         Shell.prompt("tags:")
-        |> String.split(tags)
+        |> String.split()
       else
         tags
       end
