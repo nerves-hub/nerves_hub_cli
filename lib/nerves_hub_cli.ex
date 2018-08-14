@@ -1,7 +1,11 @@
 defmodule NervesHubCLI do
   def home_dir do
-    Application.get_env(:nerves_hub_cli, :home_dir) || System.get_env("NERVES_HUB_HOME") ||
-      Path.expand("~/.nerves_hub")
+    override_dir = Application.get_env(:nerves_hub_cli, :home_dir) || System.get_env("NERVES_HUB_HOME")
+    if override_dir == nil or override_dir == "" do
+      Path.expand("~/.nerves-hub")
+    else
+      override_dir
+    end
   end
 
   def public_keys(keys) when is_list(keys) do

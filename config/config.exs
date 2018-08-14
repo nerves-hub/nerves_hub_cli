@@ -2,9 +2,6 @@
 # and its dependencies with the aid of the Mix.Config module.
 use Mix.Config
 
-config :nerves_hub_cli,
-  home_dir: Path.expand(".nerves-hub")
-
 config :logger, level: :info
 
 # Import environment specific config. This must remain at the bottom
