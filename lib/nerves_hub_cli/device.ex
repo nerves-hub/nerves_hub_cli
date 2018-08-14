@@ -10,7 +10,6 @@ defmodule NervesHubCLI.Device do
       File.read(csr_path)
     else
       error ->
-        IO.inspect error
         error
     end
   end
