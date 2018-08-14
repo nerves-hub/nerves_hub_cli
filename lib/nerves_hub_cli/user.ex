@@ -1,6 +1,6 @@
 defmodule NervesHubCLI.User do
   alias NervesHubCLI.{Certificate, Crypto}
-
+  @env Mix.env()
   @key "key.encrypted"
   @csr "csr.pem"
   @cert "cert.pem"
@@ -15,8 +15,6 @@ defmodule NervesHubCLI.User do
     cert_files =
       data_dir()
       |> cert_files()
-
-    File.mkdir_p(data_dir())
 
     with :ok <- Certificate.generate_key(cert_files[:key]),
          {:ok, key} <- File.read(cert_files[:key]),
@@ -59,6 +57,7 @@ defmodule NervesHubCLI.User do
       :code.priv_dir(:nerves_hub_cli)
       |> to_string()
       |> Path.join("ca_certs")
+      |> Path.join(to_string(@env))
 
     ca_cert_path
     |> File.ls!()
