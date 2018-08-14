@@ -53,14 +53,15 @@ defmodule Mix.Tasks.NervesHub.Device do
     identifier = opts[:identifier] || Shell.prompt("identifier:")
     description = opts[:description] || Shell.prompt("description:")
     tags = Keyword.get_values(opts, :tag)
-    tags = 
+
+    tags =
       if tags == [] do
         Shell.prompt("tags:")
         |> String.split()
       else
         tags
       end
-    
+
     auth = Shell.request_auth()
 
     case API.Device.create(identifier, description, tags, auth) do
@@ -85,11 +86,13 @@ defmodule Mix.Tasks.NervesHub.Device do
   end
 
   def cert_create(identifier, opts) do
-    path = opts[:path] || File.cwd!
+    path = opts[:path] || File.cwd!()
     auth = Shell.request_auth()
+
     with {:ok, csr} <- NervesHubCLI.Device.generate_csr(identifier, path),
          safe_csr <- Base.encode64(csr),
-         {:ok, %{"data" => %{"cert" => cert}}} <- API.Device.cert_sign(identifier, safe_csr, auth),
+         {:ok, %{"data" => %{"cert" => cert}}} <-
+           API.Device.cert_sign(identifier, safe_csr, auth),
          :ok <- File.write(Path.join(path, "#{identifier}-cert.pem"), cert) do
       Shell.info("Finished")
     else
@@ -115,11 +118,9 @@ defmodule Mix.Tasks.NervesHub.Device do
   end
 
   defp render_certs(_identifier, params) do
-    {:ok, not_before, _} = 
-      DateTime.from_iso8601(params["not_before"])
-    
-    {:ok, not_after, _} = 
-      DateTime.from_iso8601(params["not_after"])
+    {:ok, not_before, _} = DateTime.from_iso8601(params["not_before"])
+
+    {:ok, not_after, _} = DateTime.from_iso8601(params["not_after"])
 
     """
       serial:     #{params["serial"]}

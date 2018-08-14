@@ -1,6 +1,8 @@
 defmodule NervesHubCLI do
   def home_dir do
-    override_dir = Application.get_env(:nerves_hub_cli, :home_dir) || System.get_env("NERVES_HUB_HOME")
+    override_dir =
+      Application.get_env(:nerves_hub_cli, :home_dir) || System.get_env("NERVES_HUB_HOME")
+
     if override_dir == nil or override_dir == "" do
       Path.expand("~/.nerves-hub")
     else
