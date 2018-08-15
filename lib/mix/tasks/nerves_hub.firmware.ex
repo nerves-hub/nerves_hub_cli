@@ -21,6 +21,7 @@ defmodule Mix.Tasks.NervesHub.Firmware do
     * `--deploy` - (Optional) The name of a deployment to update following
       firmware publish. This key can be passed multiple times to update
       multiple deployments.
+    * `--key` - (Optional) The firmware signing key to sign the firmware with.
 
   ## list
 
@@ -38,15 +39,28 @@ defmodule Mix.Tasks.NervesHub.Firmware do
 
     mix nerves_hub.firmware delete [firmware_uuid]
 
+  ## sign
+
+  Sign the local firmware. Supplying a path to the firmware file
+  is optional. If it is not specified, NervesHub will locate the firmware
+  based off the project settings.
+
+    mix nerves_hub.firmware sign [Optional: /path/to/app.firmware]
+
+  ### Command line options
+
+    * `--key` - (Optional) The firmware signing key to sign the firmware with.
+
   """
 
   import Mix.NervesHubCLI.Utils
-  alias NervesHubCLI.API
+  alias NervesHubCLI.{API, Cmd}
   alias Mix.NervesHubCLI.Shell
 
   @switches [
     product: :string,
-    deploy: :keep
+    deploy: :keep,
+    key: :string
   ]
 
   def run(args) do
@@ -70,6 +84,13 @@ defmodule Mix.Tasks.NervesHub.Firmware do
 
       ["delete", uuid] when is_binary(uuid) ->
         delete_confirm(uuid)
+
+      ["sign"] ->
+        default_firmware()
+        |> sign(opts)
+      
+      ["sign", firmware] ->
+        sign(firmware, opts)
 
       _ ->
         render_help()
@@ -132,6 +153,9 @@ defmodule Mix.Tasks.NervesHub.Firmware do
   end
 
   defp publish(firmware, opts) do
+    if opts[:key] do
+      sign(firmware, opts)
+    end
     auth = Shell.request_auth()
 
     case API.Firmware.create(firmware, auth) do
@@ -139,7 +163,7 @@ defmodule Mix.Tasks.NervesHub.Firmware do
         Shell.info("Firmware published successfully")
 
         Keyword.get_values(opts, :deploy)
-        |> maybe_deploy(firmware)
+        |> maybe_deploy(firmware, opts, auth)
 
       error ->
         Shell.error("Failed to publish firmware \nreason: #{inspect(error)}")
@@ -158,18 +182,25 @@ defmodule Mix.Tasks.NervesHub.Firmware do
     end
   end
 
-  defp maybe_deploy([], _), do: :ok
+  def sign(firmware, opts) do
+    key = opts[:key] || Shell.raise("Must specify key with --key")
+    Shell.info("Signing #{firmware}")
+    Shell.info("With key #{key}")
+    password = Shell.password_get("local key password:")
+    with {:ok, public_key, private_key} <- NervesHubCLI.Key.get(key, password),
+          :ok <- Cmd.fwup(["--sign", "-i", firmware, "-o", firmware, "--private-key", private_key, "--public-key", public_key], File.cwd!()) do
+      Shell.info("Finished signing")
+    else
+      error -> Shell.render_error(error)
+    end
+  end
 
-  defp maybe_deploy(deployments, firmware) do
+  defp maybe_deploy([], _, _, _), do: :ok
+
+  defp maybe_deploy(deployments, firmware, opts, auth) do
     Enum.each(deployments, fn deployment_name ->
       Shell.info("Deploying firmware to #{deployment_name}")
-
-      Mix.Task.run("nerves_hub.deployment", [
-        "update",
-        deployment_name,
-        "firmware",
-        firmware["uuid"]
-      ])
+      Mix.Tasks.NervesHub.Deployment.update(deployment_name, "firmware", firmware["uuid"], opts, auth)
     end)
   end
 
