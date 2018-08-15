@@ -100,7 +100,8 @@ defmodule NervesHubCLI.API do
 
     [
       pool: :nerves_hub_cli,
-      ssl_options: ssl_options
+      ssl_options: ssl_options,
+      recv_timeout: 60_000
     ]
   end
 
