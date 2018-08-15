@@ -47,14 +47,13 @@ defmodule Mix.Tasks.NervesHub.Deployment do
     Application.ensure_all_started(:nerves_hub_cli)
 
     {opts, args} = OptionParser.parse!(args, strict: @switches)
-    product = opts[:product] || default_product()
 
     case args do
       ["list"] ->
-        list(product)
+        list(opts)
 
       ["update", deployment, key, value] ->
-        update(product, deployment, key, value)
+        update(deployment, key, value, opts)
 
       _ ->
         render_help()
@@ -71,9 +70,9 @@ defmodule Mix.Tasks.NervesHub.Deployment do
     """)
   end
 
-  def list(product) do
+  def list(opts) do
     auth = Shell.request_auth()
-
+    product = opts[:product] || default_product()
     case API.Deployment.list(product, auth) do
       {:ok, %{"data" => []}} ->
         Shell.info("No deployments have been created for product: #{product}")
@@ -99,9 +98,9 @@ defmodule Mix.Tasks.NervesHub.Deployment do
     end
   end
 
-  defp update(product, deployment, key, value) do
-    auth = Shell.request_auth()
-
+  def update(deployment, key, value, opts, auth \\ nil) do
+    auth = auth || Shell.request_auth()
+    product = opts[:product] || default_product()
     case API.Deployment.update(product, deployment, Map.put(%{}, key, value), auth) do
       {:ok, %{"data" => deployment}} ->
         Shell.info("")
