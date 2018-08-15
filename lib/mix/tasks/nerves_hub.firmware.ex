@@ -88,13 +88,25 @@ defmodule Mix.Tasks.NervesHub.Firmware do
       ["sign"] ->
         default_firmware()
         |> sign(opts)
-      
+
       ["sign", firmware] ->
         sign(firmware, opts)
 
       _ ->
         render_help()
     end
+  end
+
+  def render_help() do
+    Shell.raise("""
+    Invalid arguments
+
+    Usage:
+      mix nerves_hub.firmware list
+      mix nerves_hub.firmware publish
+      mix nerves_hub.firmware delete
+      mix nerves_hub.firmware sign
+    """)
   end
 
   def list(product) do
@@ -156,6 +168,7 @@ defmodule Mix.Tasks.NervesHub.Firmware do
     if opts[:key] do
       sign(firmware, opts)
     end
+
     auth = Shell.request_auth()
 
     case API.Firmware.create(firmware, auth) do
@@ -187,8 +200,23 @@ defmodule Mix.Tasks.NervesHub.Firmware do
     Shell.info("Signing #{firmware}")
     Shell.info("With key #{key}")
     password = Shell.password_get("local key password:")
+
     with {:ok, public_key, private_key} <- NervesHubCLI.Key.get(key, password),
-          :ok <- Cmd.fwup(["--sign", "-i", firmware, "-o", firmware, "--private-key", private_key, "--public-key", public_key], File.cwd!()) do
+         :ok <-
+           Cmd.fwup(
+             [
+               "--sign",
+               "-i",
+               firmware,
+               "-o",
+               firmware,
+               "--private-key",
+               private_key,
+               "--public-key",
+               public_key
+             ],
+             File.cwd!()
+           ) do
       Shell.info("Finished signing")
     else
       error -> Shell.render_error(error)
@@ -200,7 +228,14 @@ defmodule Mix.Tasks.NervesHub.Firmware do
   defp maybe_deploy(deployments, firmware, opts, auth) do
     Enum.each(deployments, fn deployment_name ->
       Shell.info("Deploying firmware to #{deployment_name}")
-      Mix.Tasks.NervesHub.Deployment.update(deployment_name, "firmware", firmware["uuid"], opts, auth)
+
+      Mix.Tasks.NervesHub.Deployment.update(
+        deployment_name,
+        "firmware",
+        firmware["uuid"],
+        opts,
+        auth
+      )
     end)
   end
 
@@ -212,17 +247,5 @@ defmodule Mix.Tasks.NervesHub.Firmware do
       architecture: #{params["architecture"]}
       uuid:         #{params["uuid"]}
     """
-  end
-
-  def render_help() do
-    Shell.raise("""
-    Invalid arguments
-
-    Usage:
-      mix nerves_hub.firmware list
-      mix nerves_hub.firmware publish
-      mix nerves_hub.firmware delete
-      
-    """)
   end
 end

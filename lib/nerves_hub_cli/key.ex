@@ -99,8 +99,6 @@ defmodule NervesHubCLI.Key do
   def private_ext(), do: @private_ext
   def public_ext(), do: @public_ext
 
-  
-
   defp data_dir() do
     Path.join([NervesHubCLI.home_dir(), "keys"])
   end

@@ -73,6 +73,7 @@ defmodule Mix.Tasks.NervesHub.Deployment do
   def list(opts) do
     auth = Shell.request_auth()
     product = opts[:product] || default_product()
+
     case API.Deployment.list(product, auth) do
       {:ok, %{"data" => []}} ->
         Shell.info("No deployments have been created for product: #{product}")
@@ -101,6 +102,7 @@ defmodule Mix.Tasks.NervesHub.Deployment do
   def update(deployment, key, value, opts, auth \\ nil) do
     auth = auth || Shell.request_auth()
     product = opts[:product] || default_product()
+
     case API.Deployment.update(product, deployment, Map.put(%{}, key, value), auth) do
       {:ok, %{"data" => deployment}} ->
         Shell.info("")
