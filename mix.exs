@@ -8,6 +8,7 @@ defmodule NervesHubCLI.MixProject do
       elixir: "~> 1.6",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      docs: [extras: ["README.md"]],
       description: description(),
       package: package()
     ]
@@ -36,7 +37,8 @@ defmodule NervesHubCLI.MixProject do
     [
       {:jason, "~> 1.0"},
       {:hackney, "~> 1.9"},
-      {:hex_crypto, github: "hexpm/hex_crypto", branch: "js-hex-crypto-init"}
+      {:hex_crypto, github: "hexpm/hex_crypto", branch: "js-hex-crypto-init"},
+      {:ex_doc, "~> 0.18.0", only: [:dev, :test]}
     ]
   end
 end
