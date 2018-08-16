@@ -12,7 +12,7 @@ defmodule Mix.Tasks.NervesHub.Firmware do
   is optional. If it is not specified, NervesHub will locate the firmware
   based off the project settings.
 
-    mix nerves_hub.firmware.publish [Optional: /path/to/app.firmware]
+    mix nerves_hub.firmware publish [Optional: /path/to/app.firmware]
 
   ### Command line options
 
