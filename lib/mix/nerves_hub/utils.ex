@@ -1,6 +1,6 @@
 defmodule Mix.NervesHubCLI.Utils do
   def default_product do
-    config()[:app]
+    (config()[:name] || config()[:app])
   end
 
   def default_firmware do
