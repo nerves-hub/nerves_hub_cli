@@ -24,6 +24,20 @@ defmodule Mix.Tasks.NervesHub.Device do
     * `--tag` - (Optional) Multiple tags can be set by passing this key multiple
       times.
 
+  ## provision
+
+  Provision a NervesHub device. This requires that the device was already created.
+  Calling provision without passing command line options will generate a new cert
+  pair for the device. The command will end with calling mix firmware.burn. 
+
+    mix nerves_hub.device provision [identifier]
+
+  ### Command line options
+
+    * `--cert` - (Optional) A path to an existing device cert.
+    * `--key` - (Optional) A path to an existing device private key.
+    * `--path` - (Optional) The path to put the device certificates.
+
   ## cert list
 
   List all certificates for a device.
@@ -47,7 +61,9 @@ defmodule Mix.Tasks.NervesHub.Device do
     path: :string,
     identifier: :string,
     description: :string,
-    tag: :keep
+    tag: :keep,
+    key: :string,
+    cert: :string
   ]
 
   def run(args) do
@@ -58,6 +74,9 @@ defmodule Mix.Tasks.NervesHub.Device do
     case args do
       ["create"] ->
         create(opts)
+
+      ["provision", identifier] ->
+        provision(identifier, opts)
 
       ["cert", "list", device] ->
         cert_list(device)
@@ -76,6 +95,7 @@ defmodule Mix.Tasks.NervesHub.Device do
 
     Usage:
       mix nerves_hub.device create
+      mix nerves_hub.device provision [identifier]
       mix nerves_hub.device cert list [identifier]
       mix nerves_hub.device cert create [identifier]
     """)
@@ -105,6 +125,45 @@ defmodule Mix.Tasks.NervesHub.Device do
     end
   end
 
+  def provision(identifier, opts) do
+    path = opts[:path] || File.cwd!()
+    cert_path = opts[:cert]
+    key_path = opts[:key]
+
+    {cert_path, key_path} =
+      if key_path == nil and cert_path == nil do
+        cert_path = Path.join(path, identifier <> "-cert.pem")
+        key_path = Path.join(path, identifier <> "-key.pem")
+
+        if File.exists?(key_path) and File.exists?(cert_path) do
+          unless Shell.yes?("""
+                   A private key and certificate for #{identifier}
+                   already exists at path #{path}.
+
+                   Would you like to use the existing certificate?
+                   Y = Use the existing certificate
+                   N = Create a new certificate
+                 """) do
+            cert_create(identifier, opts)
+          end
+        end
+
+        {cert_path, key_path}
+      else
+        if key_path == nil or cert_path == nil do
+          Shell.raise("Must specify both --key and --cert}")
+        end
+
+        {cert_path, key_path}
+      end
+
+    Shell.info("Burning firmware")
+    System.put_env("NERVES_SERIAL_NUMBER", identifier)
+    System.put_env("NERVES_HUB_CERT", File.read!(cert_path))
+    System.put_env("NERVES_HUB_KEY", File.read!(key_path))
+    Mix.Task.run("firmware.burn", [])
+  end
+
   def cert_list(identifier) do
     auth = Shell.request_auth()
 
@@ -118,6 +177,7 @@ defmodule Mix.Tasks.NervesHub.Device do
   end
 
   def cert_create(identifier, opts) do
+    Shell.info("Creating certificate for #{identifier}")
     path = opts[:path] || File.cwd!()
     auth = Shell.request_auth()
 
@@ -127,6 +187,7 @@ defmodule Mix.Tasks.NervesHub.Device do
            API.Device.cert_sign(identifier, safe_csr, auth),
          :ok <- File.write(Path.join(path, "#{identifier}-cert.pem"), cert) do
       Shell.info("Finished")
+      :ok
     else
       error ->
         Shell.render_error(error)
