@@ -7,11 +7,12 @@ defmodule NervesHubCLI.MixProject do
       version: "0.1.0",
       elixir: "~> 1.6",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      description: description(),
+      package: package()
     ]
   end
 
-  # Run "mix help compile.app" to learn about applications.
   def application do
     [
       extra_applications: [:logger],
@@ -19,7 +20,18 @@ defmodule NervesHubCLI.MixProject do
     ]
   end
 
-  # Run "mix help deps" to learn about dependencies.
+  defp description do
+    "NervesHub Mix command line interface "
+  end
+
+  defp package do
+    [
+      maintainers: ["Justin Schneck"],
+      licenses: ["Apache-2.0"],
+      links: %{"GitHub" => "https://github.com/nerves-hub/nerves_hub_cli"}
+    ]
+  end
+
   defp deps do
     [
       {:jason, "~> 1.0"},
