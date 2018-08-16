@@ -9,6 +9,38 @@ defmodule Mix.Tasks.NervesHub.Device do
   @moduledoc """
   Manage your NervesHub devices.
 
+  ## create
+
+  Create a new NervesHub device. The shell will prompt for information about the
+  device. This information can be passed by specifing one or all of the command
+  line options.
+
+    mix nerves_hub.device create 
+
+  ### Command line options
+
+    * `--identifier` - (Optional) The device identifier.
+    * `--description` - (Optional) The description of the device
+    * `--tag` - (Optional) Multiple tags can be set by passing this key multiple
+      times.
+
+  ## cert list
+
+  List all certificates for a device.
+
+    mix nerves_hub.device cert list [device identifier]
+
+  ## cert create
+
+  Creates a new device certificate pair. The certificates will be placed in the
+  current working directory if no path is specified.
+
+    mix nerves_hub.device cert create [device identifier]
+
+  ### Command line options
+
+    * `--path` - (Optional) The local location for creating the certificates.
+
   """
 
   @switches [
