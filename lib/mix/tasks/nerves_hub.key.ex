@@ -38,8 +38,7 @@ defmodule Mix.Tasks.NervesHub.Key do
 
   ### Command line options
 
-    * `--local` - (Optional) Perform the operation only locally defaults to
-      `false` which will perform both local and remote operations
+    * `--local` - (Optional) Do not request key information from NervesHub
 
   ## create
 
@@ -50,8 +49,7 @@ defmodule Mix.Tasks.NervesHub.Key do
 
   ### Command line options
 
-    * `--local` - (Optional) Perform the operation only locally defaults to
-      `false` which will perform both local and remote operations
+    * `--local` - (Optional) Do not register the public key with NervesHub
 
   ## delete
 

@@ -15,7 +15,7 @@ defmodule Mix.Tasks.NervesHub.Device do
   device. This information can be passed by specifing one or all of the command
   line options.
 
-    mix nerves_hub.device create 
+    mix nerves_hub.device create
 
   ### Command line options
 
@@ -28,9 +28,9 @@ defmodule Mix.Tasks.NervesHub.Device do
 
   Provision a NervesHub device. This requires that the device was already created.
   Calling provision without passing command line options will generate a new cert
-  pair for the device. The command will end with calling mix firmware.burn. 
+  pair for the device. The command will end with calling mix firmware.burn.
 
-    mix nerves_hub.device provision [identifier]
+    mix nerves_hub.device provision DEVICE_IDENTIFIER
 
   ### Command line options
 
@@ -42,14 +42,14 @@ defmodule Mix.Tasks.NervesHub.Device do
 
   List all certificates for a device.
 
-    mix nerves_hub.device cert list [device identifier]
+    mix nerves_hub.device cert list DEVICE_IDENTIFIER
 
   ## cert create
 
   Creates a new device certificate pair. The certificates will be placed in the
   current working directory if no path is specified.
 
-    mix nerves_hub.device cert create [device identifier]
+    mix nerves_hub.device cert create DEVICE_IDENTIFIER
 
   ### Command line options
 
@@ -91,13 +91,15 @@ defmodule Mix.Tasks.NervesHub.Device do
 
   def render_help() do
     Shell.raise("""
-    Invalid arguments
+    Invalid arguments to `mix nerves_hub.device`.
 
     Usage:
       mix nerves_hub.device create
-      mix nerves_hub.device provision [identifier]
-      mix nerves_hub.device cert list [identifier]
-      mix nerves_hub.device cert create [identifier]
+      mix nerves_hub.device provision DEVICE_IDENTIFIER
+      mix nerves_hub.device cert list DEVICE_IDENTIFIER
+      mix nerves_hub.device cert create DEVICE_IDENTIFIER
+
+    Run `mix help nerves_hub.deployment` for more information.
     """)
   end
 

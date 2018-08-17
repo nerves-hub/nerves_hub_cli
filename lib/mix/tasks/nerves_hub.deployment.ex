@@ -17,7 +17,7 @@ defmodule Mix.Tasks.NervesHub.Deployment do
 
   ## update
 
-  Update values on a deployment. 
+  Update values on a deployment.
 
   ### Examples
 
@@ -62,11 +62,13 @@ defmodule Mix.Tasks.NervesHub.Deployment do
 
   def render_help() do
     Shell.raise("""
-    Invalid arguments
+    Invalid arguments to `mix nerves_hub.deployment`.
 
     Usage:
       mix nerves_hub.deployment list
-      mix nerves_hub.deployment update [deployment_name] [key] [value]
+      mix nerves_hub.deployment update DEPLOYMENT_NAME KEY VALUE
+
+    Run `mix help nerves_hub.deployment` for more information.
     """)
   end
 

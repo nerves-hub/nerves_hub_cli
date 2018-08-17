@@ -14,8 +14,8 @@ defmodule Mix.Tasks.NervesHub.User do
   and managed on https://www.nerves-hub.org/account/certificates
 
   NervesHub will look for the following files in the location of $NERVES_HUB_HOME
-    
-    ca.pem:       A file that containes all known NervesHub Certificate Authority 
+
+    ca.pem:       A file that containes all known NervesHub Certificate Authority
                   certificates needed to authenticate.
     user.pem:     A signed user account certificate.
     user-key.pem: The user account certificate private key.
@@ -24,6 +24,18 @@ defmodule Mix.Tasks.NervesHub.User do
   ## whoami
 
     mix nerves_hub.user whoami
+
+  ## register
+
+    mix nerves_hub.user register
+
+  ## auth
+
+    mix nerves_hub.user auth
+
+  ## deauth
+
+    mix nerves_hub.user deauth
   """
 
   @switches []
@@ -53,12 +65,16 @@ defmodule Mix.Tasks.NervesHub.User do
 
   def render_help() do
     Shell.raise("""
-    Invalid arguments
+    Invalid arguments to `mix nerves_hub.user`.
 
     Usage:
-      
+
       mix nerves_hub.user whoami
       mix nerves_hub.user register
+      mix nerves_hub.user auth
+      mix nerves_hub.user deauth
+
+    Run `mix help nerves_hub.user` for more information.
     """)
   end
 
@@ -70,7 +86,7 @@ defmodule Mix.Tasks.NervesHub.User do
         %{"name" => name, "email" => email} = data
 
         Mix.shell().info("""
-        name:  #{name} 
+        name:  #{name}
         email: #{email}
         """)
 
@@ -80,10 +96,10 @@ defmodule Mix.Tasks.NervesHub.User do
   end
 
   def register() do
-    username = Shell.prompt("Username:") |> String.trim()
-    email = Shell.prompt("Email:") |> String.trim()
-    password = Mix.Tasks.Hex.password_get("Account password:") |> String.trim()
-    confirm = Mix.Tasks.Hex.password_get("Account password (confirm):") |> String.trim()
+    email = Shell.prompt("Email address:") |> String.trim()
+    username = Shell.prompt("Your name:") |> String.trim()
+    password = Mix.Tasks.Hex.password_get("NervesHub password:") |> String.trim()
+    confirm = Mix.Tasks.Hex.password_get("NervesHub password (confirm):") |> String.trim()
 
     unless String.equivalent?(password, confirm) do
       Mix.raise("Entered passwords do not match")
@@ -95,8 +111,8 @@ defmodule Mix.Tasks.NervesHub.User do
   end
 
   def auth() do
-    email = Shell.prompt("Email:") |> String.trim()
-    password = Mix.Tasks.Hex.password_get("Account password:") |> String.trim()
+    email = Shell.prompt("Email address:") |> String.trim()
+    password = Mix.Tasks.Hex.password_get("NervesHub password:") |> String.trim()
     Shell.info("Authenticating...")
 
     case API.User.auth(email, password) do
@@ -137,9 +153,7 @@ defmodule Mix.Tasks.NervesHub.User do
     Shell.info("")
     Shell.info("NervesHub will generate an SSL certificate to authenticate your account.")
 
-    Shell.info(
-      "Please enter a local password you wish to use to encrypt your account certificate"
-    )
+    Shell.info("Please enter a local password for encrypting your NervesHub account certificate")
 
     certificate_password = Shell.password_get("Local password:")
 
