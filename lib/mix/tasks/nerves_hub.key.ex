@@ -5,41 +5,64 @@ defmodule Mix.Tasks.NervesHub.Key do
   alias NervesHubCLI.API
   alias Mix.NervesHubCLI.Shell
 
-  @shortdoc "Manages your NervesHub keys"
+  @shortdoc "Manages your firmware signing keys"
 
   @moduledoc """
-  Manage your NervesHub keys.
+  Manages your firmware signing keys.
+
+  Firmware signing keys consist of public and private keys. The `mix
+  nerves_hub.key` task manages both pieces for you. Private signing keys are
+  password-protected and are NEVER sent to NervesHub or any other server.
+  Public keys, however, are registered with NervesHub.
+
+  Signing keys are stored in `~/.nerves-hub/keys`. Keys may be shared between
+  developers by copying the files in this folder.
+
+  NervesHub can manage more than one key so that you can have different
+  development and production keys in use. For example, production devices
+  deployed with only the production public key will not accept firmware signed
+  by development keys.
+
+  To ensure that firmware includes keys registered with NervesHub, add the
+  following entry in your project's `config.exs`:
+
+    # List the public firmware signing keys to include on the device
+    config :nerves_hub,
+      public_keys: [:my_dev_key, :my_prod_key]
 
   ## list
+
+  List the keys known to NervesHub
 
     mix nerves_hub.key list
 
   ### Command line options
 
-    * `--local` - (Optional) Perform the operation only locally
-      defaults to `false` which will perform both local and remote operations
+    * `--local` - (Optional) Perform the operation only locally defaults to
+      `false` which will perform both local and remote operations
 
   ## create
 
-  Create a new fwup key pair with the specified name.
+  Create a new firmware signing key pair with the specified name and register
+  the public key with NervesHub
 
-    mix nerves_hub.key create [name]
+    mix nerves_hub.key create NAME
 
   ### Command line options
 
-    * `--local` - (Optional) Perform the operation only locally
-      defaults to `false` which will perform both local and remote operations
+    * `--local` - (Optional) Perform the operation only locally defaults to
+      `false` which will perform both local and remote operations
 
   ## delete
 
-  Delete the key with the specified name.
+  Delete a signing key locally and on NervesHub
 
-    mix nerves_hub.key create [name]
+    mix nerves_hub.key delete NAME
 
   ### Command line options
 
-    * `--local` - (Optional) Perform the operation only locally
-      defaults to `false` which will perform both local and remote operations
+    * `--local` - (Optional) Perform the operation only locally defaults to
+      `false` which will perform both local and remote operations
   """
 
   @switches [
@@ -68,12 +91,14 @@ defmodule Mix.Tasks.NervesHub.Key do
 
   def render_help() do
     Shell.raise("""
-    Invalid arguments
+    Invalid arguments to `mix nerves_hub.key`.
 
     Usage:
       mix nerves_hub.key list
-      mix nerves_hub.key create [name]
-      mix nerves_hub.key delete [name]
+      mix nerves_hub.key create NAME
+      mix nerves_hub.key delete NAME
+
+    Run `mix help nerves_hub.key` for more information.
     """)
   end
 
@@ -99,7 +124,7 @@ defmodule Mix.Tasks.NervesHub.Key do
         render_keys(keys)
 
       error ->
-        Shell.info("Failed to list keys \nreason: #{inspect(error)}")
+        Shell.info("Failed to list signing keys \nreason: #{inspect(error)}")
     end
   end
 
@@ -127,7 +152,7 @@ defmodule Mix.Tasks.NervesHub.Key do
   end
 
   def delete(name, opts) do
-    if Mix.shell().yes?("Delete Key #{name}?") do
+    if Mix.shell().yes?("Delete signing key #{name}?") do
       if Keyword.get(opts, :local, false) do
         delete_local(name)
       else
@@ -144,18 +169,18 @@ defmodule Mix.Tasks.NervesHub.Key do
 
   def delete_remote(name) do
     auth = Shell.request_auth()
-    Shell.info("Deleting remote key #{name}")
+    Shell.info("Deleting remote signing key #{name}")
     API.Key.delete(name, auth)
   end
 
   # TODO handle file not found
   def delete_local(name) do
-    Shell.info("Deleting local key #{name}")
+    Shell.info("Deleting local signing key #{name}")
     NervesHubCLI.Key.delete(name)
   end
 
   defp create_local(name) do
-    Shell.info("\nPlease enter a local password you wish to use to encrypt private key")
+    Shell.info("\nPlease enter a local password for the firmware signing private key")
     key_password = Shell.password_get("Local key password:")
 
     with {:ok, public_key_file, _private_key_file} = NervesHubCLI.Key.create(name, key_password),
@@ -170,11 +195,11 @@ defmodule Mix.Tasks.NervesHub.Key do
   end
 
   defp render_keys([]) do
-    Shell.info("No keys have been created")
+    Shell.info("No firmware signing keys have been created.")
   end
 
   defp render_keys(keys) when is_list(keys) do
-    Shell.info("\nKeys:")
+    Shell.info("\nFirmware signing keys:")
 
     Enum.each(keys, fn params ->
       Shell.info("------------")
@@ -190,8 +215,8 @@ defmodule Mix.Tasks.NervesHub.Key do
 
   defp render_key(params) do
     """
-      name:  #{params["name"]}
-      key:   #{params["key"]}
+      name:       #{params["name"]}
+      public key: #{params["key"]}
     """
   end
 end
