@@ -53,19 +53,16 @@ defmodule NervesHubCLI.User do
   end
 
   def ca_certs() do
-    if cert_path = Application.get_env(:nerves_hub_cli, :ca_certs) do
-      cert_path
-    else
-      ca_cert_path =
+    ca_cert_path =
+      Application.get_env(:nerves_hub_cli, :ca_certs) || System.get_env("NERVES_HUB_CA_CERTS") ||
         :code.priv_dir(:nerves_hub_cli)
         |> to_string()
         |> Path.join("ca_certs")
 
-      ca_cert_path
-      |> File.ls!()
-      |> Enum.map(&File.read!(Path.join(ca_cert_path, &1)))
-      |> Enum.map(&Certificate.pem_to_der/1)
-    end
+    ca_cert_path
+    |> File.ls!()
+    |> Enum.map(&File.read!(Path.join(ca_cert_path, &1)))
+    |> Enum.map(&Certificate.pem_to_der/1)
   end
 
   def cert_files(path \\ nil) do
