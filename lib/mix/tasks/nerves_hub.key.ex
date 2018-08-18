@@ -72,15 +72,17 @@ defmodule Mix.Tasks.NervesHub.Key do
 
     {opts, args} = OptionParser.parse!(args, strict: @switches)
 
+    org = org(opts)
+
     case args do
       ["list"] ->
-        list(opts)
+        list(org, opts)
 
       ["create", name] ->
-        create(name, opts)
+        create(name, org, opts)
 
       ["delete", name] ->
-        delete(name, opts)
+        delete(name, org, opts)
 
       _ ->
         render_help()
@@ -100,24 +102,24 @@ defmodule Mix.Tasks.NervesHub.Key do
     """)
   end
 
-  def list(opts) do
+  def list(org, opts) do
     if Keyword.get(opts, :local, false) do
-      list_local()
+      list_local(org)
     else
-      list_remote()
+      list_remote(org)
     end
   end
 
-  def list_local() do
-    NervesHubCLI.Key.local_keys()
+  def list_local(org) do
+    NervesHubCLI.Key.local_keys(org)
     |> Enum.map(&stringify/1)
     |> render_keys()
   end
 
-  def list_remote() do
+  def list_remote(org) do
     auth = Shell.request_auth()
 
-    case API.Key.list(auth) do
+    case API.Key.list(org, auth) do
       {:ok, %{"data" => keys}} ->
         render_keys(keys)
 
@@ -126,20 +128,20 @@ defmodule Mix.Tasks.NervesHub.Key do
     end
   end
 
-  def create(name, opts) do
-    if NervesHubCLI.Key.exists?(name) do
+  def create(name, org, opts) do
+    if NervesHubCLI.Key.exists?(org, name) do
       Shell.raise("The key #{name} already exists, aborting")
     else
       if Keyword.get(opts, :local, false) do
-        with {:ok, key} <- create_local(name) do
+        with {:ok, key} <- create_local(name, org) do
           render_key(key)
         else
           error ->
             Shell.render_error(error)
         end
       else
-        with {:ok, key} <- create_local(name),
-             {:ok, %{"data" => key}} <- create_remote(name, key) do
+        with {:ok, key} <- create_local(name, org),
+             {:ok, %{"data" => key}} <- create_remote(name, key, org) do
           render_key(key)
         else
           error ->
@@ -149,13 +151,13 @@ defmodule Mix.Tasks.NervesHub.Key do
     end
   end
 
-  def delete(name, opts) do
+  def delete(name, org, opts) do
     if Mix.shell().yes?("Delete signing key #{name}?") do
       if Keyword.get(opts, :local, false) do
-        delete_local(name)
+        delete_local(name, org)
       else
-        with {:ok, ""} <- delete_remote(name),
-             :ok <- delete_local(name) do
+        with {:ok, ""} <- delete_remote(name, org),
+             :ok <- delete_local(name, org) do
           :ok
         else
           error ->
@@ -165,31 +167,32 @@ defmodule Mix.Tasks.NervesHub.Key do
     end
   end
 
-  def delete_remote(name) do
+  def delete_remote(name, org) do
     auth = Shell.request_auth()
     Shell.info("Deleting remote signing key #{name}")
-    API.Key.delete(name, auth)
+    API.Key.delete(org, name, auth)
   end
 
   # TODO handle file not found
-  def delete_local(name) do
+  def delete_local(name, org) do
     Shell.info("Deleting local signing key #{name}")
-    NervesHubCLI.Key.delete(name)
+    NervesHubCLI.Key.delete(org, name)
   end
 
-  defp create_local(name) do
+  defp create_local(name, org) do
     Shell.info("\nPlease enter a local password for the firmware signing private key")
     key_password = Shell.password_get("Local key password:")
 
-    with {:ok, public_key_file, _private_key_file} = NervesHubCLI.Key.create(name, key_password),
+    with {:ok, public_key_file, _private_key_file} =
+           NervesHubCLI.Key.create(org, name, key_password),
          {:ok, public_key} <- File.read(public_key_file) do
       {:ok, public_key}
     end
   end
 
-  defp create_remote(name, key) do
+  defp create_remote(name, key, org) do
     auth = Shell.request_auth()
-    API.Key.create(name, key, auth)
+    API.Key.create(org, name, key, auth)
   end
 
   defp render_keys([]) do

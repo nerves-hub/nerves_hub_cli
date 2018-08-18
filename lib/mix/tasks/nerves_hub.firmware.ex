@@ -67,30 +67,32 @@ defmodule Mix.Tasks.NervesHub.Firmware do
     Application.ensure_all_started(:nerves_hub_cli)
 
     {opts, args} = OptionParser.parse!(args, strict: @switches)
-    product = opts[:product] || default_product()
+
+    product = product(opts)
+    org = org(opts)
 
     case args do
       ["list"] ->
-        list(product)
+        list(org, product)
 
       ["publish" | []] ->
-        default_firmware()
-        |> publish_confirm(opts)
+        firmware()
+        |> publish_confirm(org, opts)
 
       ["publish", firmware] when is_binary(firmware) ->
         firmware
         |> Path.expand()
-        |> publish_confirm(opts)
+        |> publish_confirm(org, opts)
 
       ["delete", uuid] when is_binary(uuid) ->
-        delete_confirm(uuid)
+        delete_confirm(uuid, org, product)
 
       ["sign"] ->
-        default_firmware()
-        |> sign(opts)
+        firmware()
+        |> sign(org, opts)
 
       ["sign", firmware] ->
-        sign(firmware, opts)
+        sign(firmware, org, opts)
 
       _ ->
         render_help()
@@ -109,10 +111,10 @@ defmodule Mix.Tasks.NervesHub.Firmware do
     """)
   end
 
-  def list(product) do
+  def list(org, product) do
     auth = Shell.request_auth()
 
-    case API.Firmware.list(product, auth) do
+    case API.Firmware.list(org, product, auth) do
       {:ok, %{"data" => []}} ->
         Shell.info("No firmware has been published for product: #{product}")
 
@@ -131,21 +133,23 @@ defmodule Mix.Tasks.NervesHub.Firmware do
         Shell.info("")
 
       error ->
-        Shell.info("Failed to list firmware \nreason: #{inspect(error)}")
+        Shell.render_error(error)
     end
   end
 
-  defp publish_confirm(firmware, opts) do
+  defp publish_confirm(firmware, org, opts) do
     with true <- File.exists?(firmware),
          {:ok, metadata} <- metadata(firmware) do
       Shell.info("------------")
+      Shell.info("Orginization: #{org}")
 
       render_firmware(metadata)
       |> String.trim_trailing()
       |> Shell.info()
 
       if Mix.shell().yes?("Publish Firmware?") do
-        publish(firmware, opts)
+        product = metadata["product"]
+        publish(firmware, org, product, opts)
       end
     else
       false ->
@@ -156,52 +160,52 @@ defmodule Mix.Tasks.NervesHub.Firmware do
     end
   end
 
-  defp delete_confirm(uuid) do
+  defp delete_confirm(uuid, org, product) do
     Shell.info("UUID: #{uuid}")
 
     if Mix.shell().yes?("Delete Firmware?") do
-      delete(uuid)
+      delete(uuid, org, product)
     end
   end
 
-  defp publish(firmware, opts) do
+  defp publish(firmware, org, product, opts) do
     if opts[:key] do
-      sign(firmware, opts)
+      sign(firmware, org, opts)
     end
 
     auth = Shell.request_auth()
 
-    case API.Firmware.create(firmware, auth) do
+    case API.Firmware.create(org, product, firmware, auth) do
       {:ok, %{"data" => %{} = firmware}} ->
         Shell.info("Firmware published successfully")
 
         Keyword.get_values(opts, :deploy)
-        |> maybe_deploy(firmware, opts, auth)
+        |> maybe_deploy(firmware, org, product, auth)
 
       error ->
-        Shell.error("Failed to publish firmware \nreason: #{inspect(error)}")
+        Shell.render_error(error)
     end
   end
 
-  defp delete(uuid) do
+  defp delete(uuid, org, product) do
     auth = Shell.request_auth()
 
-    case API.Firmware.delete(uuid, auth) do
+    case API.Firmware.delete(org, product, uuid, auth) do
       {:ok, ""} ->
         Shell.info("Firmware deleted successfully")
 
       error ->
-        Shell.error("Failed to delete firmware \nreason: #{inspect(error)}")
+        Shell.render_error(error)
     end
   end
 
-  def sign(firmware, opts) do
+  def sign(firmware, org, opts) do
     key = opts[:key] || Shell.raise("Must specify key with --key")
     Shell.info("Signing #{firmware}")
     Shell.info("With key #{key}")
     password = Shell.password_get("local key password:")
 
-    with {:ok, public_key, private_key} <- NervesHubCLI.Key.get(key, password),
+    with {:ok, public_key, private_key} <- NervesHubCLI.Key.get(org, key, password),
          :ok <-
            Cmd.fwup(
              [
@@ -223,9 +227,9 @@ defmodule Mix.Tasks.NervesHub.Firmware do
     end
   end
 
-  defp maybe_deploy([], _, _, _), do: :ok
+  defp maybe_deploy([], _, _, _, _), do: :ok
 
-  defp maybe_deploy(deployments, firmware, opts, auth) do
+  defp maybe_deploy(deployments, firmware, org, product, auth) do
     Enum.each(deployments, fn deployment_name ->
       Shell.info("Deploying firmware to #{deployment_name}")
 
@@ -233,7 +237,8 @@ defmodule Mix.Tasks.NervesHub.Firmware do
         deployment_name,
         "firmware",
         firmware["uuid"],
-        opts,
+        org,
+        product,
         auth
       )
     end)

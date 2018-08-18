@@ -1,14 +1,56 @@
 defmodule Mix.NervesHubCLI.Utils do
-  def default_product do
-    config()[:name] || config()[:app]
+  alias NervesHubCLI.Config
+  alias Mix.NervesHubCLI.Shell
+
+  def product(opts) do
+    Keyword.get(opts, :product) || config()[:name] || config()[:app]
   end
 
-  def default_firmware do
+  def org(opts) do
+    # command line options
+    # environment
+    # project
+    # user
+    # not found
+    org =
+      Keyword.get(opts, :org) || System.get_env("NERVES_HUB_ORG") ||
+        Keyword.get(config(), :nerves_hub, [])
+        |> Keyword.get(:org) || Config.get(:org) ||
+        Shell.raise("""
+        Cound not determine orginization
+        Organization is set in the following order
+
+          From the command line
+          
+            --org org_name
+
+          By setting the environment variable NERVES_HUB_ORG
+
+            export NERVES_HUB_ORG=org_name
+
+          By setting it in the project's mix config
+
+            def project do
+              [
+                nerves_hub: [org: org_name]
+              ]
+            end
+
+          Your user org from the NervesHub config
+
+            NervesHubCLI.Config.get(:org)
+        """)
+
+    Shell.info("NervesHub org: #{org}")
+    org
+  end
+
+  def firmware do
     images_path =
       (config()[:images_path] || Path.join([Mix.Project.build_path(), "nerves", "images"]))
       |> Path.expand()
 
-    filename = "#{default_product()}.fw"
+    filename = "#{config()[:app]}.fw"
     Path.join(images_path, filename)
   end
 

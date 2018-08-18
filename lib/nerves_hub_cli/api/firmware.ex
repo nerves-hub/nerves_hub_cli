@@ -1,15 +1,23 @@
 defmodule NervesHubCLI.API.Firmware do
   alias NervesHubCLI.API
+  alias NervesHubCLI.API.Product
 
-  def list(product_name, auth) do
-    API.request(:get, "firmwares", %{product_name: product_name}, auth)
+  @path "firmwares"
+
+  def path(org, product) do
+    Path.join([Product.path(org, product), @path])
   end
 
-  def create(tar, auth) do
-    API.file_request(:post, "firmwares", tar, auth)
+  def list(org, product, auth) do
+    API.request(:get, path(org, product), "", auth)
   end
 
-  def delete(uuid, auth) do
-    API.request(:delete, "firmwares/#{uuid}", "", auth)
+  def create(org, product, tar, auth) do
+    API.file_request(:post, path(org, product), tar, auth)
+  end
+
+  def delete(org, product, uuid, auth) do
+    path = Path.join(path(org, product), uuid)
+    API.request(:delete, path, "", auth)
   end
 end

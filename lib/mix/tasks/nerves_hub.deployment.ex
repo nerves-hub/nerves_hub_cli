@@ -48,12 +48,15 @@ defmodule Mix.Tasks.NervesHub.Deployment do
 
     {opts, args} = OptionParser.parse!(args, strict: @switches)
 
+    org = org(opts)
+    product = product(opts)
+
     case args do
       ["list"] ->
-        list(opts)
+        list(org, product)
 
       ["update", deployment, key, value] ->
-        update(deployment, key, value, opts)
+        update(deployment, key, value, org, product)
 
       _ ->
         render_help()
@@ -72,12 +75,10 @@ defmodule Mix.Tasks.NervesHub.Deployment do
     """)
   end
 
-  def list(opts) do
-    product = opts[:product] || default_product()
-
+  def list(org, product) do
     auth = Shell.request_auth()
 
-    case API.Deployment.list(product, auth) do
+    case API.Deployment.list(org, product, auth) do
       {:ok, %{"data" => []}} ->
         Shell.info("No deployments have been created for product: #{product}")
 
@@ -98,15 +99,14 @@ defmodule Mix.Tasks.NervesHub.Deployment do
         Shell.info("")
 
       error ->
-        Shell.info("Failed to list deployments \nreason: #{inspect(error)}")
+        Shell.render_error(error)
     end
   end
 
-  def update(deployment, key, value, opts, auth \\ nil) do
+  def update(deployment, key, value, org, product, auth \\ nil) do
     auth = auth || Shell.request_auth()
-    product = opts[:product] || default_product()
 
-    case API.Deployment.update(product, deployment, Map.put(%{}, key, value), auth) do
+    case API.Deployment.update(org, product, deployment, Map.put(%{}, key, value), auth) do
       {:ok, %{"data" => deployment}} ->
         Shell.info("")
         Shell.info("Deployment Updated:")

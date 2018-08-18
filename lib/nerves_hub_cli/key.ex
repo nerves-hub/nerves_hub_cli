@@ -6,13 +6,9 @@ defmodule NervesHubCLI.Key do
   @public_ext ".pub"
   @private_ext ".priv"
 
-  def init() do
-    data_dir()
-    |> File.mkdir_p()
-  end
-
-  def create(key_name, key_password) do
-    path = data_dir()
+  def create(org, key_name, key_password) do
+    path = data_dir(org)
+    File.mkdir_p(path)
 
     tmp_dir = Path.join(path, "tmp")
     File.mkdir_p(tmp_dir)
@@ -37,8 +33,8 @@ defmodule NervesHubCLI.Key do
     end
   end
 
-  def get(name, key_password) do
-    path = data_dir()
+  def get(org, name, key_password) do
+    path = data_dir(org)
     public_key_path = Path.join(path, name <> @public_ext)
     private_key_path = Path.join(path, name <> @private_ext)
 
@@ -49,14 +45,15 @@ defmodule NervesHubCLI.Key do
     end
   end
 
-  def delete(name) do
-    path = data_dir()
-    File.rm(Path.join(path, name <> @private_ext))
+  def delete(org, name) do
+    path = data_dir(org)
+    File.rm(Path.join(path, name <> @private_ext) |> IO.inspect())
     File.rm(Path.join(path, name <> @public_ext))
   end
 
-  def local_keys do
-    path = data_dir()
+  def local_keys(org) do
+    path = data_dir(org)
+    File.mkdir_p(path)
 
     private_keys =
       path
@@ -91,15 +88,15 @@ defmodule NervesHubCLI.Key do
     end)
   end
 
-  def exists?(name) do
-    local_keys()
+  def exists?(org, name) do
+    local_keys(org)
     |> Enum.any?(&(Map.get(&1, :name) == name))
   end
 
   def private_ext(), do: @private_ext
   def public_ext(), do: @public_ext
 
-  defp data_dir() do
-    Path.join([NervesHubCLI.home_dir(), "keys"])
+  defp data_dir(org) do
+    Path.join([NervesHubCLI.home_dir(), "keys", org])
   end
 end
