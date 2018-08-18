@@ -20,14 +20,21 @@ defmodule Mix.NervesHubCLI.Shell do
   end
 
   def request_auth(prompt \\ "Local user password:") do
-    password = password_get(prompt)
+    env_cert = System.get_env("NERVES_HUB_CERT")
+    env_key = System.get_env("NERVES_HUB_KEY")
 
-    case NervesHubCLI.User.auth(password) do
-      {:ok, auth} ->
-        auth
+    if env_cert != nil and env_key != nil do
+      %{cert: env_cert, key: env_key}
+    else
+      password = password_get(prompt)
 
-      :error ->
-        __MODULE__.raise("Invalid password")
+      case NervesHubCLI.User.auth(password) do
+        {:ok, auth} ->
+          auth
+
+        :error ->
+          __MODULE__.raise("Invalid password")
+      end
     end
   end
 
@@ -52,6 +59,10 @@ defmodule Mix.NervesHubCLI.Shell do
     error("Your user certificate has either expired or has been revoked.")
     error("Please authenticate again:")
     error("  mix nerves_hub.user auth")
+  end
+
+  def render_error({:error, %{"status" => reason}}) do
+    error(reason)
   end
 
   def render_error(error) do
