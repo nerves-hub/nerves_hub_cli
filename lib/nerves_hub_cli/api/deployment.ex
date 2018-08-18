@@ -1,16 +1,23 @@
 defmodule NervesHubCLI.API.Deployment do
   alias NervesHubCLI.API
+  alias NervesHubCLI.API.Product
 
-  def list(product_name, auth) do
-    API.request(:get, "deployments", %{product_name: product_name}, auth)
+  @path "deployments"
+
+  def path(org, product) do
+    Path.join([Product.path(org, product), @path])
   end
 
-  def update(product_name, deployment_name, params, auth) do
-    params = %{
-      product_name: product_name,
-      deployment: params
-    }
+  def path(org, product, deployment) do
+    Path.join([path(org, product), deployment])
+  end
 
-    API.request(:put, "deployments/#{deployment_name}", params, auth)
+  def list(org, product, auth) do
+    API.request(:get, path(org, product), "", auth)
+  end
+
+  def update(org, product, deployment, params, auth) do
+    params = %{deployment: params}
+    API.request(:put, path(org, product, deployment), params, auth)
   end
 end

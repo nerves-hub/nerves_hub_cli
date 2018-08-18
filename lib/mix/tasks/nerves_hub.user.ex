@@ -1,7 +1,7 @@
 defmodule Mix.Tasks.NervesHub.User do
   use Mix.Task
 
-  alias NervesHubCLI.API
+  alias NervesHubCLI.{API, User, Certificate, Config}
   alias Mix.NervesHubCLI.Shell
 
   @shortdoc "Manages your NervesHub user account"
@@ -68,6 +68,7 @@ defmodule Mix.Tasks.NervesHub.User do
     case API.User.me(auth) do
       {:ok, %{"data" => data}} ->
         %{"name" => name, "email" => email} = data
+        org = Config.get(:org)
 
         Mix.shell().info("""
         name:  #{name} 
@@ -143,17 +144,19 @@ defmodule Mix.Tasks.NervesHub.User do
 
     certificate_password = Shell.password_get("Local password:")
 
-    with {:ok, csr} <- NervesHubCLI.User.generate_csr(username, certificate_password),
+    with {:ok, csr} <- User.generate_csr(username, certificate_password),
          safe_csr <- Base.encode64(csr),
-         description <- NervesHubCLI.Certificate.default_description(),
+         description <- Certificate.default_description(),
          {:ok, %{"data" => %{"cert" => cert}}} <-
            API.User.sign(email, account_password, safe_csr, description),
-         %{cert: cert_file} <- NervesHubCLI.User.cert_files(),
-         :ok <- File.write(cert_file, cert) do
+         %{cert: cert_file} <- User.cert_files(),
+         :ok <- File.write(cert_file, cert),
+         :ok <- Config.put(:email, email),
+         :ok <- Config.put(:org, username) do
       Shell.info("Finished")
     else
       error ->
-        NervesHubCLI.User.deauth()
+        User.deauth()
         Shell.render_error(error)
     end
   end
