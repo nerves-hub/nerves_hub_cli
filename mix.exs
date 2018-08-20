@@ -38,7 +38,7 @@ defmodule NervesHubCLI.MixProject do
       {:jason, "~> 1.0"},
       {:hackney, "~> 1.9"},
       {:hex_crypto, github: "hexpm/hex_crypto", branch: "js-hex-crypto-init"},
-      {:ex_doc, "~> 0.18.0", only: [:dev, :test]}
+      {:ex_doc, "~> 0.18.0", only: [:dev, :test], runtime: false}
     ]
   end
 end
