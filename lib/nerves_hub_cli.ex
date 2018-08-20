@@ -12,7 +12,7 @@ defmodule NervesHubCLI do
 
   def public_keys(keys) when is_list(keys) do
     keys = Enum.map(keys, &to_string/1)
-    org = NervesHubCLI.Config.get(:org)
+    org = Mix.NervesHubCLI.Utils.org([])
 
     NervesHubCLI.Key.local_keys(org)
     |> Enum.filter(fn %{name: name} -> name in keys end)
