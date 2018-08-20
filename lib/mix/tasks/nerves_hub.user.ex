@@ -68,7 +68,6 @@ defmodule Mix.Tasks.NervesHub.User do
     case API.User.me(auth) do
       {:ok, %{"data" => data}} ->
         %{"name" => name, "email" => email} = data
-        org = Config.get(:org)
 
         Mix.shell().info("""
         name:  #{name} 
