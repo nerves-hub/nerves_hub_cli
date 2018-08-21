@@ -10,6 +10,8 @@ defmodule NervesHubCLI do
     end
   end
 
+  def public_keys([]), do: []
+
   def public_keys(keys) when is_list(keys) do
     keys = Enum.map(keys, &to_string/1)
     org = Mix.NervesHubCLI.Utils.org([])
