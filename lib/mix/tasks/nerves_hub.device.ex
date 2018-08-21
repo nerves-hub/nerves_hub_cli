@@ -1,6 +1,7 @@
 defmodule Mix.Tasks.NervesHub.Device do
   use Mix.Task
 
+  import Mix.NervesHubCLI.Utils
   alias NervesHubCLI.API
   alias Mix.NervesHubCLI.Shell
 
@@ -71,18 +72,20 @@ defmodule Mix.Tasks.NervesHub.Device do
 
     {opts, args} = OptionParser.parse!(args, strict: @switches)
 
+    org = org(opts)
+
     case args do
       ["create"] ->
-        create(opts)
+        create(org, opts)
 
       ["provision", identifier] ->
-        provision(identifier, opts)
+        provision(org, identifier, opts)
 
       ["cert", "list", device] ->
-        cert_list(device)
+        cert_list(org, device)
 
       ["cert", "create", device] ->
-        cert_create(device, opts)
+        cert_create(org, device, opts)
 
       _ ->
         render_help()
@@ -103,7 +106,7 @@ defmodule Mix.Tasks.NervesHub.Device do
     """)
   end
 
-  def create(opts) do
+  def create(org, opts) do
     identifier = opts[:identifier] || Shell.prompt("identifier:")
     description = opts[:description] || Shell.prompt("description:")
     tags = Keyword.get_values(opts, :tag)
@@ -118,7 +121,7 @@ defmodule Mix.Tasks.NervesHub.Device do
 
     auth = Shell.request_auth()
 
-    case API.Device.create(identifier, description, tags, auth) do
+    case API.Device.create(org, identifier, description, tags, auth) do
       {:ok, %{"data" => %{} = _device}} ->
         Shell.info("Device #{identifier} created")
 
@@ -127,14 +130,14 @@ defmodule Mix.Tasks.NervesHub.Device do
     end
   end
 
-  def provision(identifier, opts) do
+  def provision(org, identifier, opts) do
     path = opts[:path] || File.cwd!()
     cert_path = opts[:cert]
     key_path = opts[:key]
 
     {cert_path, key_path} =
       if key_path == nil and cert_path == nil do
-        cert_path = Path.join(path, identifier <> "-cert.pem")
+        cert_path = Path.join(path, identifier <> "-cert.pem") |> IO.inspect()
         key_path = Path.join(path, identifier <> "-key.pem")
 
         if File.exists?(key_path) and File.exists?(cert_path) do
@@ -146,7 +149,7 @@ defmodule Mix.Tasks.NervesHub.Device do
                    Y = Use the existing certificate
                    N = Create a new certificate
                  """) do
-            cert_create(identifier, opts)
+            cert_create(org, identifier, opts)
           end
         end
 
@@ -166,10 +169,10 @@ defmodule Mix.Tasks.NervesHub.Device do
     Mix.Task.run("firmware.burn", [])
   end
 
-  def cert_list(identifier) do
+  def cert_list(org, identifier) do
     auth = Shell.request_auth()
 
-    case API.Device.cert_list(identifier, auth) do
+    case API.Device.cert_list(org, identifier, auth) do
       {:ok, %{"data" => certs}} ->
         render_certs(identifier, certs)
 
@@ -178,7 +181,7 @@ defmodule Mix.Tasks.NervesHub.Device do
     end
   end
 
-  def cert_create(identifier, opts) do
+  def cert_create(org, identifier, opts) do
     Shell.info("Creating certificate for #{identifier}")
     path = opts[:path] || File.cwd!()
     auth = Shell.request_auth()
@@ -186,7 +189,7 @@ defmodule Mix.Tasks.NervesHub.Device do
     with {:ok, csr} <- NervesHubCLI.Device.generate_csr(identifier, path),
          safe_csr <- Base.encode64(csr),
          {:ok, %{"data" => %{"cert" => cert}}} <-
-           API.Device.cert_sign(identifier, safe_csr, auth),
+           API.Device.cert_sign(org, identifier, safe_csr, auth),
          :ok <- File.write(Path.join(path, "#{identifier}-cert.pem"), cert) do
       Shell.info("Finished")
       :ok
