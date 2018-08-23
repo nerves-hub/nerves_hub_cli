@@ -125,6 +125,10 @@ defmodule Mix.Tasks.NervesHub.Device do
       {:ok, %{"data" => %{} = _device}} ->
         Shell.info("Device #{identifier} created")
 
+        if Shell.yes?("Would you like to generate certificates?") do
+          cert_create(org, identifier, opts, auth)
+        end
+
       error ->
         Shell.render_error(error)
     end
@@ -181,10 +185,10 @@ defmodule Mix.Tasks.NervesHub.Device do
     end
   end
 
-  def cert_create(org, identifier, opts) do
+  def cert_create(org, identifier, opts, auth \\ nil) do
     Shell.info("Creating certificate for #{identifier}")
     path = opts[:path] || File.cwd!()
-    auth = Shell.request_auth()
+    auth = auth || Shell.request_auth()
 
     with {:ok, csr} <- NervesHubCLI.Device.generate_csr(identifier, path),
          safe_csr <- Base.encode64(csr),
