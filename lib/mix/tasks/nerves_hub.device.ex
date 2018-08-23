@@ -67,6 +67,8 @@ defmodule Mix.Tasks.NervesHub.Device do
     cert: :string
   ]
 
+  @data_dir "nerves-hub"
+
   def run(args) do
     Application.ensure_all_started(:nerves_hub_cli)
 
@@ -135,13 +137,13 @@ defmodule Mix.Tasks.NervesHub.Device do
   end
 
   def provision(org, identifier, opts) do
-    path = opts[:path] || File.cwd!()
+    path = opts[:path] || Path.join(File.cwd!(), @data_dir)
     cert_path = opts[:cert]
     key_path = opts[:key]
 
     {cert_path, key_path} =
       if key_path == nil and cert_path == nil do
-        cert_path = Path.join(path, identifier <> "-cert.pem") |> IO.inspect()
+        cert_path = Path.join(path, identifier <> "-cert.pem")
         key_path = Path.join(path, identifier <> "-key.pem")
 
         if File.exists?(key_path) and File.exists?(cert_path) do
@@ -155,6 +157,8 @@ defmodule Mix.Tasks.NervesHub.Device do
                  """) do
             cert_create(org, identifier, opts)
           end
+        else
+          cert_create(org, identifier, opts)
         end
 
         {cert_path, key_path}
@@ -187,7 +191,8 @@ defmodule Mix.Tasks.NervesHub.Device do
 
   def cert_create(org, identifier, opts, auth \\ nil) do
     Shell.info("Creating certificate for #{identifier}")
-    path = opts[:path] || File.cwd!()
+    path = opts[:path] || Path.join(File.cwd!(), @data_dir)
+    File.mkdir_p(path)
     auth = auth || Shell.request_auth()
 
     with {:ok, csr} <- NervesHubCLI.Device.generate_csr(identifier, path),
