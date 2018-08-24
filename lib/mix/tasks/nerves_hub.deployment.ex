@@ -15,6 +15,21 @@ defmodule Mix.Tasks.NervesHub.Deployment do
     * `--product` - (Optional) The product name to list deployments for.
       This defaults to the Mix Project config `:app` name.
 
+  ## create
+
+  Create a new deployment
+
+    mix nerves_hub.deployment create
+
+  ### Command line options
+
+    * `--name` - (Optional) The deployment name.
+    * `--firmware` - (Optional) The firmware uuid.
+    * `--version` - (Optional) Can be blank. The version requirement the device's
+      version must meet to qualify for the deployment.
+    * `--tag` - (Optional) Multiple tags can be set by passing this key multiple
+      times.
+
   ## update
 
   Update values on a deployment.
@@ -40,7 +55,11 @@ defmodule Mix.Tasks.NervesHub.Deployment do
   alias Mix.NervesHubCLI.Shell
 
   @switches [
-    product: :string
+    product: :string,
+    name: :string,
+    version: :string,
+    firmware: :string,
+    tag: :keep
   ]
 
   def run(args) do
@@ -54,6 +73,9 @@ defmodule Mix.Tasks.NervesHub.Deployment do
     case args do
       ["list"] ->
         list(org, product)
+
+      ["create"] ->
+        create(org, product, opts)
 
       ["update", deployment, key, value] ->
         update(deployment, key, value, org, product)
@@ -69,6 +91,7 @@ defmodule Mix.Tasks.NervesHub.Deployment do
 
     Usage:
       mix nerves_hub.deployment list
+      mix nerves_hub.deployment create
       mix nerves_hub.deployment update DEPLOYMENT_NAME KEY VALUE
 
     Run `mix help nerves_hub.deployment` for more information.
@@ -92,11 +115,36 @@ defmodule Mix.Tasks.NervesHub.Deployment do
           render_deployment(params)
           |> String.trim_trailing()
           |> Shell.info()
-
-          Shell.info("------------")
         end)
 
+        Shell.info("------------")
         Shell.info("")
+
+      error ->
+        Shell.render_error(error)
+    end
+  end
+
+  def create(org, product, opts) do
+    name = opts[:name] || Shell.prompt("Deployment name:")
+    firmware = opts[:firmware] || Shell.prompt("firmware uuid:")
+    vsn = opts[:version] || Shell.prompt("version condition:")
+
+    tags = Keyword.get_values(opts, :tag)
+
+    tags =
+      if tags == [] do
+        Shell.prompt("tags:")
+        |> String.split()
+      else
+        tags
+      end
+
+    auth = Shell.request_auth()
+
+    case API.Deployment.create(org, product, name, firmware, vsn, tags, auth) do
+      {:ok, %{"data" => %{} = _deployment}} ->
+        Shell.info("Deployment #{name} created")
 
       error ->
         Shell.render_error(error)
