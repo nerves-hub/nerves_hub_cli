@@ -25,13 +25,15 @@ defmodule Mix.Tasks.NervesHub.Device do
     * `--tag` - (Optional) Multiple tags can be set by passing this key multiple
       times.
 
-  ## provision
+  ## burn
 
-  Provision a NervesHub device. This requires that the device was already created.
-  Calling provision without passing command line options will generate a new cert
-  pair for the device. The command will end with calling mix firmware.burn.
+  Combine a firmware image with NervesHub provisioning information and burn the 
+  result to an attached MicroSD card or file. This requires that the device 
+  was already created. Calling burn without passing command line options will
+  generate a new cert pair for the device. The command will end with calling 
+  mix firmware.burn.
 
-    mix nerves_hub.device provision DEVICE_IDENTIFIER
+    mix nerves_hub.device burn DEVICE_IDENTIFIER
 
   ### Command line options
 
@@ -80,8 +82,8 @@ defmodule Mix.Tasks.NervesHub.Device do
       ["create"] ->
         create(org, opts)
 
-      ["provision", identifier] ->
-        provision(org, identifier, opts)
+      ["burn", identifier] ->
+        burn(identifier, opts)
 
       ["cert", "list", device] ->
         cert_list(org, device)
@@ -100,7 +102,7 @@ defmodule Mix.Tasks.NervesHub.Device do
 
     Usage:
       mix nerves_hub.device create
-      mix nerves_hub.device provision DEVICE_IDENTIFIER
+      mix nerves_hub.device burn DEVICE_IDENTIFIER
       mix nerves_hub.device cert list DEVICE_IDENTIFIER
       mix nerves_hub.device cert create DEVICE_IDENTIFIER
 
@@ -136,7 +138,7 @@ defmodule Mix.Tasks.NervesHub.Device do
     end
   end
 
-  def provision(org, identifier, opts) do
+  def burn(identifier, opts) do
     path = opts[:path] || Path.join(File.cwd!(), @data_dir)
     cert_path = opts[:cert]
     key_path = opts[:key]
@@ -146,19 +148,16 @@ defmodule Mix.Tasks.NervesHub.Device do
         cert_path = Path.join(path, identifier <> "-cert.pem")
         key_path = Path.join(path, identifier <> "-key.pem")
 
-        if File.exists?(key_path) and File.exists?(cert_path) do
-          unless Shell.yes?("""
-                   A private key and certificate for #{identifier}
-                   already exists at path #{path}.
+        unless File.exists?(key_path) and File.exists?(cert_path) do
+          Shell.raise("""
+            A private key and certificate for #{identifier}
+            does not exists at path #{path}.
 
-                   Would you like to use the existing certificate?
-                   Y = Use the existing certificate
-                   N = Create a new certificate
-                 """) do
-            cert_create(org, identifier, opts)
-          end
-        else
-          cert_create(org, identifier, opts)
+            To generate certificates for #{identifier}
+
+              mix nerves_hub.device cert create #{identifier}
+
+          """)
         end
 
         {cert_path, key_path}
