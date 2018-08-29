@@ -14,7 +14,7 @@ defmodule NervesHubCLI.Config do
 
   defp read do
     with {:ok, binary} <- File.read(file()),
-         {:ok, term} <- HexCrypto.Utils.safe_binary_to_term(binary) do
+         {:ok, term} <- PBCS.Utils.safe_binary_to_term(binary) do
       term
     else
       _ -> %{}
