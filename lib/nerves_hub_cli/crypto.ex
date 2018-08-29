@@ -7,10 +7,10 @@ defmodule NervesHubCLI.Crypto do
       p2s: :crypto.strong_rand_bytes(32)
     }
 
-    HexCrypto.encrypt({tag, plain_text}, protected, password: password)
+    PBCS.encrypt({tag, plain_text}, protected, password: password)
   end
 
   def decrypt(cipher_text, password, tag \\ "") do
-    HexCrypto.decrypt({tag, cipher_text}, password: password)
+    PBCS.decrypt({tag, cipher_text}, password: password)
   end
 end
