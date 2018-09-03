@@ -16,5 +16,4 @@ jobs:
       - run: mix test
       - run: mix format --check-formatted
       - run: mix docs
-        # When hex_crypto gets published to hex, then enable this
-        # - run: mix hex.build
+      - run: mix hex.build
