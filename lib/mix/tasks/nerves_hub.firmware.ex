@@ -1,10 +1,10 @@
 defmodule Mix.Tasks.NervesHub.Firmware do
   use Mix.Task
 
-  @shortdoc "Manages NervesHub firmware"
+  @shortdoc "Manages firmware on NervesHub"
 
   @moduledoc """
-  Manage HervesHub Firmwares
+  Manage Firmware on NervesHub
 
   ## publish
 
@@ -35,7 +35,7 @@ defmodule Mix.Tasks.NervesHub.Firmware do
   ## delete
 
   Firmware can only be deleted if it is not associated to any deployment.
-  Call `list` to retreive firmware uuids
+  Call `list` to retrieve firmware UUIDs
 
     mix nerves_hub.firmware delete [firmware_uuid]
 

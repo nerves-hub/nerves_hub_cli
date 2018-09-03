@@ -4,7 +4,7 @@ defmodule Mix.Tasks.NervesHub.Deployment do
   @shortdoc "Manages NervesHub deployments"
 
   @moduledoc """
-  Manage HervesHub deployments
+  Manage NervesHub deployments
 
   ## list
 
@@ -12,7 +12,7 @@ defmodule Mix.Tasks.NervesHub.Deployment do
 
   ### Command line options
 
-    * `--product` - (Optional) The product name to list deployments for.
+    * `--product` - (Optional) Only show deployments for one product.
       This defaults to the Mix Project config `:app` name.
 
   ## create
@@ -23,12 +23,12 @@ defmodule Mix.Tasks.NervesHub.Deployment do
 
   ### Command line options
 
-    * `--name` - (Optional) The deployment name.
-    * `--firmware` - (Optional) The firmware uuid.
+    * `--name` - (Optional) The deployment name
+    * `--firmware` - (Optional) The firmware UUID
     * `--version` - (Optional) Can be blank. The version requirement the device's
-      version must meet to qualify for the deployment.
+      version must meet to qualify for the deployment
     * `--tag` - (Optional) Multiple tags can be set by passing this key multiple
-      times.
+      times
 
   ## update
 
@@ -44,7 +44,7 @@ defmodule Mix.Tasks.NervesHub.Deployment do
 
     mix nerves_hub.deployment update dev is_active true
 
-  General useage:
+  General usage:
 
     mix nerves_hub.firmware update [deployment_name] [key] [value]
 

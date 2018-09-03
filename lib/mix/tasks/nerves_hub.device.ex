@@ -13,33 +13,33 @@ defmodule Mix.Tasks.NervesHub.Device do
   ## create
 
   Create a new NervesHub device. The shell will prompt for information about the
-  device. This information can be passed by specifing one or all of the command
+  device. This information can be passed by specifying one or all of the command
   line options.
 
     mix nerves_hub.device create
 
   ### Command line options
 
-    * `--identifier` - (Optional) The device identifier.
+    * `--identifier` - (Optional) The device identifier
     * `--description` - (Optional) The description of the device
     * `--tag` - (Optional) Multiple tags can be set by passing this key multiple
-      times.
+      times
 
   ## burn
 
-  Combine a firmware image with NervesHub provisioning information and burn the 
-  result to an attached MicroSD card or file. This requires that the device 
+  Combine a firmware image with NervesHub provisioning information and burn the
+  result to an attached MicroSD card or file. This requires that the device
   was already created. Calling burn without passing command line options will
-  generate a new cert pair for the device. The command will end with calling 
+  generate a new cert pair for the device. The command will end with calling
   mix firmware.burn.
 
     mix nerves_hub.device burn DEVICE_IDENTIFIER
 
   ### Command line options
 
-    * `--cert` - (Optional) A path to an existing device cert.
-    * `--key` - (Optional) A path to an existing device private key.
-    * `--path` - (Optional) The path to put the device certificates.
+    * `--cert` - (Optional) A path to an existing device certificate
+    * `--key` - (Optional) A path to an existing device private key
+    * `--path` - (Optional) The path to put the device certificates
 
   ## cert list
 
@@ -56,7 +56,7 @@ defmodule Mix.Tasks.NervesHub.Device do
 
   ### Command line options
 
-    * `--path` - (Optional) The local location for creating the certificates.
+    * `--path` - (Optional) A local location for storing certificates
 
   """
 

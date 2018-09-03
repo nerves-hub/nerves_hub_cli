@@ -5,7 +5,7 @@ defmodule Mix.Tasks.NervesHub.Product do
   alias NervesHubCLI.API
   alias Mix.NervesHubCLI.Shell
 
-  @shortdoc "Manages your firmware signing keys"
+  @shortdoc "Manages your products"
 
   @moduledoc """
   Manages your products.
@@ -13,14 +13,14 @@ defmodule Mix.Tasks.NervesHub.Product do
   ## create
 
   Create a new NervesHub product. The shell will prompt for information about the
-  product. This information can be passed by specifing one or all of the command
+  product. This information can be passed by specifying one or all of the command
   line options.
 
     mix nerves_hub.product create
 
   ### Command line options
 
-    * `--name` - (Optional) The product name.
+    * `--name` - (Optional) The product name
 
   ## list
 
@@ -28,14 +28,14 @@ defmodule Mix.Tasks.NervesHub.Product do
 
   ## delete
 
-  Call `list` to retreive product names
+  Call `list` to retrieve product names
 
     mix nerves_hub.firmware delete [product_name]
 
   ## update
 
   Update values on a product.
-  Call `list` to retreive product names
+  Call `list` to retrieve product names
 
   ### Examples
 

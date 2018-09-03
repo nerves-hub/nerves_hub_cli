@@ -15,7 +15,7 @@ defmodule Mix.Tasks.NervesHub.User do
 
   NervesHub will look for the following files in the location of $NERVES_HUB_HOME
 
-    ca.pem:       A file that containes all known NervesHub Certificate Authority
+    ca.pem:       A file that contains all known NervesHub Certificate Authority
                   certificates needed to authenticate.
     user.pem:     A signed user account certificate.
     user-key.pem: The user account certificate private key.
