@@ -17,7 +17,7 @@ defmodule Mix.NervesHubCLI.Utils do
         Keyword.get(config(), :nerves_hub, [])
         |> Keyword.get(:org) || Config.get(:org) ||
         Shell.raise("""
-        Cound not determine orginization
+        Cound not determine organization
         Organization is set in the following order
 
           From the command line
