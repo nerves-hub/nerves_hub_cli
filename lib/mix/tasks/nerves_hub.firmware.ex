@@ -141,7 +141,7 @@ defmodule Mix.Tasks.NervesHub.Firmware do
     with true <- File.exists?(firmware),
          {:ok, metadata} <- metadata(firmware) do
       Shell.info("------------")
-      Shell.info("Orginization: #{org}")
+      Shell.info("Organization: #{org}")
 
       render_firmware(metadata)
       |> String.trim_trailing()
