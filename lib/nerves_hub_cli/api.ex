@@ -1,9 +1,6 @@
 defmodule NervesHubCLI.API do
   @host "api.nerves-hub.org"
-  @config [
-    host: System.get_env("NERVES_HUB_HOST") || @host,
-    port: System.get_env("NERVES_HUB_PORT") || 443
-  ]
+  @port 443
 
   def start_pool() do
     pool = :nerves_hub_cli
@@ -116,6 +113,10 @@ defmodule NervesHubCLI.API do
   defp ssl_options(_), do: []
 
   defp config do
-    Application.get_env(:nerves_hub_cli, __MODULE__) || @config
+    Application.get_env(:nerves_hub_cli, __MODULE__) ||
+      [
+        host: System.get_env("NERVES_HUB_HOST") || @host,
+        port: System.get_env("NERVES_HUB_PORT") || @port
+      ]
   end
 end
