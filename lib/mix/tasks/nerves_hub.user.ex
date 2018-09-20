@@ -97,7 +97,7 @@ defmodule Mix.Tasks.NervesHub.User do
 
   def register() do
     email = Shell.prompt("Email address:") |> String.trim()
-    username = Shell.prompt("Your name:") |> String.trim()
+    username = Shell.prompt("Username:") |> String.trim()
     password = Mix.Tasks.Hex.password_get("NervesHub password:") |> String.trim()
     confirm = Mix.Tasks.Hex.password_get("NervesHub password (confirm):") |> String.trim()
 
@@ -116,7 +116,7 @@ defmodule Mix.Tasks.NervesHub.User do
     Shell.info("Authenticating...")
 
     case API.User.auth(email, password) do
-      {:ok, %{"data" => %{"email" => ^email, "name" => username}}} ->
+      {:ok, %{"data" => %{"email" => ^email, "username" => username}}} ->
         Shell.info("Success")
         generate_certificate(username, email, password)
 
@@ -136,7 +136,7 @@ defmodule Mix.Tasks.NervesHub.User do
 
   defp register(username, email, account_password) do
     case API.User.register(username, email, account_password) do
-      {:ok, %{"data" => %{"email" => ^email, "name" => ^username}}} ->
+      {:ok, %{"data" => %{"email" => ^email, "username" => ^username}}} ->
         Shell.info("Account created")
         generate_certificate(username, email, account_password)
 
