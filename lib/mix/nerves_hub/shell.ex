@@ -38,6 +38,18 @@ defmodule Mix.NervesHubCLI.Shell do
     end
   end
 
+  def request_keys(org, name, prompt \\ "Local key password: ") do
+    env_pub_key = System.get_env("NERVES_HUB_FW_PRIVATE_KEY")
+    env_priv_key = System.get_env("NERVES_HUB_FW_PUBLIC_KEY")
+
+    if env_pub_key != nil and env_priv_key != nil do
+      {:ok, env_pub_key, env_priv_key}
+    else
+      key_password = password_get(prompt)
+      NervesHubCLI.Key.get(org, name, key_password)
+    end
+  end
+
   # Password prompt that hides input by every 1ms
   # clearing the line with stderr
   def password_get(prompt) do
