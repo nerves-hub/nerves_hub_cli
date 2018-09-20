@@ -10,7 +10,7 @@ defmodule NervesHubCLI.API.User do
   # Username / Password protected endpoints
 
   def register(username, email, password) do
-    params = %{name: username, email: email, password: password}
+    params = %{username: username, email: email, password: password}
     API.request(:post, "users/register", params)
   end
 
