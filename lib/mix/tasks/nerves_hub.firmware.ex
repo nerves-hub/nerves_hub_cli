@@ -203,9 +203,8 @@ defmodule Mix.Tasks.NervesHub.Firmware do
     key = opts[:key] || Shell.raise("Must specify key with --key")
     Shell.info("Signing #{firmware}")
     Shell.info("With key #{key}")
-    password = Shell.password_get("local key password:")
 
-    with {:ok, public_key, private_key} <- NervesHubCLI.Key.get(org, key, password),
+    with {:ok, public_key, private_key} <- Shell.request_keys(org, key),
          :ok <-
            Cmd.fwup(
              [

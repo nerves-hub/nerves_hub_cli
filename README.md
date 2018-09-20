@@ -45,6 +45,8 @@ automation. The following variables are available:
 * `NERVES_HUB_CERT` - Certificate contents for authenticating with NervesHub
 * `NERVES_HUB_KEY`  - The private key associated with `NERVES_HUB_CERT`
 * `NERVES_HUB_ORG`  - NervesHub organization to use
+* `NERVES_HUB_FW_PRIVATE_KEY` - Fwup signing private key
+* `NERVES_HUB_FW_PUBLIC_KEY`  - Fwup signing public key
 * `NERVES_HUB_HOME` - NervesHub CLI data directory (defaults to `~/.nerves-hub`)
 * `NERVES_HUB_HOST` - NervesHub server IP address or hostname
 * `NERVES_HUB_PORT` - Port for NervesHub server
