@@ -37,6 +37,18 @@ $ mix help nerves_hub.device
 ...
 ```
 
+## Environment variables
+
+`NervesHubCLI` may be configured using environment variables to simplify
+automation. The following variables are available:
+
+* `NERVES_HUB_CERT` - Certificate contents for authenticating with NervesHub
+* `NERVES_HUB_KEY`  - The private key associated with `NERVES_HUB_CERT`
+* `NERVES_HUB_ORG`  - NervesHub organization to use
+* `NERVES_HUB_HOME` - NervesHub CLI data directory (defaults to `~/.nerves-hub`)
+* `NERVES_HUB_HOST` - NervesHub server IP address or hostname
+* `NERVES_HUB_PORT` - Port for NervesHub server
+
 For more information on using the CLI, see the
 [`nerves_hub`](https://github.com/nerves-hub/nerves_hub) documentation.
 
