@@ -33,6 +33,24 @@ defmodule NervesHubCLI.Key do
     end
   end
 
+  def import(org, key_name, key_password, public_key_file, private_key_file) do
+    path = data_dir(org)
+    File.mkdir_p(path)
+
+    final_private_key = Path.join(path, key_name <> @private_ext)
+    final_public_key = Path.join(path, key_name <> @public_ext)
+
+    with {:ok, priv_key_bin} <- File.read(private_key_file),
+         {:ok, pub_key_bin} <- File.read(public_key_file),
+         {:ok, priv_key_val} <- maybe_base64(priv_key_bin),
+         {:ok, pub_key_val} <- maybe_base64(pub_key_bin),
+         encrypted_key <- Crypto.encrypt(priv_key_val, key_password),
+         :ok <- File.write(final_private_key, encrypted_key),
+         :ok <- File.write(final_public_key, pub_key_val) do
+      {:ok, final_public_key, final_private_key}
+    end
+  end
+
   def get(org, name, key_password) do
     path = data_dir(org)
     public_key_path = Path.join(path, name <> @public_ext)
@@ -98,5 +116,13 @@ defmodule NervesHubCLI.Key do
 
   defp data_dir(org) do
     Path.join([NervesHubCLI.home_dir(), "keys", org])
+  end
+
+  # Used to validate a fwup key import.
+  defp maybe_base64(bin) when is_binary(bin) do
+    case Base.decode64(bin) do
+      {:ok, _decoded} -> {:ok, bin}
+      :error -> {:ok, Base.encode64(bin)}
+    end
   end
 end

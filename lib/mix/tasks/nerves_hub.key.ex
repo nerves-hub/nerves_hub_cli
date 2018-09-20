@@ -61,6 +61,16 @@ defmodule Mix.Tasks.NervesHub.Key do
 
     * `--local` - (Optional) Perform the operation only locally defaults to
       `false` which will perform both local and remote operations
+
+  ## import
+
+  Import an existing key locally and on NervesHub
+
+    mix nerves_hub.key import name PUBLIC_KEY_FILE PRIVATE_KEY_FILE
+
+  ### Command line options
+
+    * `--local` - (Optional) Do not register the public key with NervesHub
   """
 
   @switches [
@@ -83,6 +93,9 @@ defmodule Mix.Tasks.NervesHub.Key do
 
       ["delete", name] ->
         delete(name, org, opts)
+
+      ["import", name, public_key_file, private_key_file] ->
+        import(name, org, public_key_file, private_key_file, opts)
 
       _ ->
         render_help()
@@ -167,6 +180,29 @@ defmodule Mix.Tasks.NervesHub.Key do
     end
   end
 
+  def import(name, org, public_key_file, private_key_file, opts) do
+    if NervesHubCLI.Key.exists?(org, name) do
+      Shell.raise("The key #{name} already exists, aborting")
+    else
+      if Keyword.get(opts, :local, false) do
+        with {:ok, key} <- import_local(name, org, public_key_file, private_key_file) do
+          render_key(key)
+        else
+          error ->
+            Shell.render_error(error)
+        end
+      else
+        with {:ok, key} <- import_local(name, org, public_key_file, private_key_file),
+             {:ok, %{"data" => key}} <- create_remote(name, key, org) do
+          render_key(key)
+        else
+          error ->
+            Shell.render_error(error)
+        end
+      end
+    end
+  end
+
   def delete_remote(name, org) do
     auth = Shell.request_auth()
     Shell.info("Deleting remote signing key #{name}")
@@ -193,6 +229,17 @@ defmodule Mix.Tasks.NervesHub.Key do
   defp create_remote(name, key, org) do
     auth = Shell.request_auth()
     API.Key.create(org, name, key, auth)
+  end
+
+  defp import_local(name, org, public_key_file, private_key_file) do
+    Shell.info("\nPlease enter a local password for the firmware signing private key")
+    key_password = Shell.password_get("Local key password:")
+
+    with {:ok, public_key_file, _private_key_file} =
+           NervesHubCLI.Key.import(org, name, key_password, public_key_file, private_key_file),
+         {:ok, public_key} <- File.read(public_key_file) do
+      {:ok, public_key}
+    end
   end
 
   defp render_keys([]) do
