@@ -71,11 +71,23 @@ defmodule Mix.Tasks.NervesHub.Key do
   ### Command line options
 
     * `--local` - (Optional) Do not register the public key with NervesHub
+
+  ## export
+
+  Export a signing key to a tar.gz archive.
+
+    mix nerves_hub.key export NAME
+
+  ### Command line options
+
+    * `--path` - (Optional) A local location for exporting keys.
   """
 
   @switches [
+    path: :string,
     local: :boolean
   ]
+  @data_dir "nerves-hub"
 
   def run(args) do
     Application.ensure_all_started(:nerves_hub_cli)
@@ -97,6 +109,9 @@ defmodule Mix.Tasks.NervesHub.Key do
       ["import", name, public_key_file, private_key_file] ->
         import(name, org, public_key_file, private_key_file, opts)
 
+      ["export", name] ->
+        export(name, org, opts)
+
       _ ->
         render_help()
     end
@@ -110,6 +125,7 @@ defmodule Mix.Tasks.NervesHub.Key do
       mix nerves_hub.key list
       mix nerves_hub.key create NAME
       mix nerves_hub.key delete NAME
+      mix nerves_hub.key export NAME
 
     Run `mix help nerves_hub.key` for more information.
     """)
@@ -203,6 +219,22 @@ defmodule Mix.Tasks.NervesHub.Key do
     end
   end
 
+  def export(key, org, opts) do
+    path = opts[:path] || Path.join(File.cwd!(), @data_dir)
+
+    with :ok <- File.mkdir_p(path),
+         {:ok, public_key, private_key} <- Shell.request_keys(org, key),
+         filename <- key_tar_file_name(path, org, key),
+         {:ok, tar} <- :erl_tar.open(filename, [:write, :compressed]),
+         :ok <- :erl_tar.add(tar, {'#{key}.pub', public_key}, []),
+         :ok <- :erl_tar.add(tar, {'#{key}.priv', private_key}, []),
+         :ok <- :erl_tar.close(tar) do
+      Shell.info("Fwup keys exported to: #{filename}")
+    else
+      error -> Shell.render_error(error)
+    end
+  end
+
   def delete_remote(name, org) do
     auth = Shell.request_auth()
     Shell.info("Deleting remote signing key #{name}")
@@ -267,4 +299,7 @@ defmodule Mix.Tasks.NervesHub.Key do
       public key: #{params["key"]}
     """
   end
+
+  defp key_tar_file_name(path, org, key),
+    do: Path.join(path, "nerves_hub-fwup-keys-#{org}-#{key}.tar.gz")
 end
