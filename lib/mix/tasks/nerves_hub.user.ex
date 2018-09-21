@@ -1,7 +1,7 @@
 defmodule Mix.Tasks.NervesHub.User do
   use Mix.Task
 
-  alias NervesHubCLI.{API, User, Certificate, Config}
+  alias NervesHubCLI.{API, User, Certificate, Config, Crypto}
   alias Mix.NervesHubCLI.Shell
 
   @shortdoc "Manages your NervesHub user account"
@@ -36,14 +36,23 @@ defmodule Mix.Tasks.NervesHub.User do
   ## deauth
 
     mix nerves_hub.user deauth
+
+  ## cert export
+
+    mix nerves_hub.user cert export
+
+  ### Command line options
+
+    * `--path` - (Optional) A local location for exporting certificate.
   """
 
-  @switches []
+  @switches [path: :string]
+  @data_dir "nerves-hub"
 
   def run(args) do
     Application.ensure_all_started(:nerves_hub_cli)
 
-    {_opts, args} = OptionParser.parse!(args, strict: @switches)
+    {opts, args} = OptionParser.parse!(args, strict: @switches)
 
     case args do
       ["whoami"] ->
@@ -57,6 +66,9 @@ defmodule Mix.Tasks.NervesHub.User do
 
       ["deauth"] ->
         deauth()
+
+      ["cert", "export"] ->
+        cert_export(opts)
 
       _ ->
         render_help()
@@ -73,6 +85,7 @@ defmodule Mix.Tasks.NervesHub.User do
       mix nerves_hub.user register
       mix nerves_hub.user auth
       mix nerves_hub.user deauth
+      mix nerves_hub.user cert export
 
     Run `mix help nerves_hub.user` for more information.
     """)
@@ -133,6 +146,29 @@ defmodule Mix.Tasks.NervesHub.User do
     if Shell.yes?("Deauthorize the current user?") do
     end
   end
+
+  def cert_export(opts) do
+    path = opts[:path] || Path.join(File.cwd!(), @data_dir)
+    password = Shell.password_get("Local user password:")
+    cert_files = User.cert_files()
+
+    with :ok <- File.mkdir_p(path),
+         {:ok, encrypted} <- File.read(cert_files[:key]),
+         {:ok, key_pem} <- Crypto.decrypt(encrypted, password),
+         {:ok, cert_pem} <- File.read(cert_files[:cert]),
+         filename <- certs_tar_file_name(path),
+         {:ok, tar} <- :erl_tar.open(filename, [:write, :compressed]),
+         :ok <- :erl_tar.add(tar, {'cert.pem', cert_pem}, []),
+         :ok <- :erl_tar.add(tar, {'key.pem', key_pem}, []),
+         :ok <- :erl_tar.close(tar) do
+      Shell.info("User certs exported to: #{filename}")
+    else
+      error -> Shell.render_error(error)
+    end
+  end
+
+  defp certs_tar_file_name(path),
+    do: Path.join(path, "nerves_hub-certs.tar.gz")
 
   defp register(username, email, account_password) do
     case API.User.register(username, email, account_password) do
