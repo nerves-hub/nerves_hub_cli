@@ -25,6 +25,16 @@ defmodule Mix.Tasks.NervesHub.Device do
     * `--tag` - (Optional) Multiple tags can be set by passing this key multiple
       times
 
+  ## update
+
+  Update values on a device.
+
+  ### Examples
+
+  Update device tags
+
+    mix nerves_hub.device update 1234 tags dev qa
+
   ## burn
 
   Combine a firmware image with NervesHub provisioning information and burn the
@@ -92,6 +102,9 @@ defmodule Mix.Tasks.NervesHub.Device do
       ["cert", "create", device] ->
         cert_create(org, device, opts)
 
+      ["update", identifier | update_data] ->
+        update(org, identifier, update_data)
+
       _ ->
         render_help()
     end
@@ -103,6 +116,7 @@ defmodule Mix.Tasks.NervesHub.Device do
 
     Usage:
       mix nerves_hub.device create
+      mix nerves_hub.device update KEY VALUE
       mix nerves_hub.device burn DEVICE_IDENTIFIER
       mix nerves_hub.device cert list DEVICE_IDENTIFIER
       mix nerves_hub.device cert create DEVICE_IDENTIFIER
@@ -137,6 +151,34 @@ defmodule Mix.Tasks.NervesHub.Device do
       error ->
         Shell.render_error(error)
     end
+  end
+
+  def update(org, identifier, ["tags" | tags]) do
+    auth = Shell.request_auth()
+
+    case API.Device.update(org, identifier, %{tags: tags}, auth) do
+      {:ok, %{"data" => %{} = _device}} ->
+        Shell.info("Device #{identifier} updated")
+
+      error ->
+        Shell.render_error(error)
+    end
+  end
+
+  def update(org, identifier, [key, value]) do
+    auth = Shell.request_auth()
+
+    case API.Device.update(org, identifier, %{key => value}, auth) do
+      {:ok, %{"data" => %{} = _device}} ->
+        Shell.info("Device #{identifier} updated")
+
+      error ->
+        Shell.render_error(error)
+    end
+  end
+
+  def update(_org, _identifier, data) do
+    Shell.render_error("Unable to update data: #{inspect(data)}")
   end
 
   def burn(identifier, opts) do
