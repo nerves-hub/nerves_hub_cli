@@ -21,6 +21,11 @@ defmodule NervesHubCLI.API.Device do
     API.request(:post, path(org), params, auth)
   end
 
+  def update(org, identifier, data, auth) do
+    params = Map.merge(data, %{identifier: identifier})
+    API.request(:put, path(org, identifier), params, auth)
+  end
+
   def cert_list(org, identifier, auth) do
     API.request(:get, cert_path(org, identifier), "", auth)
   end
