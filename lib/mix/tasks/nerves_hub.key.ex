@@ -84,6 +84,7 @@ defmodule Mix.Tasks.NervesHub.Key do
   """
 
   @switches [
+    org: :string,
     path: :string,
     local: :boolean
   ]

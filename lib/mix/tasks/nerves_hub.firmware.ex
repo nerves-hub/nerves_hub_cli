@@ -58,6 +58,7 @@ defmodule Mix.Tasks.NervesHub.Firmware do
   alias Mix.NervesHubCLI.Shell
 
   @switches [
+    org: :string,
     product: :string,
     deploy: :keep,
     key: :string
