@@ -61,6 +61,7 @@ defmodule Mix.Tasks.NervesHub.Device do
   """
 
   @switches [
+    org: :string,
     path: :string,
     identifier: :string,
     description: :string,

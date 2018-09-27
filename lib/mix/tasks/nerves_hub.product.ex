@@ -45,6 +45,7 @@ defmodule Mix.Tasks.NervesHub.Product do
   """
 
   @switches [
+    org: :string,
     name: :string
   ]
 
