@@ -13,11 +13,18 @@ defmodule NervesHubCLI do
   def public_keys([]), do: []
 
   def public_keys(keys) when is_list(keys) do
-    keys = Enum.map(keys, &to_string/1)
     org = Mix.NervesHubCLI.Utils.org([])
+    local_keys = NervesHubCLI.Key.local_keys(org)
+    Enum.reduce(keys, [], &find_key(&1, &2, local_keys))
+  end
 
-    NervesHubCLI.Key.local_keys(org)
-    |> Enum.filter(fn %{name: name} -> name in keys end)
-    |> Enum.map(&Map.get(&1, :key))
+  defp find_key(key, acc, _) when is_binary(key) do
+    [key | acc]
+  end
+
+  defp find_key(key_name, acc, local_keys) when is_atom(key_name) do
+    Enum.find_value(local_keys, [], fn %{name: name, key: key} ->
+      to_string(key_name) == name && [key]
+    end) ++ acc
   end
 end
