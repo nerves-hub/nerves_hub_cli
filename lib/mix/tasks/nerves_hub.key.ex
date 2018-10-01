@@ -182,7 +182,7 @@ defmodule Mix.Tasks.NervesHub.Key do
   end
 
   def delete(name, org, opts) do
-    if Mix.shell().yes?("Delete signing key #{name}?") do
+    if Shell.yes?("Delete signing key #{name}?") do
       if Keyword.get(opts, :local, false) do
         delete_local(name, org)
       else
