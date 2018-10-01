@@ -12,8 +12,9 @@ defmodule NervesHubCLI.API.Firmware do
     API.request(:get, path(org, product), "", auth)
   end
 
-  def create(org, product, tar, auth) do
-    API.file_request(:post, path(org, product), tar, auth)
+  def create(org, product, tar, ttl, auth) do
+    params = %{ttl: ttl}
+    API.file_request(:post, path(org, product), tar, params, auth)
   end
 
   def delete(org, product, uuid, auth) do

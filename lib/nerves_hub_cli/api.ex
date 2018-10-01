@@ -1,6 +1,17 @@
 defmodule NervesHubCLI.API do
+  require Record
+
+  Record.defrecord(
+    :hackney_client,
+    :client,
+    Record.extract(:client, from_lib: "hackney/include/hackney.hrl")
+  )
+
   @host "api.nerves-hub.org"
   @port 443
+
+  @file_chunk 4096
+  @progress_steps 50
 
   def start_pool() do
     pool = :nerves_hub_cli
@@ -28,9 +39,55 @@ defmodule NervesHubCLI.API do
     |> resp()
   end
 
-  def file_request(verb, path, file, auth) do
-    :hackney.request(verb, url(path), [], {:file, file}, opts(auth))
-    |> resp()
+  def file_request(verb, path, file, params, auth) do
+    {:ok, ref} = :hackney.request(verb, url(path), [], :stream_multipart, opts(auth))
+
+    # Send params
+    Enum.each(params, fn {k, v} ->
+      :hackney.send_multipart_body(ref, {:data, to_string(k), to_string(v)})
+    end)
+
+    # Send the file
+    content_length = :filelib.file_size(file)
+    disposition = {"form-data", [{"name", "firmware"}, {"filename", Path.basename(file)}]}
+
+    :hackney_manager.get_state(ref, fn client ->
+      boundary =
+        client
+        |> hackney_client()
+        |> Keyword.get(:mp_boundary)
+
+      {mp_file_header, _} =
+        :hackney_multipart.mp_file_header({:file, file, disposition, []}, boundary)
+
+      case :hackney_request.stream_body(mp_file_header, client) do
+        {:ok, client} ->
+          stream = File.stream!(file, [], @file_chunk)
+
+          Enum.reduce(stream, 0, fn chunk, sent ->
+            :hackney_request.stream_body(chunk, client)
+
+            size = sent + byte_size(chunk)
+
+            if progress?() do
+              put_progress(size, content_length)
+            end
+
+            size
+          end)
+
+          :hackney_request.stream_body(<<"\r\n">>, client)
+
+          :hackney_multipart.mp_eof(boundary)
+          |> :hackney_request.stream_body(client)
+
+          :hackney.start_response(ref)
+          |> resp()
+
+        error ->
+          error
+      end
+    end)
   end
 
   defp resp({:ok, status_code, _headers, client_ref})
@@ -118,5 +175,27 @@ defmodule NervesHubCLI.API do
         host: System.get_env("NERVES_HUB_HOST") || @host,
         port: System.get_env("NERVES_HUB_PORT") || @port
       ]
+  end
+
+  def put_progress(size, max) do
+    fraction = size / max
+    completed = trunc(fraction * @progress_steps)
+    percent = trunc(fraction * 100)
+    unfilled = @progress_steps - completed
+
+    IO.write(
+      :stderr,
+      "\r|#{String.duplicate("=", completed)}#{String.duplicate(" ", unfilled)}| #{percent}% (#{
+        bytes_to_mb(size)
+      } / #{bytes_to_mb(max)}) MB"
+    )
+  end
+
+  defp bytes_to_mb(bytes) do
+    trunc(bytes / 1024 / 1024)
+  end
+
+  defp progress?() do
+    System.get_env("NERVES_LOG_DISABLE_PROGRESS_BAR") == nil
   end
 end

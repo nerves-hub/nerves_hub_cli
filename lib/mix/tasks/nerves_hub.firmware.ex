@@ -61,7 +61,8 @@ defmodule Mix.Tasks.NervesHub.Firmware do
     org: :string,
     product: :string,
     deploy: :keep,
-    key: :string
+    key: :string,
+    ttl: :integer
   ]
 
   def run(args) do
@@ -176,9 +177,11 @@ defmodule Mix.Tasks.NervesHub.Firmware do
 
     auth = Shell.request_auth()
 
-    case API.Firmware.create(org, product, firmware, auth) do
+    ttl = opts[:ttl]
+
+    case API.Firmware.create(org, product, firmware, ttl, auth) do
       {:ok, %{"data" => %{} = firmware}} ->
-        Shell.info("Firmware published successfully")
+        Shell.info("\nFirmware published successfully")
 
         Keyword.get_values(opts, :deploy)
         |> maybe_deploy(firmware, org, product, auth)
