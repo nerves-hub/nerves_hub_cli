@@ -1,4 +1,6 @@
 defmodule NervesHubCLI do
+  alias Mix.NervesHubCLI.Shell
+
   def home_dir do
     override_dir =
       Application.get_env(:nerves_hub_cli, :home_dir) || System.get_env("NERVES_HUB_HOME")
@@ -16,19 +18,20 @@ defmodule NervesHubCLI do
     org = Mix.NervesHubCLI.Utils.org([])
     local_keys = NervesHubCLI.Key.local_keys(org)
 
-    Enum.reduce(keys, [], fn {key_name_or_bin, acc} ->
-      maybe_key = find_key(key_name_or_bin, local_keys)
-      if maybe_key, do: [maybe_key | acc], else: acc
-    end)
+    Enum.reduce(keys, [], &[find_key(&1, local_keys) | &2])
   end
 
-  defp find_key(key, _local_keys) when is_binary(key) do
-    key
-  end
+  defp find_key(key, _local_keys) when is_binary(key), do: key
 
   defp find_key(key_name, local_keys) when is_atom(key_name) do
-    Enum.find_value(local_keys, fn %{name: name, key: key} ->
-      to_string(key_name) == name && [key]
-    end)
+    value =
+      Enum.find_value(local_keys, fn %{name: name, key: key} ->
+        to_string(key_name) == name && key
+      end)
+
+    case value do
+      nil -> Shell.raise("NervesHub is unable to find key: #{inspect(key_name)}")
+      value -> value
+    end
   end
 end
