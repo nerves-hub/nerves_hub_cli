@@ -16,7 +16,7 @@ defmodule Mix.NervesHubCLI.Shell do
   end
 
   def yes?(output) do
-    System.get_env("NERVES_HUB_FORCE") || Mix.shell().yes?(output)
+    System.get_env("NERVES_HUB_NON_INTERACTIVE") || Mix.shell().yes?(output)
   end
 
   def request_auth(prompt \\ "Local user password:") do
