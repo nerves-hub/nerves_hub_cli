@@ -129,7 +129,7 @@ defmodule Mix.Tasks.NervesHub.Product do
   end
 
   def delete(org, product_name) do
-    if Mix.shell().yes?("Delete product #{product_name}?") do
+    if Shell.yes?("Delete product #{product_name}?") do
       auth = Shell.request_auth()
 
       case API.Product.delete(org, product_name, auth) do

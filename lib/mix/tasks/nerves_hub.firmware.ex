@@ -148,7 +148,7 @@ defmodule Mix.Tasks.NervesHub.Firmware do
       |> String.trim_trailing()
       |> Shell.info()
 
-      if Mix.shell().yes?("Publish Firmware?") do
+      if Shell.yes?("Publish Firmware?") do
         product = metadata["product"]
         publish(firmware, org, product, opts)
       end
@@ -164,7 +164,7 @@ defmodule Mix.Tasks.NervesHub.Firmware do
   defp delete_confirm(uuid, org, product) do
     Shell.info("UUID: #{uuid}")
 
-    if Mix.shell().yes?("Delete Firmware?") do
+    if Shell.yes?("Delete Firmware?") do
       delete(uuid, org, product)
     end
   end

@@ -98,7 +98,7 @@ defmodule Mix.Tasks.NervesHub.User do
       {:ok, %{"data" => data}} ->
         %{"name" => name, "email" => email} = data
 
-        Mix.shell().info("""
+        Shell.info("""
         name:  #{name}
         email: #{email}
         """)
