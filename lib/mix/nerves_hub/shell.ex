@@ -83,6 +83,11 @@ defmodule Mix.NervesHubCLI.Shell do
     error(reason)
   end
 
+  def render_error({:error, %{"errors" => reasons}}) do
+    error("HTTP error")
+    for {key, reason} <- reasons, do: error("  #{key}: #{reason}")
+  end
+
   def render_error(error) do
     error("Unhandled error: #{inspect(error)}")
   end
