@@ -1,140 +1,72 @@
 defmodule NervesHubCLI.API do
-  require Record
-
-  Record.defrecord(
-    :hackney_client,
-    :client,
-    Record.extract(:client, from_lib: "hackney/include/hackney.hrl")
-  )
-
-  alias X509.PrivateKey
-
   @host "api.nerves-hub.org"
   @port 443
 
   @file_chunk 4096
   @progress_steps 50
 
-  def start_pool() do
-    pool = :nerves_hub_cli
-    pool_opts = [timeout: 150_000, max_connections: 10]
-    :ok = :hackney_pool.start_pool(pool, pool_opts)
-  end
+  use Tesla
+  adapter(Tesla.Adapter.Hackney)
+  if Mix.env() != :prod, do: plug(Tesla.Middleware.Logger)
+  plug(Tesla.Middleware.Headers, [{"Content-Type", "application/json"}])
+  plug(Tesla.Middleware.FollowRedirects, max_redirects: 5)
+  plug(Tesla.Middleware.JSON)
 
-  def request(_verb, _path, _body_or_params, _auth \\ %{})
-
-  def request(:get, path, params, auth) when is_map(params) do
-    url = url(path) <> "?" <> URI.encode_query(params)
-
-    :hackney.request(:get, url, headers(), "", opts(auth))
+  def request(:get, path, params) when is_map(params) do
+    client()
+    |> request(method: :get, url: path, query: Map.to_list(params), opts: [adapter: opts(%{})])
     |> resp()
   end
 
-  def request(verb, path, params, auth) when is_map(params) do
-    with {:ok, body} <- Jason.encode(params) do
-      request(verb, path, body, auth)
-    end
-  end
-
-  def request(verb, path, body, auth) do
-    :hackney.request(verb, url(path), headers(), body, opts(auth))
+  def request(verb, path, params, auth \\ %{}) do
+    client()
+    |> request(method: verb, url: path, body: params, opts: [adapter: opts(auth)])
     |> resp()
   end
 
   def file_request(verb, path, file, params, auth) do
-    {:ok, ref} = :hackney.request(verb, url(path), [], :stream_multipart, opts(auth))
-
-    # Send params
-    Enum.each(params, fn {k, v} ->
-      :hackney.send_multipart_body(ref, {:data, to_string(k), to_string(v)})
-    end)
-
-    # Send the file
     content_length = :filelib.file_size(file)
-    disposition = {"form-data", [{"name", "firmware"}, {"filename", Path.basename(file)}]}
+    {:ok, pid} = Agent.start_link(fn -> 0 end)
 
-    :hackney_manager.get_state(ref, fn client ->
-      boundary =
-        client
-        |> hackney_client()
-        |> Keyword.get(:mp_boundary)
+    stream =
+      file
+      |> File.stream!([], @file_chunk)
+      |> Stream.each(fn chunk ->
+        Agent.update(pid, fn sent ->
+          size = sent + byte_size(chunk)
+          if progress?(), do: put_progress(size, content_length)
+          size
+        end)
+      end)
 
-      {mp_file_header, _} =
-        :hackney_multipart.mp_file_header({:file, file, disposition, []}, boundary)
+    mp =
+      Tesla.Multipart.new()
+      |> Tesla.Multipart.add_file_content(stream, Path.basename(file), name: "firmware")
+      |> (fn mp ->
+            Enum.reduce(params, mp, fn {k, v}, mp ->
+              Tesla.Multipart.add_field(mp, to_string(k), to_string(v))
+            end)
+          end).()
 
-      case :hackney_request.stream_body(mp_file_header, client) do
-        {:ok, client} ->
-          stream = File.stream!(file, [], @file_chunk)
-
-          Enum.reduce(stream, 0, fn chunk, sent ->
-            :hackney_request.stream_body(chunk, client)
-
-            size = sent + byte_size(chunk)
-
-            if progress?() do
-              put_progress(size, content_length)
-            end
-
-            size
-          end)
-
-          :hackney_request.stream_body(<<"\r\n">>, client)
-
-          :hackney_multipart.mp_eof(boundary)
-          |> :hackney_request.stream_body(client)
-
-          :hackney.start_response(ref)
-          |> resp()
-
-        error ->
-          error
-      end
-    end)
+    client()
+    |> request(method: verb, url: path, body: mp, opts: [adapter: opts(auth)])
+    |> resp()
   end
 
-  defp resp({:ok, status_code, _headers, client_ref})
-       when status_code >= 200 and status_code < 300 do
-    case :hackney.body(client_ref) do
-      {:ok, ""} ->
-        {:ok, ""}
+  defp resp({:ok, %{status: status_code, body: body}})
+       when status_code >= 200 and status_code < 300,
+       do: {:ok, body}
 
-      {:ok, body} ->
-        Jason.decode(body)
+  defp resp({:ok, %{body: body}}), do: {:error, body}
 
-      error ->
-        error
-    end
-  after
-    :hackney.close(client_ref)
-  end
+  defp resp({:error, _reason} = err), do: err
 
-  defp resp({:ok, _status_code, _headers, client_ref}) do
-    case :hackney.body(client_ref) do
-      {:ok, ""} ->
-        {:error, ""}
+  defp client() do
+    middleware = [
+      {Tesla.Middleware.BaseUrl, endpoint()}
+    ]
 
-      {:ok, body} ->
-        resp =
-          case Jason.decode(body) do
-            {:ok, body} -> body
-            body -> body
-          end
-
-        {:error, resp}
-
-      error ->
-        error
-    end
-  after
-    :hackney.close(client_ref)
-  end
-
-  defp resp(resp) do
-    {:error, resp}
-  end
-
-  defp url(path) do
-    endpoint() <> path
+    Tesla.build_client(middleware)
   end
 
   defp endpoint do
@@ -144,10 +76,6 @@ defmodule NervesHubCLI.API do
     "https://#{host}:#{port}/"
   end
 
-  defp headers do
-    [{"Content-Type", "application/json"}]
-  end
-
   defp opts(auth) do
     ssl_options =
       auth
@@ -155,7 +83,6 @@ defmodule NervesHubCLI.API do
       |> Keyword.put(:cacerts, NervesHubCLI.User.ca_certs())
 
     [
-      pool: :nerves_hub_cli,
       ssl_options: ssl_options,
       recv_timeout: 60_000
     ]
