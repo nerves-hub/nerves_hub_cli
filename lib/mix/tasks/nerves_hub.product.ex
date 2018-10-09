@@ -93,7 +93,7 @@ defmodule Mix.Tasks.NervesHub.Product do
 
     case API.Product.list(org, auth) do
       {:ok, %{"data" => []}} ->
-        Shell.info("No products has been created")
+        Shell.info("No products have been created.")
 
       {:ok, %{"data" => products}} ->
         Shell.info("")
@@ -115,13 +115,19 @@ defmodule Mix.Tasks.NervesHub.Product do
   end
 
   def create(org, opts) do
-    name = opts[:name] || Shell.prompt("name:")
+    config = Mix.Project.config()
+
+    name =
+      opts[:name] || config[:name] || config[:app] || Mix.Project.Shell.prompt("Product name:")
+
+    Shell.info("")
+    Shell.info("Creating product '#{name}'...")
 
     auth = Shell.request_auth()
 
     case API.Product.create(org, name, auth) do
       {:ok, %{"data" => %{} = _product}} ->
-        Shell.info("Product #{name} created")
+        Shell.info("Product '#{name}' created.")
 
       error ->
         Shell.render_error(error)
@@ -129,12 +135,12 @@ defmodule Mix.Tasks.NervesHub.Product do
   end
 
   def delete(org, product_name) do
-    if Shell.yes?("Delete product #{product_name}?") do
+    if Shell.yes?("Delete product '#{product_name}'?") do
       auth = Shell.request_auth()
 
       case API.Product.delete(org, product_name, auth) do
         {:ok, ""} ->
-          Shell.info("Product deleted successfully")
+          Shell.info("Product deleted successfully.")
 
         error ->
           Shell.render_error(error)
@@ -148,7 +154,7 @@ defmodule Mix.Tasks.NervesHub.Product do
     case API.Product.update(org, product, Map.put(%{}, key, value), auth) do
       {:ok, %{"data" => product}} ->
         Shell.info("")
-        Shell.info("Product Updated:")
+        Shell.info("Product updated:")
 
         render_product(product)
         |> String.trim_trailing()
