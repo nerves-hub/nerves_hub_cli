@@ -2,7 +2,6 @@ defmodule NervesHubCLI.User do
   alias NervesHubCLI.{Certificate, Crypto}
 
   @key "key.encrypted"
-  @csr "csr.pem"
   @cert "cert.pem"
 
   def init() do
@@ -10,46 +9,41 @@ defmodule NervesHubCLI.User do
     |> File.mkdir_p()
   end
 
-  def generate_csr(username, certificate_password) do
-    # Create the data dir
-    cert_files =
-      data_dir()
-      |> cert_files()
+  @spec save_certs(
+          binary(),
+          binary(),
+          String.t()
+        ) :: :ok | {:error, atom()}
+  def save_certs(pem_cert, pem_key, certificate_password) do
+    encrypted_key = Crypto.encrypt(pem_key, certificate_password)
 
-    with :ok <- Certificate.generate_key(cert_files[:key]),
-         {:ok, key} <- File.read(cert_files[:key]),
-         :ok <- Certificate.generate_csr(username, cert_files[:key], cert_files[:csr]),
-         encrypted_key <- Crypto.encrypt(key, certificate_password),
-         :ok <- File.write(cert_files[:key], encrypted_key) do
-      File.read(cert_files[:csr])
+    with :ok <- File.write(user_data_path(@cert), pem_cert),
+         :ok <- File.write(user_data_path(@key), encrypted_key) do
+      :ok
     else
       error ->
-        data_dir()
-        |> cert_files()
-        |> Enum.each(fn {_, file} -> File.rm(file) end)
-
+        deauth()
         error
     end
   end
 
+  @spec auth(String.t()) :: {:error, atom()} | {:ok, %{cert: binary(), key: binary()}}
   def auth(password) do
-    cert_files =
-      data_dir()
-      |> cert_files()
-
-    with {:ok, encrypted} <- File.read(cert_files[:key]),
-         {:ok, key} <- Crypto.decrypt(encrypted, password),
-         {:ok, cert} <- File.read(cert_files[:cert]) do
-      key = Certificate.pem_to_der(key)
-      cert = Certificate.pem_to_der(cert)
+    with {:ok, encrypted} <- File.read(user_data_path(@key)),
+         {:ok, pem_key} <- Crypto.decrypt(encrypted, password),
+         {:ok, pem_cert} <- File.read(user_data_path(@cert)) do
+      key = Certificate.pem_to_der(pem_key)
+      cert = Certificate.pem_to_der(pem_cert)
 
       {:ok, %{key: key, cert: cert}}
     end
   end
 
+  @spec deauth() :: :ok
   def deauth() do
-    cert_files()
-    |> Enum.each(fn {_, file} -> File.rm(file) end)
+    File.rm(user_data_path(@cert))
+    File.rm(user_data_path(@key))
+    :ok
   end
 
   def ca_certs() do
@@ -65,15 +59,11 @@ defmodule NervesHubCLI.User do
     |> Enum.map(&Certificate.pem_to_der/1)
   end
 
-  def cert_files(path \\ nil) do
-    path = path || data_dir()
-    key = Path.join(path, @key)
-    csr = Path.join(path, @csr)
-    cert = Path.join(path, @cert)
-    %{key: key, csr: csr, cert: cert}
+  defp user_data_path(file) do
+    Path.join(data_dir(), file)
   end
 
   defp data_dir() do
-    Path.join([NervesHubCLI.home_dir(), "user_data"])
+    Path.join(NervesHubCLI.home_dir(), "user_data")
   end
 end

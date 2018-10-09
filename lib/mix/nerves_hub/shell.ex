@@ -35,7 +35,7 @@ defmodule Mix.NervesHubCLI.Shell do
         {:ok, auth} ->
           auth
 
-        :error ->
+        {:error, _} ->
           __MODULE__.raise("Invalid password")
       end
     end
