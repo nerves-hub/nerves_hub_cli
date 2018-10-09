@@ -9,6 +9,7 @@ defmodule Mix.NervesHubCLI.Shell do
     Mix.shell().error(output)
   end
 
+  @spec raise(String.t()) :: no_return()
   def raise(output) do
     Mix.raise(output)
   end

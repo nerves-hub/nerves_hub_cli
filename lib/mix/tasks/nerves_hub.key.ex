@@ -118,6 +118,7 @@ defmodule Mix.Tasks.NervesHub.Key do
     end
   end
 
+  @spec render_help() :: no_return()
   def render_help() do
     Shell.raise("""
     Invalid arguments to `mix nerves_hub.key`.

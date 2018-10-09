@@ -20,11 +20,10 @@ defmodule NervesHubCLI.Certificate do
     cert
   end
 
+  @spec default_description() :: String.t()
   def default_description() do
-    case :inet.gethostname() do
-      {:ok, hostname} -> to_string(hostname)
-      {:error, _} -> "unknown"
-    end
+    {:ok, hostname} = :inet.gethostname()
+    to_string(hostname)
   end
 
   defp openssl(args, path) do

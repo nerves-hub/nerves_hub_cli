@@ -101,6 +101,7 @@ defmodule Mix.Tasks.NervesHub.Firmware do
     end
   end
 
+  @spec render_help() :: no_return()
   def render_help() do
     Shell.raise("""
     Invalid arguments
