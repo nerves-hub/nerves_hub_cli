@@ -1,7 +1,7 @@
 defmodule Mix.Tasks.NervesHub.User do
   use Mix.Task
 
-  alias NervesHubCLI.{API, User, Certificate, Config, Crypto}
+  alias NervesHubCLI.{API, User, Certificate, Config}
   alias Mix.NervesHubCLI.Shell
 
   @shortdoc "Manages your NervesHub user account"
@@ -145,18 +145,16 @@ defmodule Mix.Tasks.NervesHub.User do
 
   def deauth() do
     if Shell.yes?("Deauthorize the current user?") do
+      User.deauth()
     end
   end
 
   def cert_export(opts) do
     path = opts[:path] || Path.join(File.cwd!(), @data_dir)
     password = Shell.password_get("Local user password:")
-    cert_files = User.cert_files()
 
     with :ok <- File.mkdir_p(path),
-         {:ok, encrypted} <- File.read(cert_files[:key]),
-         {:ok, key_pem} <- Crypto.decrypt(encrypted, password),
-         {:ok, cert_pem} <- File.read(cert_files[:cert]),
+         {:ok, %{key: key_pem, cert: cert_pem}} <- User.auth(password),
          filename <- certs_tar_file_name(path),
          {:ok, tar} <- :erl_tar.open(to_charlist(filename), [:write, :compressed]),
          :ok <- :erl_tar.add(tar, {'cert.pem', cert_pem}, []),
@@ -197,15 +195,19 @@ defmodule Mix.Tasks.NervesHub.User do
     Shell.info("'mix nerves_hub.user auth' and create a new certificate.")
     Shell.info("")
 
-    certificate_password = Shell.password_get("Please enter a local password:")
+    local_password = Shell.password_get("Please enter a local password:")
 
-    with {:ok, csr} <- User.generate_csr(username, certificate_password),
-         safe_csr <- Base.encode64(csr),
+    key = X509.PrivateKey.new_ec(:secp256r1)
+    pem_key = X509.PrivateKey.to_pem(key)
+
+    csr = X509.CSR.new(key, "/O=#{username}")
+    pem_csr = X509.CSR.to_pem(csr)
+
+    with safe_csr <- Base.encode64(pem_csr),
          description <- Certificate.default_description(),
-         {:ok, %{"data" => %{"cert" => cert}}} <-
+         {:ok, %{"data" => %{"cert" => pem_cert}}} <-
            API.User.sign(email, account_password, safe_csr, description),
-         %{cert: cert_file} <- User.cert_files(),
-         :ok <- File.write(cert_file, cert),
+         :ok <- User.save_certs(pem_cert, pem_key, local_password),
          :ok <- Config.put(:email, email),
          :ok <- Config.put(:org, username) do
       Shell.info("Certificate created successfully.")

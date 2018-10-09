@@ -15,4 +15,5 @@
   "pbcs": {:hex, :pbcs, "0.1.0", "6f79ce81d93edf5ac41fcd8b32fb203ad6895ebdb33d115e14a5bd955b90020a", [:mix], [], "hexpm"},
   "ssl_verify_fun": {:hex, :ssl_verify_fun, "1.1.1", "28a4d65b7f59893bc2c7de786dec1e1555bd742d336043fe644ae956c3497fbe", [:make, :rebar], [], "hexpm"},
   "unicode_util_compat": {:hex, :unicode_util_compat, "0.3.1", "a1f612a7b512638634a603c8f401892afbf99b8ce93a45041f8aaca99cadb85e", [:rebar3], [], "hexpm"},
+  "x509": {:hex, :x509, "0.3.0", "c6f3db66960c6e4f424d1e6cca5c7d730e0a577af8dc115a613f4560ce1df6d3", [:mix], [], "hexpm"},
 }

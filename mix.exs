@@ -38,6 +38,7 @@ defmodule NervesHubCLI.MixProject do
       {:jason, "~> 1.0"},
       {:hackney, "~> 1.9"},
       {:pbcs, "~> 0.1"},
+      {:x509, "~> 0.3"},
       {:ex_doc, "~> 0.19", only: [:dev, :test], runtime: false}
     ]
   end

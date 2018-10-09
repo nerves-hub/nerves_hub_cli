@@ -238,11 +238,17 @@ defmodule Mix.Tasks.NervesHub.Device do
     File.mkdir_p(path)
     auth = auth || Shell.request_auth()
 
-    with {:ok, csr} <- NervesHubCLI.Device.generate_csr(identifier, path),
-         safe_csr <- Base.encode64(csr),
+    key = X509.PrivateKey.new_ec(:secp256r1)
+    pem_key = X509.PrivateKey.to_pem(key)
+
+    csr = X509.CSR.new(key, "/O=#{org}/CN=${identifier}")
+    pem_csr = X509.CSR.to_pem(csr)
+
+    with safe_csr <- Base.encode64(pem_csr),
          {:ok, %{"data" => %{"cert" => cert}}} <-
            API.Device.cert_sign(org, identifier, safe_csr, auth),
-         :ok <- File.write(Path.join(path, "#{identifier}-cert.pem"), cert) do
+         :ok <- File.write(Path.join(path, "#{identifier}-cert.pem"), cert),
+         :ok <- File.write(Path.join(path, "#{identifier}-key.pem"), pem_key) do
       Shell.info("Finished")
       :ok
     else
