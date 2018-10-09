@@ -75,6 +75,7 @@ defmodule Mix.Tasks.NervesHub.User do
     end
   end
 
+  @spec render_help() :: no_return()
   def render_help() do
     Shell.raise("""
     Invalid arguments to `mix nerves_hub.user`.
@@ -157,7 +158,7 @@ defmodule Mix.Tasks.NervesHub.User do
          {:ok, key_pem} <- Crypto.decrypt(encrypted, password),
          {:ok, cert_pem} <- File.read(cert_files[:cert]),
          filename <- certs_tar_file_name(path),
-         {:ok, tar} <- :erl_tar.open(filename, [:write, :compressed]),
+         {:ok, tar} <- :erl_tar.open(to_charlist(filename), [:write, :compressed]),
          :ok <- :erl_tar.add(tar, {'cert.pem', cert_pem}, []),
          :ok <- :erl_tar.add(tar, {'key.pem', key_pem}, []),
          :ok <- :erl_tar.close(tar) do

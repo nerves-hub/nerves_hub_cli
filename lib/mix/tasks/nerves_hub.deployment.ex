@@ -86,6 +86,7 @@ defmodule Mix.Tasks.NervesHub.Deployment do
     end
   end
 
+  @spec render_help() :: no_return()
   def render_help() do
     Shell.raise("""
     Invalid arguments to `mix nerves_hub.deployment`.
