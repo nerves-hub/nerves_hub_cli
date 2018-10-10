@@ -162,11 +162,12 @@ defmodule Mix.Tasks.NervesHub.Key do
 
   def create(name, org, opts) do
     if NervesHubCLI.Key.exists?(org, name) do
-      Shell.raise("The key #{name} already exists, aborting")
+      Shell.raise("The key '#{name}' already exists. Please choose a different name.")
     else
       if Keyword.get(opts, :local, false) do
         with {:ok, key} <- create_local(name, org) do
-          render_key(key)
+          Shell.info("\nSuccess. Key information:")
+          render_key(%{"name" => name, "key" => key})
         else
           error ->
             Shell.render_error(error)
@@ -174,6 +175,7 @@ defmodule Mix.Tasks.NervesHub.Key do
       else
         with {:ok, key} <- create_local(name, org),
              {:ok, %{"data" => key}} <- create_remote(name, key, org) do
+          Shell.info("\nSuccess. Key information:")
           render_key(key)
         else
           error ->
@@ -184,7 +186,7 @@ defmodule Mix.Tasks.NervesHub.Key do
   end
 
   def delete(name, org, opts) do
-    if Shell.yes?("Delete signing key #{name}?") do
+    if Shell.yes?("Delete signing key '#{name}'?") do
       if Keyword.get(opts, :local, false) do
         delete_local(name, org)
       else
@@ -205,7 +207,8 @@ defmodule Mix.Tasks.NervesHub.Key do
     else
       if Keyword.get(opts, :local, false) do
         with {:ok, key} <- import_local(name, org, public_key_file, private_key_file) do
-          render_key(key)
+          Shell.info("\nSuccess. Key information:")
+          render_key(%{"name" => name, "key" => key})
         else
           error ->
             Shell.render_error(error)
@@ -213,6 +216,7 @@ defmodule Mix.Tasks.NervesHub.Key do
       else
         with {:ok, key} <- import_local(name, org, public_key_file, private_key_file),
              {:ok, %{"data" => key}} <- create_remote(name, key, org) do
+          Shell.info("\nSuccess. Key information:")
           render_key(key)
         else
           error ->
@@ -240,35 +244,44 @@ defmodule Mix.Tasks.NervesHub.Key do
 
   def delete_remote(name, org) do
     auth = Shell.request_auth()
-    Shell.info("Deleting remote signing key #{name}")
+    Shell.info("Deleting signing key '#{name}' from NervesHub")
     API.Key.delete(org, name, auth)
   end
 
   # TODO handle file not found
   def delete_local(name, org) do
-    Shell.info("Deleting local signing key #{name}")
+    Shell.info("Deleting signing key '#{name}' locally")
     NervesHubCLI.Key.delete(org, name)
   end
 
   defp create_local(name, org) do
-    Shell.info("\nPlease enter a local password for the firmware signing private key")
-    key_password = Shell.password_get("Local key password:")
+    Shell.info("Creating a firmware signing key pair named '#{name}'.")
+    Shell.info("")
+    Shell.info("The private key is stored locally and must be protected by a password.")
+    Shell.info("If you are sharing the firmware signing private key with others,")
+    Shell.info("please choose an appropriate password.")
+    Shell.info("")
+    key_password = Shell.password_get("Signing key password for '#{name}':")
 
-    with {:ok, public_key_file, _private_key_file} =
+    with {:ok, public_key_file, private_key_file} =
            NervesHubCLI.Key.create(org, name, key_password),
          {:ok, public_key} <- File.read(public_key_file) do
+      Shell.info("")
+      Shell.info("Firmware public key written to '#{public_key_file}'.")
+      Shell.info("Password-protected firmware private key written to '#{private_key_file}'.")
       {:ok, public_key}
     end
   end
 
   defp create_remote(name, key, org) do
+    Shell.info("\nRegistering the firmware signing public key '#{name}' with NervesHub.")
     auth = Shell.request_auth()
     API.Key.create(org, name, key, auth)
   end
 
   defp import_local(name, org, public_key_file, private_key_file) do
-    Shell.info("\nPlease enter a local password for the firmware signing private key")
-    key_password = Shell.password_get("Local key password:")
+    Shell.info("\nPlease enter a password to protect the firmware signing private key.")
+    key_password = Shell.password_get("Signing key password for '#{name}':")
 
     with {:ok, public_key_file, _private_key_file} =
            NervesHubCLI.Key.import(org, name, key_password, public_key_file, private_key_file),
@@ -288,8 +301,6 @@ defmodule Mix.Tasks.NervesHub.Key do
       Shell.info("------------")
 
       render_key(params)
-      |> String.trim_trailing()
-      |> Shell.info()
     end)
 
     Shell.info("------------")
@@ -297,10 +308,8 @@ defmodule Mix.Tasks.NervesHub.Key do
   end
 
   defp render_key(params) do
-    """
-      name:       #{params["name"]}
-      public key: #{params["key"]}
-    """
+    Shell.info("  name:       #{params["name"]}")
+    Shell.info("  public key: #{params["key"]}")
   end
 
   defp key_tar_file_name(path, org, key),

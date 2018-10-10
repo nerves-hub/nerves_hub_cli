@@ -22,7 +22,7 @@ defmodule Mix.NervesHubCLI.Shell do
     System.get_env("NERVES_HUB_NON_INTERACTIVE") || Mix.shell().yes?(output)
   end
 
-  def request_auth(prompt \\ "Local user password:") do
+  def request_auth(prompt \\ "Local NervesHub user password:") do
     env_cert = System.get_env("NERVES_HUB_CERT")
     env_key = System.get_env("NERVES_HUB_KEY")
 
@@ -41,7 +41,11 @@ defmodule Mix.NervesHubCLI.Shell do
     end
   end
 
-  def request_keys(org, name, prompt \\ "Local key password: ") do
+  def request_keys(org, name) do
+    request_keys(org, name, "Local signing key password for '#{name}': ")
+  end
+
+  def request_keys(org, name, prompt) do
     env_pub_key = System.get_env("NERVES_HUB_FW_PRIVATE_KEY")
     env_priv_key = System.get_env("NERVES_HUB_FW_PUBLIC_KEY")
 
