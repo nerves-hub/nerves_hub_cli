@@ -65,7 +65,7 @@ defmodule NervesHubCLI.Key do
 
   def delete(org, name) do
     path = data_dir(org)
-    File.rm(Path.join(path, name <> @private_ext) |> IO.inspect())
+    File.rm(Path.join(path, name <> @private_ext))
     File.rm(Path.join(path, name <> @public_ext))
   end
 
