@@ -5,15 +5,16 @@ defmodule Mix.Tasks.NervesHub.Key do
   alias NervesHubCLI.API
   alias Mix.NervesHubCLI.Shell
 
-  @shortdoc "Manages your firmware signing keys"
+  @shortdoc "Manages firmware signing keys"
 
   @moduledoc """
-  Manages your firmware signing keys.
+  Manages firmware signing keys
 
   Firmware signing keys consist of public and private keys. The `mix
   nerves_hub.key` task manages both pieces for you. Private signing keys are
   password-protected and are NEVER sent to NervesHub or any other server.
-  Public keys, however, are registered with NervesHub.
+  Public keys, however, are registered with NervesHub and embedded in your
+  firmware.
 
   Signing keys are stored in `~/.nerves-hub/keys`. Keys may be shared between
   developers by copying the files in this folder.

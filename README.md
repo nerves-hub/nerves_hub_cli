@@ -54,4 +54,3 @@ automation. The following variables are available:
 
 For more information on using the CLI, see the
 [`nerves_hub`](https://github.com/nerves-hub/nerves_hub) documentation.
-
