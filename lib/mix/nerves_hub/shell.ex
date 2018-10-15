@@ -22,12 +22,13 @@ defmodule Mix.NervesHubCLI.Shell do
     System.get_env("NERVES_HUB_NON_INTERACTIVE") || Mix.shell().yes?(output)
   end
 
+  @spec request_auth(String.t()) :: NervesHubCLI.User.auth_map()
   def request_auth(prompt \\ "Local NervesHub user password:") do
     env_cert = System.get_env("NERVES_HUB_CERT")
     env_key = System.get_env("NERVES_HUB_KEY")
 
     if env_cert != nil and env_key != nil do
-      %{cert: Certificate.pem_to_der(env_cert), key: Certificate.pem_to_der(env_key)}
+      %{cert: Certificate.cert_from_pem(env_cert), key: Certificate.key_from_pem(env_key)}
     else
       password = password_get(prompt)
 
