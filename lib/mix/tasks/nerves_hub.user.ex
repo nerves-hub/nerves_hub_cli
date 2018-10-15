@@ -154,7 +154,11 @@ defmodule Mix.Tasks.NervesHub.User do
     password = Shell.password_get("Local user password:")
 
     with :ok <- File.mkdir_p(path),
-         {:ok, %{key: key_pem, cert: cert_pem}} <- User.auth(password),
+         {:ok, %{key: key_der, cert: cert_der}} <- User.auth(password),
+         {:Certificate, _, _, _} = cert <- X509.from_der(cert_der, :Certificate),
+         cert_pem when is_binary(cert_pem) <- X509.to_pem(cert),
+         {:ECPrivateKey, _, _, _, _} = key <- X509.from_der(key_der, :ECPrivateKey),
+         key_pem when is_binary(key_pem) <- X509.to_pem(key),
          filename <- certs_tar_file_name(path),
          {:ok, tar} <- :erl_tar.open(to_charlist(filename), [:write, :compressed]),
          :ok <- :erl_tar.add(tar, {'cert.pem', cert_pem}, []),
