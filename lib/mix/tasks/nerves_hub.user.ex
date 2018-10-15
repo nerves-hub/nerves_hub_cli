@@ -97,10 +97,10 @@ defmodule Mix.Tasks.NervesHub.User do
 
     case API.User.me(auth) do
       {:ok, %{"data" => data}} ->
-        %{"name" => name, "email" => email} = data
+        %{"username" => username, "email" => email} = data
 
         Shell.info("""
-        name:  #{name}
+        username:  #{username}
         email: #{email}
         """)
 
