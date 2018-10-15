@@ -4,6 +4,8 @@ defmodule NervesHubCLI.User do
   @key "key.encrypted"
   @cert "cert.pem"
 
+  @type auth_map :: %{cert: X509.Certificate.t(), key: X509.PrivateKey.t()}
+
   def init() do
     data_dir()
     |> File.mkdir_p()
@@ -14,7 +16,11 @@ defmodule NervesHubCLI.User do
           binary(),
           String.t()
         ) :: :ok | {:error, atom()}
-  def save_certs(pem_cert, pem_key, certificate_password) do
+  def save_certs(
+        <<"-----BEGIN", _::binary>> = pem_cert,
+        <<"-----BEGIN", _::binary>> = pem_key,
+        certificate_password
+      ) do
     encrypted_key = Crypto.encrypt(pem_key, certificate_password)
 
     with :ok <- File.write(user_data_path(@cert), pem_cert),
@@ -27,14 +33,13 @@ defmodule NervesHubCLI.User do
     end
   end
 
-  @spec auth(String.t()) :: {:error, atom()} | {:ok, %{cert: binary(), key: binary()}}
+  @spec auth(String.t()) :: {:error, atom()} | {:ok, auth_map}
   def auth(password) do
     with {:ok, encrypted} <- File.read(user_data_path(@key)),
          {:ok, pem_key} <- Crypto.decrypt(encrypted, password),
-         {:ok, pem_cert} <- File.read(user_data_path(@cert)) do
-      key = Certificate.pem_to_der(pem_key)
-      cert = Certificate.pem_to_der(pem_cert)
-
+         {:ECPrivateKey, _, _, _, _} = key <- Certificate.key_from_pem(pem_key),
+         {:ok, pem_cert} <- File.read(user_data_path(@cert)),
+         {:OTPCertificate, _, _, _} = cert <- Certificate.cert_from_pem(pem_cert) do
       {:ok, %{key: key, cert: cert}}
     end
   end
@@ -56,7 +61,8 @@ defmodule NervesHubCLI.User do
     ca_cert_path
     |> File.ls!()
     |> Enum.map(&File.read!(Path.join(ca_cert_path, &1)))
-    |> Enum.map(&Certificate.pem_to_der/1)
+    |> Enum.map(&Certificate.cert_from_pem/1)
+    |> Enum.map(&Certificate.cert_to_der/1)
   end
 
   defp user_data_path(file) do

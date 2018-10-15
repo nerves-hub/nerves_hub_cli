@@ -1,4 +1,5 @@
 defmodule NervesHubCLI.API do
+  alias NervesHubCLI.Certificate
   require Record
 
   Record.defrecord(
@@ -159,10 +160,11 @@ defmodule NervesHubCLI.API do
     ]
   end
 
+  @spec ssl_options(NervesHubCLI.User.auth_map() | %{}) :: Keyword.t()
   defp ssl_options(%{key: key, cert: cert}) do
     [
-      key: {:ECPrivateKey, key},
-      cert: cert,
+      key: {:ECPrivateKey, Certificate.key_to_der(key)},
+      cert: Certificate.cert_to_der(cert),
       server_name_indication: to_charlist(@host)
     ]
   end
