@@ -118,8 +118,7 @@ defmodule Mix.Tasks.NervesHub.Product do
   def create(org, opts) do
     config = Mix.Project.config()
 
-    name =
-      opts[:name] || config[:name] || config[:app] || Mix.Project.Shell.prompt("Product name:")
+    name = opts[:name] || config[:name] || config[:app] || Shell.prompt("Product name:")
 
     Shell.info("")
     Shell.info("Creating product '#{name}'...")
