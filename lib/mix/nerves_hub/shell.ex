@@ -1,6 +1,4 @@
 defmodule Mix.NervesHubCLI.Shell do
-  alias NervesHubCLI.Certificate
-
   def info(output) do
     Mix.shell().info(output)
   end
@@ -28,7 +26,7 @@ defmodule Mix.NervesHubCLI.Shell do
     env_key = System.get_env("NERVES_HUB_KEY")
 
     if env_cert != nil and env_key != nil do
-      %{cert: Certificate.cert_from_pem(env_cert), key: Certificate.key_from_pem(env_key)}
+      %{cert: X509.Certificate.from_pem(env_cert), key: X509.PrivateKey.from_pem(env_key)}
     else
       password = password_get(prompt)
 
