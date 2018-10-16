@@ -1,5 +1,4 @@
 defmodule NervesHubCLI.API do
-  alias NervesHubCLI.Certificate
   require Record
 
   Record.defrecord(
@@ -7,6 +6,8 @@ defmodule NervesHubCLI.API do
     :client,
     Record.extract(:client, from_lib: "hackney/include/hackney.hrl")
   )
+
+  alias X509.PrivateKey
 
   @host "api.nerves-hub.org"
   @port 443
@@ -163,8 +164,8 @@ defmodule NervesHubCLI.API do
   @spec ssl_options(NervesHubCLI.User.auth_map() | %{}) :: Keyword.t()
   defp ssl_options(%{key: key, cert: cert}) do
     [
-      key: {:ECPrivateKey, Certificate.key_to_der(key)},
-      cert: Certificate.cert_to_der(cert),
+      key: {:ECPrivateKey, PrivateKey.to_der(key)},
+      cert: X509.Certificate.to_der(cert),
       server_name_indication: to_charlist(@host)
     ]
   end

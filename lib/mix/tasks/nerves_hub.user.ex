@@ -1,8 +1,10 @@
 defmodule Mix.Tasks.NervesHub.User do
   use Mix.Task
 
-  alias NervesHubCLI.{API, User, Certificate, Config}
+  alias NervesHubCLI.{API, User, Config}
   alias Mix.NervesHubCLI.Shell
+
+  alias X509.{Certificate, PrivateKey, CSR}
 
   @shortdoc "Manages your NervesHub user account"
 
@@ -155,8 +157,8 @@ defmodule Mix.Tasks.NervesHub.User do
 
     with :ok <- File.mkdir_p(path),
          {:ok, %{key: key, cert: cert}} <- User.auth(password),
-         key_pem <- Certificate.key_to_pem(key),
-         cert_pem <- Certificate.cert_to_pem(cert),
+         key_pem <- PrivateKey.to_pem(key),
+         cert_pem <- Certificate.to_pem(cert),
          filename <- certs_tar_file_name(path),
          {:ok, tar} <- :erl_tar.open(to_charlist(filename), [:write, :compressed]),
          :ok <- :erl_tar.add(tar, {'cert.pem', cert_pem}, []),
@@ -199,14 +201,14 @@ defmodule Mix.Tasks.NervesHub.User do
 
     local_password = Shell.password_get("Please enter a local password:")
 
-    key = X509.PrivateKey.new_ec(:secp256r1)
-    pem_key = X509.PrivateKey.to_pem(key)
+    key = PrivateKey.new_ec(:secp256r1)
+    pem_key = PrivateKey.to_pem(key)
 
-    csr = X509.CSR.new(key, "/O=#{username}")
-    pem_csr = X509.CSR.to_pem(csr)
+    csr = CSR.new(key, "/O=#{username}")
+    pem_csr = CSR.to_pem(csr)
 
     with safe_csr <- Base.encode64(pem_csr),
-         description <- Certificate.default_description(),
+         description <- NervesHubCLI.default_description(),
          {:ok, %{"data" => %{"cert" => pem_cert}}} <-
            API.User.sign(email, account_password, safe_csr, description),
          :ok <- User.save_certs(pem_cert, pem_key, local_password),

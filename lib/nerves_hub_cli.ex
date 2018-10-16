@@ -1,6 +1,12 @@
 defmodule NervesHubCLI do
   alias Mix.NervesHubCLI.Shell
 
+  @spec default_description() :: String.t()
+  def default_description() do
+    {:ok, hostname} = :inet.gethostname()
+    to_string(hostname)
+  end
+
   def home_dir do
     override_dir =
       Application.get_env(:nerves_hub_cli, :home_dir) || System.get_env("NERVES_HUB_HOME")

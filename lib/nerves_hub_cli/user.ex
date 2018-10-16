@@ -1,10 +1,11 @@
 defmodule NervesHubCLI.User do
-  alias NervesHubCLI.{Certificate, Crypto}
+  alias NervesHubCLI.Crypto
+  alias X509.{Certificate, PrivateKey}
 
   @key "key.encrypted"
   @cert "cert.pem"
 
-  @type auth_map :: %{cert: X509.Certificate.t(), key: X509.PrivateKey.t()}
+  @type auth_map :: %{cert: Certificate.t(), key: PrivateKey.t()}
 
   def init() do
     data_dir()
@@ -37,9 +38,9 @@ defmodule NervesHubCLI.User do
   def auth(password) do
     with {:ok, encrypted} <- File.read(user_data_path(@key)),
          {:ok, pem_key} <- Crypto.decrypt(encrypted, password),
-         {:ECPrivateKey, _, _, _, _} = key <- Certificate.key_from_pem(pem_key),
+         {:ECPrivateKey, _, _, _, _} = key <- PrivateKey.from_pem(pem_key),
          {:ok, pem_cert} <- File.read(user_data_path(@cert)),
-         {:OTPCertificate, _, _, _} = cert <- Certificate.cert_from_pem(pem_cert) do
+         {:OTPCertificate, _, _, _} = cert <- Certificate.from_pem(pem_cert) do
       {:ok, %{key: key, cert: cert}}
     end
   end
@@ -61,8 +62,8 @@ defmodule NervesHubCLI.User do
     ca_cert_path
     |> File.ls!()
     |> Enum.map(&File.read!(Path.join(ca_cert_path, &1)))
-    |> Enum.map(&Certificate.cert_from_pem/1)
-    |> Enum.map(&Certificate.cert_to_der/1)
+    |> Enum.map(&Certificate.from_pem/1)
+    |> Enum.map(&Certificate.to_der/1)
   end
 
   defp user_data_path(file) do
