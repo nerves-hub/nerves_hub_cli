@@ -12,16 +12,8 @@ defmodule NervesHubCLI.User do
     |> File.mkdir_p()
   end
 
-  @spec save_certs(
-          binary(),
-          binary(),
-          String.t()
-        ) :: :ok | {:error, atom()}
-  def save_certs(
-        <<"-----BEGIN", _::binary>> = pem_cert,
-        <<"-----BEGIN", _::binary>> = pem_key,
-        certificate_password
-      ) do
+  @spec save_certs(binary(), binary(), String.t()) :: :ok | {:error, atom()}
+  def save_certs(pem_cert, pem_key, certificate_password) do
     encrypted_key = Crypto.encrypt(pem_key, certificate_password)
 
     with :ok <- File.write(user_data_path(@cert), pem_cert),
