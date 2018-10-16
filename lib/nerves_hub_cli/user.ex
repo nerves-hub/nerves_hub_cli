@@ -30,9 +30,9 @@ defmodule NervesHubCLI.User do
   def auth(password) do
     with {:ok, encrypted} <- File.read(user_data_path(@key)),
          {:ok, pem_key} <- Crypto.decrypt(encrypted, password),
-         {:ECPrivateKey, _, _, _, _} = key <- PrivateKey.from_pem(pem_key),
+         key <- PrivateKey.from_pem!(pem_key),
          {:ok, pem_cert} <- File.read(user_data_path(@cert)),
-         {:OTPCertificate, _, _, _} = cert <- Certificate.from_pem(pem_cert) do
+         cert <- Certificate.from_pem!(pem_cert) do
       {:ok, %{key: key, cert: cert}}
     end
   end
