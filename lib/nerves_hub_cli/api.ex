@@ -8,7 +8,6 @@ defmodule NervesHubCLI.API do
   use Tesla
   adapter(Tesla.Adapter.Hackney)
   if Mix.env() != :prod, do: plug(Tesla.Middleware.Logger)
-  plug(Tesla.Middleware.Headers, [{"Content-Type", "application/json"}])
   plug(Tesla.Middleware.FollowRedirects, max_redirects: 5)
   plug(Tesla.Middleware.JSON)
 
@@ -91,7 +90,7 @@ defmodule NervesHubCLI.API do
   @spec ssl_options(NervesHubCLI.User.auth_map() | %{}) :: Keyword.t()
   defp ssl_options(%{key: key, cert: cert}) do
     [
-      key: {:ECPrivateKey, PrivateKey.to_der(key)},
+      key: {:ECPrivateKey, X509.PrivateKey.to_der(key)},
       cert: X509.Certificate.to_der(cert),
       server_name_indication: to_charlist(@host)
     ]
