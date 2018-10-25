@@ -241,7 +241,7 @@ defmodule Mix.Tasks.NervesHub.Device do
     key = X509.PrivateKey.new_ec(:secp256r1)
     pem_key = X509.PrivateKey.to_pem(key)
 
-    csr = X509.CSR.new(key, "/O=#{org}/CN=${identifier}")
+    csr = X509.CSR.new(key, "/O=#{org}/CN=#{identifier}")
     pem_csr = X509.CSR.to_pem(csr)
 
     with safe_csr <- Base.encode64(pem_csr),
