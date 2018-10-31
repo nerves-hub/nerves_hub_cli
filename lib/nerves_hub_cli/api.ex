@@ -65,7 +65,7 @@ defmodule NervesHubCLI.API do
       {Tesla.Middleware.BaseUrl, endpoint()}
     ]
 
-    Tesla.build_client(middleware)
+    Tesla.client(middleware)
   end
 
   defp endpoint do
