@@ -54,7 +54,7 @@ defmodule NervesHubCLI.User do
     ca_cert_path
     |> File.ls!()
     |> Enum.map(&File.read!(Path.join(ca_cert_path, &1)))
-    |> Enum.map(&Certificate.from_pem/1)
+    |> Enum.map(&Certificate.from_pem!/1)
     |> Enum.map(&Certificate.to_der/1)
   end
 
