@@ -207,7 +207,7 @@ defmodule Mix.Tasks.NervesHub.Device do
         {cert_path, key_path}
       else
         if key_path == nil or cert_path == nil do
-          Shell.raise("Must specify both --key and --cert}")
+          Shell.raise("Must specify both --key and --cert")
         end
 
         {cert_path, key_path}
@@ -217,7 +217,7 @@ defmodule Mix.Tasks.NervesHub.Device do
     System.put_env("NERVES_SERIAL_NUMBER", identifier)
     System.put_env("NERVES_HUB_CERT", File.read!(cert_path))
     System.put_env("NERVES_HUB_KEY", File.read!(key_path))
-    Mix.Task.run("firmware.burn", [])
+    Mix.Task.run("burn", [])
   end
 
   def cert_list(org, identifier) do
