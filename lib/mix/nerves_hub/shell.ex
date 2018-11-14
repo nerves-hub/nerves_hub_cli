@@ -26,6 +26,8 @@ defmodule Mix.NervesHubCLI.Shell do
     env_key = System.get_env("NERVES_HUB_KEY")
 
     if env_cert != nil and env_key != nil do
+      env_cert = try_decode64(env_cert)
+      env_key = try_decode64(env_key)
       %{cert: X509.Certificate.from_pem!(env_cert), key: X509.PrivateKey.from_pem!(env_key)}
     else
       password = password_get(prompt)
@@ -90,6 +92,13 @@ defmodule Mix.NervesHubCLI.Shell do
 
   def render_error(error) do
     error("Unhandled error: #{inspect(error)}")
+  end
+
+  defp try_decode64(value) do
+    case Base.decode64(value) do
+      {:ok, value} -> value
+      _ -> value
+    end
   end
 
   defp password_clean(prompt) do
