@@ -67,7 +67,7 @@ defmodule Mix.Tasks.NervesHub.Key do
 
   Import an existing key locally and on NervesHub
 
-    mix nerves_hub.key import name PUBLIC_KEY_FILE PRIVATE_KEY_FILE
+    mix nerves_hub.key import NAME PUBLIC_KEY_FILE PRIVATE_KEY_FILE
 
   ### Command line options
 
@@ -128,6 +128,7 @@ defmodule Mix.Tasks.NervesHub.Key do
       mix nerves_hub.key list
       mix nerves_hub.key create NAME
       mix nerves_hub.key delete NAME
+      mix nerves_hub.key import NAME
       mix nerves_hub.key export NAME
 
     Run `mix help nerves_hub.key` for more information.
