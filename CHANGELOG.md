@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.4.0
+
+* Enhancements
+  * Updated mix tasks
+    * `mix nerves_hub.product create` - Will take the product name from the
+      Mix project config by default.
+    * `mix enrves_hub.device burn` - Will now call `mix burn` instead of
+      `mix firmware.burn`.
+  * Certificate functions are performed in Erlang and no longer call out to
+    openssl.
+  * Updated Docs and CLI prompts.
+
 ## v0.3.0
 
 * Enhancements
