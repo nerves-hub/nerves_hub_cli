@@ -85,7 +85,11 @@ defmodule Mix.NervesHubCLI.Shell do
     error(reason)
   end
 
-  def render_error({:error, %{"errors" => reasons}}) do
+  def render_error({:error, %{"errors" => reason}}) when is_binary(reason) do
+    error(reason)
+  end
+
+  def render_error({:error, %{"errors" => reasons}}) when is_list(reasons) do
     error("HTTP error")
     for {key, reason} <- reasons, do: error("  #{key}: #{reason}")
   end
