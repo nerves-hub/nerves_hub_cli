@@ -151,7 +151,7 @@ defmodule Mix.Tasks.NervesHub.Firmware do
       |> Shell.info()
 
       if Shell.yes?("Publish Firmware?") do
-        product = metadata["product"]
+        product = product(opts) || metadata["product"]
         publish(firmware, org, product, opts)
       end
     else
