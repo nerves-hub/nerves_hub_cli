@@ -51,7 +51,7 @@ defmodule Mix.Tasks.NervesHub.Deployment do
   """
 
   import Mix.NervesHubCLI.Utils
-  alias NervesHubCLI.API
+
   alias Mix.NervesHubCLI.Shell
 
   @switches [
@@ -103,7 +103,7 @@ defmodule Mix.Tasks.NervesHub.Deployment do
   def list(org, product) do
     auth = Shell.request_auth()
 
-    case API.Deployment.list(org, product, auth) do
+    case NervesHubCore.Deployment.list(org, product, auth) do
       {:ok, %{"data" => []}} ->
         Shell.info("No deployments have been created for product: #{product}")
 
@@ -144,7 +144,7 @@ defmodule Mix.Tasks.NervesHub.Deployment do
 
     auth = Shell.request_auth()
 
-    case API.Deployment.create(org, product, name, firmware, vsn, tags, auth) do
+    case NervesHubCore.Deployment.create(org, product, name, firmware, vsn, tags, auth) do
       {:ok, %{"data" => %{} = _deployment}} ->
         Shell.info("Deployment #{name} created")
 
@@ -156,7 +156,7 @@ defmodule Mix.Tasks.NervesHub.Deployment do
   def update(deployment, key, value, org, product, auth \\ nil) do
     auth = auth || Shell.request_auth()
 
-    case API.Deployment.update(org, product, deployment, Map.put(%{}, key, value), auth) do
+    case NervesHubCore.Deployment.update(org, product, deployment, Map.put(%{}, key, value), auth) do
       {:ok, %{"data" => deployment}} ->
         Shell.info("")
         Shell.info("Deployment Updated:")

@@ -2,7 +2,6 @@ defmodule Mix.Tasks.NervesHub.CaCertificate do
   use Mix.Task
 
   import Mix.NervesHubCLI.Utils
-  alias NervesHubCLI.API
   alias Mix.NervesHubCLI.Shell
 
   @shortdoc "Manages CA certificates"
@@ -66,7 +65,7 @@ defmodule Mix.Tasks.NervesHub.CaCertificate do
   def list(org) do
     auth = Shell.request_auth()
 
-    case API.CACertificate.list(org, auth) do
+    case NervesHubCore.CACertificate.list(org, auth) do
       {:ok, %{"data" => ca_certificates}} ->
         render_ca_certificates(ca_certificates)
 
@@ -79,7 +78,7 @@ defmodule Mix.Tasks.NervesHub.CaCertificate do
     with {:ok, cert_pem} <- File.read(cert_path),
          auth = Shell.request_auth(),
          {:ok, %{"data" => %{"serial" => serial}}} <-
-           API.CACertificate.create(org, cert_pem, auth) do
+           NervesHubCore.CACertificate.create(org, cert_pem, auth) do
       Shell.info("CA certificate '#{serial}' created.")
     else
       error ->
@@ -92,7 +91,7 @@ defmodule Mix.Tasks.NervesHub.CaCertificate do
       auth = Shell.request_auth()
       Shell.info("Deleting CA certificate '#{serial}'")
 
-      case API.CACertificate.delete(org, serial, auth) do
+      case NervesHubCore.CACertificate.delete(org, serial, auth) do
         {:ok, ""} ->
           Shell.info("CA certificate deleted successfully")
 

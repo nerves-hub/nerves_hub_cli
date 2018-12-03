@@ -35,11 +35,9 @@ defmodule NervesHubCLI.MixProject do
 
   defp deps do
     [
-      {:jason, "~> 1.0"},
-      {:tesla, "~> 1.2.1 or ~> 1.3"},
-      {:hackney, "~> 1.9"},
       {:pbcs, "~> 0.1"},
       {:x509, "~> 0.3"},
+      {:nerves_hub_core, "~> 0.1"},
       {:ex_doc, "~> 0.19", only: [:dev, :test], runtime: false}
     ]
   end

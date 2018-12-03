@@ -28,7 +28,11 @@ defmodule Mix.NervesHubCLI.Shell do
     if env_cert != nil and env_key != nil do
       env_cert = try_decode64(env_cert)
       env_key = try_decode64(env_key)
-      %{cert: X509.Certificate.from_pem!(env_cert), key: X509.PrivateKey.from_pem!(env_key)}
+
+      %NervesHubCore.Auth{
+        cert: X509.Certificate.from_pem!(env_cert),
+        key: X509.PrivateKey.from_pem!(env_key)
+      }
     else
       password = password_get(prompt)
 

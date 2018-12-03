@@ -2,7 +2,7 @@ defmodule Mix.Tasks.NervesHub.Key do
   use Mix.Task
 
   import Mix.NervesHubCLI.Utils
-  alias NervesHubCLI.API
+
   alias Mix.NervesHubCLI.Shell
 
   @shortdoc "Manages firmware signing keys"
@@ -152,7 +152,7 @@ defmodule Mix.Tasks.NervesHub.Key do
   def list_remote(org) do
     auth = Shell.request_auth()
 
-    case API.Key.list(org, auth) do
+    case NervesHubCore.Key.list(org, auth) do
       {:ok, %{"data" => keys}} ->
         render_keys(keys)
 
@@ -246,7 +246,7 @@ defmodule Mix.Tasks.NervesHub.Key do
   def delete_remote(name, org) do
     auth = Shell.request_auth()
     Shell.info("Deleting signing key '#{name}' from NervesHub")
-    API.Key.delete(org, name, auth)
+    NervesHubCore.Key.delete(org, name, auth)
   end
 
   # TODO handle file not found
@@ -277,7 +277,7 @@ defmodule Mix.Tasks.NervesHub.Key do
   defp create_remote(name, key, org) do
     Shell.info("\nRegistering the firmware signing public key '#{name}' with NervesHub.")
     auth = Shell.request_auth()
-    API.Key.create(org, name, key, auth)
+    NervesHubCore.Key.create(org, name, key, auth)
   end
 
   defp import_local(name, org, public_key_file, private_key_file) do

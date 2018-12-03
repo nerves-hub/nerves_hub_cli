@@ -5,8 +5,6 @@ defmodule NervesHubCLI.User do
   @key "key.encrypted"
   @cert "cert.pem"
 
-  @type auth_map :: %{cert: Certificate.t(), key: PrivateKey.t()}
-
   def init() do
     data_dir()
     |> File.mkdir_p()
@@ -26,14 +24,14 @@ defmodule NervesHubCLI.User do
     end
   end
 
-  @spec auth(String.t()) :: {:error, atom()} | {:ok, auth_map}
+  @spec auth(String.t()) :: {:error, atom()} | {:ok, NervesHubCore.Auth.t()}
   def auth(password) do
     with {:ok, encrypted} <- File.read(user_data_path(@key)),
          {:ok, pem_key} <- Crypto.decrypt(encrypted, password),
          key <- PrivateKey.from_pem!(pem_key),
          {:ok, pem_cert} <- File.read(user_data_path(@cert)),
          cert <- Certificate.from_pem!(pem_cert) do
-      {:ok, %{key: key, cert: cert}}
+      {:ok, %NervesHubCore.Auth{key: key, cert: cert}}
     end
   end
 
@@ -42,20 +40,6 @@ defmodule NervesHubCLI.User do
     File.rm(user_data_path(@cert))
     File.rm(user_data_path(@key))
     :ok
-  end
-
-  def ca_certs() do
-    ca_cert_path =
-      Application.get_env(:nerves_hub_cli, :ca_certs) || System.get_env("NERVES_HUB_CA_CERTS") ||
-        :code.priv_dir(:nerves_hub_cli)
-        |> to_string()
-        |> Path.join("ca_certs")
-
-    ca_cert_path
-    |> File.ls!()
-    |> Enum.map(&File.read!(Path.join(ca_cert_path, &1)))
-    |> Enum.map(&Certificate.from_pem!/1)
-    |> Enum.map(&Certificate.to_der/1)
   end
 
   defp user_data_path(file) do
