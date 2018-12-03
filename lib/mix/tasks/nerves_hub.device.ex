@@ -2,7 +2,7 @@ defmodule Mix.Tasks.NervesHub.Device do
   use Mix.Task
 
   import Mix.NervesHubCLI.Utils
-  alias NervesHubCLI.API
+
   alias Mix.NervesHubCLI.Shell
 
   @shortdoc "Manages your NervesHub devices"
@@ -141,7 +141,7 @@ defmodule Mix.Tasks.NervesHub.Device do
 
     auth = Shell.request_auth()
 
-    case API.Device.create(org, identifier, description, tags, auth) do
+    case NervesHubCore.Device.create(org, identifier, description, tags, auth) do
       {:ok, %{"data" => %{} = _device}} ->
         Shell.info("Device #{identifier} created")
 
@@ -157,7 +157,7 @@ defmodule Mix.Tasks.NervesHub.Device do
   def update(org, identifier, ["tags" | tags]) do
     auth = Shell.request_auth()
 
-    case API.Device.update(org, identifier, %{tags: tags}, auth) do
+    case NervesHubCore.Device.update(org, identifier, %{tags: tags}, auth) do
       {:ok, %{"data" => %{} = _device}} ->
         Shell.info("Device #{identifier} updated")
 
@@ -169,7 +169,7 @@ defmodule Mix.Tasks.NervesHub.Device do
   def update(org, identifier, [key, value]) do
     auth = Shell.request_auth()
 
-    case API.Device.update(org, identifier, %{key => value}, auth) do
+    case NervesHubCore.Device.update(org, identifier, %{key => value}, auth) do
       {:ok, %{"data" => %{} = _device}} ->
         Shell.info("Device #{identifier} updated")
 
@@ -223,7 +223,7 @@ defmodule Mix.Tasks.NervesHub.Device do
   def cert_list(org, identifier) do
     auth = Shell.request_auth()
 
-    case API.Device.cert_list(org, identifier, auth) do
+    case NervesHubCore.Device.cert_list(org, identifier, auth) do
       {:ok, %{"data" => certs}} ->
         render_certs(identifier, certs)
 
@@ -246,7 +246,7 @@ defmodule Mix.Tasks.NervesHub.Device do
 
     with safe_csr <- Base.encode64(pem_csr),
          {:ok, %{"data" => %{"cert" => cert}}} <-
-           API.Device.cert_sign(org, identifier, safe_csr, auth),
+           NervesHubCore.Device.cert_sign(org, identifier, safe_csr, auth),
          :ok <- File.write(Path.join(path, "#{identifier}-cert.pem"), cert),
          :ok <- File.write(Path.join(path, "#{identifier}-key.pem"), pem_key) do
       Shell.info("Finished")

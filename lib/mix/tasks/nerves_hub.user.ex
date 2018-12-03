@@ -1,7 +1,7 @@
 defmodule Mix.Tasks.NervesHub.User do
   use Mix.Task
 
-  alias NervesHubCLI.{API, User, Config}
+  alias NervesHubCLI.{User, Config}
   alias Mix.NervesHubCLI.Shell
 
   alias X509.{Certificate, PrivateKey, CSR}
@@ -97,7 +97,7 @@ defmodule Mix.Tasks.NervesHub.User do
   def whoami do
     auth = Shell.request_auth()
 
-    case API.User.me(auth) do
+    case NervesHubCore.User.me(auth) do
       {:ok, %{"data" => data}} ->
         %{"username" => username, "email" => email} = data
 
@@ -131,7 +131,7 @@ defmodule Mix.Tasks.NervesHub.User do
     password = Mix.Tasks.Hex.password_get("NervesHub password:") |> String.trim()
     Shell.info("Authenticating...")
 
-    case API.User.auth(email, password) do
+    case NervesHubCore.User.auth(email, password) do
       {:ok, %{"data" => %{"email" => ^email, "username" => username}}} ->
         Shell.info("Success")
         generate_certificate(username, email, password)
@@ -174,7 +174,7 @@ defmodule Mix.Tasks.NervesHub.User do
     do: Path.join(path, "nerves_hub-certs.tar.gz")
 
   defp register(username, email, account_password) do
-    case API.User.register(username, email, account_password) do
+    case NervesHubCore.User.register(username, email, account_password) do
       {:ok, %{"data" => %{"email" => ^email, "username" => ^username}}} ->
         Shell.info("Account created")
         generate_certificate(username, email, account_password)
@@ -210,7 +210,7 @@ defmodule Mix.Tasks.NervesHub.User do
     with safe_csr <- Base.encode64(pem_csr),
          description <- NervesHubCLI.default_description(),
          {:ok, %{"data" => %{"cert" => pem_cert}}} <-
-           API.User.sign(email, account_password, safe_csr, description),
+           NervesHubCore.User.sign(email, account_password, safe_csr, description),
          :ok <- User.save_certs(pem_cert, pem_key, local_password),
          :ok <- Config.put(:email, email),
          :ok <- Config.put(:org, username) do
