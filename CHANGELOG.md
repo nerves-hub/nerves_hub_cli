@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.5.0
+
+* Enhancements
+  * Added mix tasks
+    * `mix nerves_hub.ca_certificate list` - List all ca certificates for an org.
+    * `mix nerves_hub.ca_certificate create CERT_PATH` - Add a CA certificate.
+    * `mix nerves_hub.ca_certificate delete CERT_SERIAL`- Delete a CA certificate.
+  * The API modules have been moved to `nerves_hub_core` for runtime reusability.
+
+* Bug Fixes
+  * Improved error handling when uploading unsigned firmware.
+
 ## v0.4.0
 
 * Enhancements
