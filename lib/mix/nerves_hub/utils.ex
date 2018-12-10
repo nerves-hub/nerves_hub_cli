@@ -14,8 +14,7 @@ defmodule Mix.NervesHubCLI.Utils do
     # not found
     org =
       Keyword.get(opts, :org) || System.get_env("NERVES_HUB_ORG") ||
-        Keyword.get(config(), :nerves_hub, [])
-        |> Keyword.get(:org) || Config.get(:org) ||
+        Application.get_env(:nerves_hub, :org) || Config.get(:org) ||
         Shell.raise("""
         Cound not determine organization
         Organization is set in the following order
@@ -28,13 +27,10 @@ defmodule Mix.NervesHubCLI.Utils do
 
             export NERVES_HUB_ORG=org_name
 
-          By setting it in the project's mix config
+          By setting it in the project's config.exs
 
-            def project do
-              [
-                nerves_hub: [org: org_name]
-              ]
-            end
+            config :nerves_hub,
+              org: "org_name"
 
           Your user org from the NervesHub config
 
