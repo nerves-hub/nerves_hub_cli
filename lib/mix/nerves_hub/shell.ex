@@ -69,36 +69,41 @@ defmodule Mix.NervesHubCLI.Shell do
     |> String.trim()
   end
 
-  def render_error(errors) when is_list(errors) do
-    Enum.each(errors, &render_error/1)
+  def render_error(errors) do
+    _ = do_render_error(errors)
+    System.halt(1)
   end
 
-  def render_error({error, reasons}) when is_list(reasons) do
+  def do_render_error(errors) when is_list(errors) do
+    Enum.each(errors, &do_render_error/1)
+  end
+
+  def do_render_error({error, reasons}) when is_list(reasons) do
     error("#{error}")
     for reason <- reasons, do: error("  #{reason}")
   end
 
-  def render_error({:error, %{"status" => "forbidden"}}) do
+  def do_render_error({:error, %{"status" => "forbidden"}}) do
     error("Invalid credentials")
     error("Your user certificate has either expired or has been revoked.")
     error("Please authenticate again:")
     error("  mix nerves_hub.user auth")
   end
 
-  def render_error({:error, %{"status" => reason}}) do
+  def do_render_error({:error, %{"status" => reason}}) do
     error(reason)
   end
 
-  def render_error({:error, %{"errors" => reason}}) when is_binary(reason) do
+  def do_render_error({:error, %{"errors" => reason}}) when is_binary(reason) do
     error(reason)
   end
 
-  def render_error({:error, %{"errors" => reasons}}) when is_list(reasons) do
+  def do_render_error({:error, %{"errors" => reasons}}) when is_list(reasons) do
     error("HTTP error")
     for {key, reason} <- reasons, do: error("  #{key}: #{reason}")
   end
 
-  def render_error(error) do
+  def do_render_error(error) do
     error("Unhandled error: #{inspect(error)}")
   end
 
