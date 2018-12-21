@@ -22,6 +22,7 @@ defmodule Mix.Tasks.NervesHub.Firmware do
       firmware publish. This key can be passed multiple times to update
       multiple deployments.
     * `--key` - (Optional) The firmware signing key to sign the firmware with.
+    * `--ttl` - (Optional) The firmware max time to live seconds.
 
   ## list
 
@@ -111,6 +112,8 @@ defmodule Mix.Tasks.NervesHub.Firmware do
       mix nerves_hub.firmware publish
       mix nerves_hub.firmware delete
       mix nerves_hub.firmware sign
+
+    Run `mix help nerves_hub.firmware` for more information.
     """)
   end
 
