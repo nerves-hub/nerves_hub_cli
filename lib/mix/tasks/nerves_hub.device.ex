@@ -122,7 +122,7 @@ defmodule Mix.Tasks.NervesHub.Device do
       mix nerves_hub.device cert list DEVICE_IDENTIFIER
       mix nerves_hub.device cert create DEVICE_IDENTIFIER
 
-    Run `mix help nerves_hub.deployment` for more information.
+    Run `mix help nerves_hub.device` for more information.
     """)
   end
 
