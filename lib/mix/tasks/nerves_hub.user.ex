@@ -114,8 +114,8 @@ defmodule Mix.Tasks.NervesHub.User do
   def register() do
     email = Shell.prompt("Email address:") |> String.trim()
     username = Shell.prompt("Username:") |> String.trim()
-    password = Mix.Tasks.Hex.password_get("NervesHub password:") |> String.trim()
-    confirm = Mix.Tasks.Hex.password_get("NervesHub password (confirm):") |> String.trim()
+    password = Shell.password_get("NervesHub password:") |> String.trim()
+    confirm = Shell.password_get("NervesHub password (confirm):") |> String.trim()
 
     unless String.equivalent?(password, confirm) do
       Mix.raise("Entered passwords do not match")
@@ -128,7 +128,7 @@ defmodule Mix.Tasks.NervesHub.User do
 
   def auth() do
     email = Shell.prompt("Email address:") |> String.trim()
-    password = Mix.Tasks.Hex.password_get("NervesHub password:") |> String.trim()
+    password = Shell.password_get("NervesHub password:") |> String.trim()
     Shell.info("Authenticating...")
 
     case NervesHubCore.User.auth(email, password) do
