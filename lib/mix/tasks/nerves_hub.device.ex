@@ -31,6 +31,10 @@ defmodule Mix.Tasks.NervesHub.Device do
 
   ### Examples
 
+  List all devices
+
+    mix nerves_hub.device list
+
   Update device tags
 
     mix nerves_hub.device update 1234 tags dev qa
@@ -90,6 +94,9 @@ defmodule Mix.Tasks.NervesHub.Device do
     org = org(opts)
 
     case args do
+      ["list"] ->
+        list(org, opts)
+
       ["create"] ->
         create(org, opts)
 
@@ -116,6 +123,7 @@ defmodule Mix.Tasks.NervesHub.Device do
     Invalid arguments to `mix nerves_hub.device`.
 
     Usage:
+      mix nerves_hub.device list
       mix nerves_hub.device create
       mix nerves_hub.device update KEY VALUE
       mix nerves_hub.device burn DEVICE_IDENTIFIER
@@ -124,6 +132,30 @@ defmodule Mix.Tasks.NervesHub.Device do
 
     Run `mix help nerves_hub.device` for more information.
     """)
+  end
+
+  def list(org, _opts) do
+    auth = Shell.request_auth()
+
+    case NervesHubCore.Device.list(org, auth) do
+      {:ok, %{"data" => devices}} ->
+        Shell.info("")
+        Shell.info("Devices:")
+
+        Enum.each(devices, fn params ->
+          Shell.info("------------")
+
+          render_device(params)
+          |> String.trim_trailing()
+          |> Shell.info()
+        end)
+
+        Shell.info("------------")
+        Shell.info("")
+
+      error ->
+        Shell.render_error(error)
+    end
   end
 
   def create(org, opts) do
@@ -281,6 +313,14 @@ defmodule Mix.Tasks.NervesHub.Device do
     """
       serial:     #{params["serial"]}
       validity:   #{DateTime.to_date(not_before)} - #{DateTime.to_date(not_after)} UTC
+    """
+  end
+
+  defp render_device(params) do
+    """
+      identifier:   #{params["identifier"]}
+      status:       #{params["status"]}
+      tags:         #{Enum.join(params["tags"], ", ")}
     """
   end
 end
