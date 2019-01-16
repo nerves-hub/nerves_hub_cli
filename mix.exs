@@ -37,7 +37,7 @@ defmodule NervesHubCLI.MixProject do
     [
       {:pbcs, "~> 0.1"},
       {:x509, "~> 0.3"},
-      {:nerves_hub_core, "~> 0.1"},
+      {:nerves_hub_core, "~> 0.2"},
       {:ex_doc, "~> 0.19", only: [:dev, :test], runtime: false}
     ]
   end
