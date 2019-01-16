@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.5.1
+
+* Enhancements
+  * Added mix task `mix nerves_hub.device list` - List all devices for an org.
+  * Document `--ttl` option in `mix nerves_hub.firmware publish`.
+  * Expect `:nerves_hub` in application config instead of mix project config.
+  * Bump `nerves_hub_core` dep to `0.2.0`.
+
+* Bug Fixes
+  * Failed mix tasks exit with non-zero status code to facilitate CI.
+  * Rework how a password is obtained when calling `mix nerves_hub.user auth`.
+
 ## v0.5.0
 
 * Enhancements
