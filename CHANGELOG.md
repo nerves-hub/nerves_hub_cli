@@ -16,7 +16,7 @@
 
 * Enhancements
   * Added mix tasks
-    * `mix nerves_hub.ca_certificate list` - List all ca certificates for an org.
+    * `mix nerves_hub.ca_certificate list` - List all CA certificates for an org.
     * `mix nerves_hub.ca_certificate create CERT_PATH` - Add a CA certificate.
     * `mix nerves_hub.ca_certificate delete CERT_SERIAL`- Delete a CA certificate.
   * The API modules have been moved to `nerves_hub_core` for runtime reusability.
@@ -30,7 +30,7 @@
   * Updated mix tasks
     * `mix nerves_hub.product create` - Will take the product name from the
       Mix project config by default.
-    * `mix enrves_hub.device burn` - Will now call `mix burn` instead of
+    * `mix nerves_hub.device burn` - Will now call `mix burn` instead of
       `mix firmware.burn`.
   * Certificate functions are performed in Erlang and no longer call out to
     openssl.

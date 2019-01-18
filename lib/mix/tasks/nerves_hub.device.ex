@@ -18,7 +18,7 @@ defmodule Mix.Tasks.NervesHub.Device do
 
     mix nerves_hub.device create
 
-  ### Command line options
+  ### Command-line options
 
     * `--identifier` - (Optional) The device identifier
     * `--description` - (Optional) The description of the device
@@ -43,13 +43,13 @@ defmodule Mix.Tasks.NervesHub.Device do
 
   Combine a firmware image with NervesHub provisioning information and burn the
   result to an attached MicroSD card or file. This requires that the device
-  was already created. Calling burn without passing command line options will
+  was already created. Calling burn without passing command-line options will
   generate a new cert pair for the device. The command will end with calling
   mix firmware.burn.
 
     mix nerves_hub.device burn DEVICE_IDENTIFIER
 
-  ### Command line options
+  ### Command-line options
 
     * `--cert` - (Optional) A path to an existing device certificate
     * `--key` - (Optional) A path to an existing device private key
@@ -68,7 +68,7 @@ defmodule Mix.Tasks.NervesHub.Device do
 
     mix nerves_hub.device cert create DEVICE_IDENTIFIER
 
-  ### Command line options
+  ### Command-line options
 
     * `--path` - (Optional) A local location for storing certificates
 

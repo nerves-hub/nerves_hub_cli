@@ -43,7 +43,7 @@ defmodule Mix.Tasks.NervesHub.User do
 
     mix nerves_hub.user cert export
 
-  ### Command line options
+  ### Command-line options
 
     * `--path` - (Optional) A local location for exporting certificate.
   """

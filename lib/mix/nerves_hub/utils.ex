@@ -7,7 +7,7 @@ defmodule Mix.NervesHubCLI.Utils do
   end
 
   def org(opts) do
-    # command line options
+    # command-line options
     # environment
     # project
     # user
