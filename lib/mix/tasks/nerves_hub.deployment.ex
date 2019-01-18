@@ -10,7 +10,7 @@ defmodule Mix.Tasks.NervesHub.Deployment do
 
     mix nerves_hub.deployment list
 
-  ### Command line options
+  ### Command-line options
 
     * `--product` - (Optional) Only show deployments for one product.
       This defaults to the Mix Project config `:app` name.
@@ -21,7 +21,7 @@ defmodule Mix.Tasks.NervesHub.Deployment do
 
     mix nerves_hub.deployment create
 
-  ### Command line options
+  ### Command-line options
 
     * `--name` - (Optional) The deployment name
     * `--firmware` - (Optional) The firmware UUID

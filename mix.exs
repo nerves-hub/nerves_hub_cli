@@ -22,7 +22,7 @@ defmodule NervesHubCLI.MixProject do
   end
 
   defp description do
-    "NervesHub Mix command line interface "
+    "NervesHub Mix command-line interface "
   end
 
   defp package do

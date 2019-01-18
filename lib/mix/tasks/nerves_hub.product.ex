@@ -18,7 +18,7 @@ defmodule Mix.Tasks.NervesHub.Product do
 
     mix nerves_hub.product create
 
-  ### Command line options
+  ### Command-line options
 
     * `--name` - (Optional) The product name
 

@@ -4,8 +4,8 @@
 [![Hex version](https://img.shields.io/hexpm/v/nerves_hub_cli.svg "Hex version")](https://hex.pm/packages/nerves_hub_cli)
 
 `NervesHubCLI` provides a set of [Mix](https://hexdocs.pm/mix/Mix.html) tasks so
-that you can work with [NervesHub](https://www.nerves-hub.org) from the command
-line. Features include:
+that you can work with [NervesHub](https://www.nerves-hub.org) from the
+command-line. Features include:
 
 * Uploading firmware to NervesHub
 * Generating device certificates and registration
@@ -20,7 +20,7 @@ The recommended way of using the CLI is to include
 components necessary to use it.
 
 Once installed, you can access available commands and documentation from the
-commandline using `mix help`:
+command-line using `mix help`:
 
 ```sh
 $ mix help

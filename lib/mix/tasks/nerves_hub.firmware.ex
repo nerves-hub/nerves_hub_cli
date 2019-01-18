@@ -14,7 +14,7 @@ defmodule Mix.Tasks.NervesHub.Firmware do
 
     mix nerves_hub.firmware publish [Optional: /path/to/app.firmware]
 
-  ### Command line options
+  ### Command-line options
 
     * `--product` - (Optional) The product name to publish the firmware to.
       This defaults to the Mix Project config `:app` name.
@@ -28,7 +28,7 @@ defmodule Mix.Tasks.NervesHub.Firmware do
 
     mix nerves_hub.firmware list
 
-  ### Command line options
+  ### Command-line options
 
     * `--product` - (Optional) The product name to publish the firmware to.
       This defaults to the Mix Project config `:app` name.
@@ -48,7 +48,7 @@ defmodule Mix.Tasks.NervesHub.Firmware do
 
     mix nerves_hub.firmware sign [Optional: /path/to/app.firmware]
 
-  ### Command line options
+  ### Command-line options
 
     * `--key` - (Optional) The firmware signing key to sign the firmware with.
 

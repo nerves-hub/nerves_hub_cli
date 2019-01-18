@@ -37,7 +37,7 @@ defmodule Mix.Tasks.NervesHub.Key do
 
     mix nerves_hub.key list
 
-  ### Command line options
+  ### Command-line options
 
     * `--local` - (Optional) Do not request key information from NervesHub
 
@@ -48,7 +48,7 @@ defmodule Mix.Tasks.NervesHub.Key do
 
     mix nerves_hub.key create NAME
 
-  ### Command line options
+  ### Command-line options
 
     * `--local` - (Optional) Do not register the public key with NervesHub
 
@@ -58,7 +58,7 @@ defmodule Mix.Tasks.NervesHub.Key do
 
     mix nerves_hub.key delete NAME
 
-  ### Command line options
+  ### Command-line options
 
     * `--local` - (Optional) Perform the operation only locally defaults to
       `false` which will perform both local and remote operations
@@ -69,7 +69,7 @@ defmodule Mix.Tasks.NervesHub.Key do
 
     mix nerves_hub.key import NAME PUBLIC_KEY_FILE PRIVATE_KEY_FILE
 
-  ### Command line options
+  ### Command-line options
 
     * `--local` - (Optional) Do not register the public key with NervesHub
 
@@ -79,7 +79,7 @@ defmodule Mix.Tasks.NervesHub.Key do
 
     mix nerves_hub.key export NAME
 
-  ### Command line options
+  ### Command-line options
 
     * `--path` - (Optional) A local location for exporting keys.
   """
