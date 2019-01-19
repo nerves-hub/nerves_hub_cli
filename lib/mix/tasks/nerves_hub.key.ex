@@ -96,6 +96,7 @@ defmodule Mix.Tasks.NervesHub.Key do
 
     {opts, args} = OptionParser.parse!(args, strict: @switches)
 
+    show_api_endpoint()
     org = org(opts)
 
     case args do

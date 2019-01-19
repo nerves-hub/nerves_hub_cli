@@ -1,6 +1,8 @@
 defmodule Mix.Tasks.NervesHub.User do
   use Mix.Task
 
+  import Mix.NervesHubCLI.Utils
+
   alias NervesHubCLI.{User, Config}
   alias Mix.NervesHubCLI.Shell
 
@@ -55,6 +57,8 @@ defmodule Mix.Tasks.NervesHub.User do
     Application.ensure_all_started(:nerves_hub_cli)
 
     {opts, args} = OptionParser.parse!(args, strict: @switches)
+
+    show_api_endpoint()
 
     case args do
       ["whoami"] ->
