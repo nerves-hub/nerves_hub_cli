@@ -20,7 +20,7 @@ defmodule Mix.NervesHubCLI.Utils do
         Organization is set in the following order
 
           From the command line
-          
+
             --org org_name
 
           By setting the environment variable NERVES_HUB_ORG
@@ -37,7 +37,7 @@ defmodule Mix.NervesHubCLI.Utils do
             NervesHubCLI.Config.get(:org)
         """)
 
-    Shell.info("NervesHub org: #{org}")
+    Shell.info("NervesHub organization: #{org}")
     org
   end
 
