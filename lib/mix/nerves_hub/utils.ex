@@ -6,6 +6,17 @@ defmodule Mix.NervesHubCLI.Utils do
     Keyword.get(opts, :product) || config()[:name] || config()[:app]
   end
 
+  @doc """
+  Print the API endpoint that's being used to communicate with the NervesHub server
+  """
+  @spec show_api_endpoint() :: String.t()
+  def show_api_endpoint() do
+    endpoint = NervesHubCore.API.endpoint()
+    uri = URI.parse(endpoint)
+
+    Shell.info("NervesHub server: #{uri.host}:#{uri.port}")
+  end
+
   def org(opts) do
     # command-line options
     # environment
