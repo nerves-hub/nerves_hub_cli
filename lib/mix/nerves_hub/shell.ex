@@ -20,7 +20,7 @@ defmodule Mix.NervesHubCLI.Shell do
     System.get_env("NERVES_HUB_NON_INTERACTIVE") || Mix.shell().yes?(output)
   end
 
-  @spec request_auth(String.t()) :: NervesHubCLI.User.auth_map()
+  @spec request_auth(String.t()) :: NervesHubCore.Auth.t()
   def request_auth(prompt \\ "Local NervesHub user password:") do
     env_cert = System.get_env("NERVES_HUB_CERT")
     env_key = System.get_env("NERVES_HUB_KEY")
@@ -69,6 +69,7 @@ defmodule Mix.NervesHubCLI.Shell do
     |> String.trim()
   end
 
+  @spec render_error([{:error, any()}]) :: no_return()
   def render_error(errors) do
     _ = do_render_error(errors)
     System.halt(1)
