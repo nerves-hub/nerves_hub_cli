@@ -10,7 +10,11 @@ defmodule NervesHubCLI.MixProject do
       deps: deps(),
       docs: [main: "readme", extras: ["README.md"]],
       description: description(),
-      package: package()
+      package: package(),
+      dialyzer: [
+        plt_add_apps: [:public_key, :asn1, :crypto, :mix],
+        ignore_warnings: "dialyzer.ignore-warnings"
+      ]
     ]
   end
 
@@ -38,7 +42,8 @@ defmodule NervesHubCLI.MixProject do
       {:pbcs, "~> 0.1"},
       {:x509, "~> 0.3"},
       {:nerves_hub_core, "~> 0.2"},
-      {:ex_doc, "~> 0.19", only: [:dev, :test], runtime: false}
+      {:ex_doc, "~> 0.19", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.0.0-rc.4", only: [:dev, :test], runtime: false}
     ]
   end
 end
