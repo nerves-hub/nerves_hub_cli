@@ -1,6 +1,15 @@
 defmodule NervesHubCLI do
   alias Mix.NervesHubCLI.Shell
 
+  @moduledoc """
+  TBD
+  """
+
+  @typedoc """
+  Firmware update public keys can be referred to by an atom name or by their contents.
+  """
+  @type fwup_public_key_ref :: String.t() | atom()
+
   @spec default_description() :: String.t()
   def default_description() do
     {:ok, hostname} = :inet.gethostname()
@@ -18,9 +27,13 @@ defmodule NervesHubCLI do
     end
   end
 
-  def public_keys([]), do: []
+  @doc """
+  Convert a list of fwup public keys or references into a list of keys.
+  """
+  @spec resolve_fwup_public_keys([fwup_public_key_ref()]) :: [binary()]
+  def resolve_fwup_public_keys([]), do: []
 
-  def public_keys(keys) when is_list(keys) do
+  def resolve_fwup_public_keys(keys) when is_list(keys) do
     org = Mix.NervesHubCLI.Utils.org([])
     local_keys = NervesHubCLI.Key.local_keys(org)
 
