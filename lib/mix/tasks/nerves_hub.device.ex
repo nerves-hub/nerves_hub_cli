@@ -320,8 +320,11 @@ defmodule Mix.Tasks.NervesHub.Device do
   defp render_device(params) do
     """
       identifier:   #{params["identifier"]}
-      status:       #{params["status"]}
       tags:         #{Enum.join(params["tags"], ", ")}
+      version:      #{params["version"]}
+      status:       #{params["status"]}
+      last
+      connected:    #{params["last_communication"]}
     """
   end
 end
