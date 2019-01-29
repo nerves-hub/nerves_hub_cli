@@ -130,8 +130,8 @@ defmodule Mix.Tasks.NervesHub.Deployment do
 
   def create(org, product, opts) do
     name = opts[:name] || Shell.prompt("Deployment name:")
-    firmware = opts[:firmware] || Shell.prompt("firmware uuid:")
-    vsn = opts[:version] || Shell.prompt("version condition:")
+    firmware = opts[:firmware] || Shell.prompt("Firmware uuid:")
+    vsn = opts[:version] || Shell.prompt("Version condition:")
 
     tags = Keyword.get_values(opts, :tag)
 
@@ -147,7 +147,14 @@ defmodule Mix.Tasks.NervesHub.Deployment do
 
     case NervesHubCore.Deployment.create(org, product, name, firmware, vsn, tags, auth) do
       {:ok, %{"data" => %{} = _deployment}} ->
-        Shell.info("Deployment #{name} created")
+        Shell.info("""
+
+        Deployment #{name} created.
+
+        This deployment is not activated by default. To activate it, run:
+
+        mix nerves_hub.deployment update #{name} is_active true
+        """)
 
       error ->
         Shell.render_error(error)
@@ -160,7 +167,7 @@ defmodule Mix.Tasks.NervesHub.Deployment do
     case NervesHubCore.Deployment.update(org, product, deployment, Map.put(%{}, key, value), auth) do
       {:ok, %{"data" => deployment}} ->
         Shell.info("")
-        Shell.info("Deployment Updated:")
+        Shell.info("Deployment updated:")
 
         render_deployment(deployment)
         |> String.trim_trailing()
@@ -169,7 +176,7 @@ defmodule Mix.Tasks.NervesHub.Deployment do
         Shell.info("")
 
       error ->
-        Shell.info("Failed to update deployment \nreason: #{inspect(error)}")
+        Shell.info("Failed to update deployment.\nReason: #{inspect(error)}")
     end
   end
 
