@@ -7,19 +7,24 @@ defmodule Mix.Tasks.NervesHub.CaCertificate do
   @shortdoc "Manages CA certificates"
 
   @moduledoc """
-  Manages CA certificates
+  Manages CA certificates for validating device connections
+
+  When a device connects for the first time to NervesHub, it
+  is possible to automatically register it if its certificate
+  has been signed by a trusted CA certficate. This set of
+  utilities helps manage the trusted CA certficates.
 
   ## list
 
   mix nerves_hub.ca_certificate list
 
-  ## create
+  ## register
 
-  mix nerves_hub.ca_certificate create CERT_PATH
+  mix nerves_hub.ca_certificate register CERT_PATH
 
-  ## delete
+  ## unregister
 
-  mix nerves_hub.ca_certificate delete CERT_SERIAL
+  mix nerves_hub.ca_certificate unregister CERT_SERIAL
   """
 
   @switches [
@@ -38,11 +43,11 @@ defmodule Mix.Tasks.NervesHub.CaCertificate do
       ["list"] ->
         list(org)
 
-      ["create", certificate_path] ->
-        create(certificate_path, org)
+      ["register", certificate_path] ->
+        register(certificate_path, org)
 
-      ["delete", serial] ->
-        delete(serial, org)
+      ["unregister", serial] ->
+        unregister(serial, org)
 
       _ ->
         render_help()
@@ -56,8 +61,8 @@ defmodule Mix.Tasks.NervesHub.CaCertificate do
 
     Usage:
       mix nerves_hub.ca_certificate list
-      mix nerves_hub.ca_certificate create CERT_PATH
-      mix nerves_hub.ca_certificate delete CERT_SERIAL
+      mix nerves_hub.ca_certificate register CERT_PATH
+      mix nerves_hub.ca_certificate unregister CERT_SERIAL
 
     Run `mix help nerves_hub.ca_certificate` for more information.
     """)
@@ -75,26 +80,26 @@ defmodule Mix.Tasks.NervesHub.CaCertificate do
     end
   end
 
-  def create(cert_path, org) do
+  def register(cert_path, org) do
     with {:ok, cert_pem} <- File.read(cert_path),
          auth = Shell.request_auth(),
          {:ok, %{"data" => %{"serial" => serial}}} <-
            NervesHubCore.CACertificate.create(org, cert_pem, auth) do
-      Shell.info("CA certificate '#{serial}' created.")
+      Shell.info("CA certificate '#{serial}' registered.")
     else
       error ->
         Shell.render_error(error)
     end
   end
 
-  def delete(serial, org) do
-    if Shell.yes?("Delete CA certificate '#{serial}'?") do
+  def unregister(serial, org) do
+    if Shell.yes?("Unregister CA certificate '#{serial}'?") do
       auth = Shell.request_auth()
-      Shell.info("Deleting CA certificate '#{serial}'")
+      Shell.info("Unregistering CA certificate '#{serial}'")
 
       case NervesHubCore.CACertificate.delete(org, serial, auth) do
         {:ok, ""} ->
-          Shell.info("CA certificate deleted successfully")
+          Shell.info("CA certificate unregistered successfully")
 
         error ->
           Shell.render_error(error)
@@ -103,7 +108,7 @@ defmodule Mix.Tasks.NervesHub.CaCertificate do
   end
 
   defp render_ca_certificates([]) do
-    Shell.info("No CA certificates have been created.")
+    Shell.info("No CA certificates have been registered on NervesHub.")
   end
 
   defp render_ca_certificates(ca_certificates) when is_list(ca_certificates) do
