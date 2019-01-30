@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.6.0
+
+This release makes a backwards incompatible API change that affects
+how fwup public keys are shared with other projects. This should
+only affect the `nerves_hub` library and should be handled by mix dependency
+constraints.
+
+* Backwards incompatible changes
+  * The API to share fwup public keys has changed. This should only affect the
+    `nerves_hub` library and should be handled by mix dependency constraints.
+  * `mix nerves_hub.ca_certificate create` is now `register`. (It never created
+    a certificate.
+
+* Enhancements
+  * Show API endpoint when running commands - this makes it more obvious when
+    you're running against api.nerves-hub.org vs. your own instance
+
 ## v0.5.1
 
 * Enhancements
