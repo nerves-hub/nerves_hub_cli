@@ -137,7 +137,7 @@ defmodule Mix.Tasks.NervesHub.Deployment do
 
     tags =
       if tags == [] do
-        Shell.prompt("tags:")
+        Shell.prompt("One or more device tags:")
         |> String.split()
       else
         tags
@@ -207,7 +207,7 @@ defmodule Mix.Tasks.NervesHub.Deployment do
 
   defp render_tags(tags) do
     """
-    tags: [#{Enum.join(tags, ", ")}]
+    device tags: [#{Enum.join(tags, ", ")}]
     """
   end
 end
