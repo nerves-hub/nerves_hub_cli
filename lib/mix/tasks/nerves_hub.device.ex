@@ -160,13 +160,13 @@ defmodule Mix.Tasks.NervesHub.Device do
   end
 
   def create(org, opts) do
-    identifier = opts[:identifier] || Shell.prompt("identifier:")
-    description = opts[:description] || Shell.prompt("description:")
+    identifier = opts[:identifier] || Shell.prompt("Identifier (e.g., serial number):")
+    description = opts[:description] || Shell.prompt("Description:")
     tags = Keyword.get_values(opts, :tag)
 
     tags =
       if tags == [] do
-        Shell.prompt("tags:")
+        Shell.prompt("One or more tags:")
         |> String.split()
       else
         tags
