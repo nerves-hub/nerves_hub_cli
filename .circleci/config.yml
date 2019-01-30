@@ -19,8 +19,7 @@ jobs:
       - run: mix test
       - run: mix format --check-formatted
       - run: mix docs
-        # Comment back in after nerves_hub_core release
-        # - run: mix hex.build
+      - run: mix hex.build
       - run: mix dialyzer --halt-exit-status
       - save_cache:
           key: v1-mix-cache-{{ checksum "mix.lock" }}
