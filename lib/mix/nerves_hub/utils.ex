@@ -11,7 +11,7 @@ defmodule Mix.NervesHubCLI.Utils do
   """
   @spec show_api_endpoint() :: String.t()
   def show_api_endpoint() do
-    endpoint = NervesHubCore.API.endpoint()
+    endpoint = NervesHubUserAPI.API.endpoint()
     uri = URI.parse(endpoint)
 
     Shell.info("NervesHub server: #{uri.host}:#{uri.port}")

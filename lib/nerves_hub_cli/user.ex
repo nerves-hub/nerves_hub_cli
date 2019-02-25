@@ -24,14 +24,14 @@ defmodule NervesHubCLI.User do
     end
   end
 
-  @spec auth(String.t()) :: {:error, atom()} | {:ok, NervesHubCore.Auth.t()}
+  @spec auth(String.t()) :: {:error, atom()} | {:ok, NervesHubUserAPI.Auth.t()}
   def auth(password) do
     with {:ok, encrypted} <- File.read(user_data_path(@key)),
          {:ok, pem_key} <- Crypto.decrypt(encrypted, password),
          key <- PrivateKey.from_pem!(pem_key),
          {:ok, pem_cert} <- File.read(user_data_path(@cert)),
          cert <- Certificate.from_pem!(pem_cert) do
-      {:ok, %NervesHubCore.Auth{key: key, cert: cert}}
+      {:ok, %NervesHubUserAPI.Auth{key: key, cert: cert}}
     end
   end
 
