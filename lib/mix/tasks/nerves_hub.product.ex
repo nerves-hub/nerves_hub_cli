@@ -93,7 +93,7 @@ defmodule Mix.Tasks.NervesHub.Product do
   def list(org) do
     auth = Shell.request_auth()
 
-    case NervesHubCore.Product.list(org, auth) do
+    case NervesHubUserAPI.Product.list(org, auth) do
       {:ok, %{"data" => []}} ->
         Shell.info("No products have been created.")
 
@@ -126,7 +126,7 @@ defmodule Mix.Tasks.NervesHub.Product do
 
     auth = Shell.request_auth()
 
-    case NervesHubCore.Product.create(org, name, auth) do
+    case NervesHubUserAPI.Product.create(org, name, auth) do
       {:ok, %{"data" => %{} = _product}} ->
         Shell.info("Product '#{name}' created.")
 
@@ -139,7 +139,7 @@ defmodule Mix.Tasks.NervesHub.Product do
     if Shell.yes?("Delete product '#{product_name}'?") do
       auth = Shell.request_auth()
 
-      case NervesHubCore.Product.delete(org, product_name, auth) do
+      case NervesHubUserAPI.Product.delete(org, product_name, auth) do
         {:ok, ""} ->
           Shell.info("Product deleted successfully.")
 
@@ -152,7 +152,7 @@ defmodule Mix.Tasks.NervesHub.Product do
   def update(org, product, key, value) do
     auth = Shell.request_auth()
 
-    case NervesHubCore.Product.update(org, product, Map.put(%{}, key, value), auth) do
+    case NervesHubUserAPI.Product.update(org, product, Map.put(%{}, key, value), auth) do
       {:ok, %{"data" => product}} ->
         Shell.info("")
         Shell.info("Product updated:")

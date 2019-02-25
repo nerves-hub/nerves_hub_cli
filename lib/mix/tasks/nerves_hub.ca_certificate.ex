@@ -71,7 +71,7 @@ defmodule Mix.Tasks.NervesHub.CaCertificate do
   def list(org) do
     auth = Shell.request_auth()
 
-    case NervesHubCore.CACertificate.list(org, auth) do
+    case NervesHubUserAPI.CACertificate.list(org, auth) do
       {:ok, %{"data" => ca_certificates}} ->
         render_ca_certificates(ca_certificates)
 
@@ -84,7 +84,7 @@ defmodule Mix.Tasks.NervesHub.CaCertificate do
     with {:ok, cert_pem} <- File.read(cert_path),
          auth = Shell.request_auth(),
          {:ok, %{"data" => %{"serial" => serial}}} <-
-           NervesHubCore.CACertificate.create(org, cert_pem, auth) do
+           NervesHubUserAPI.CACertificate.create(org, cert_pem, auth) do
       Shell.info("CA certificate '#{serial}' registered.")
     else
       error ->
@@ -97,7 +97,7 @@ defmodule Mix.Tasks.NervesHub.CaCertificate do
       auth = Shell.request_auth()
       Shell.info("Unregistering CA certificate '#{serial}'")
 
-      case NervesHubCore.CACertificate.delete(org, serial, auth) do
+      case NervesHubUserAPI.CACertificate.delete(org, serial, auth) do
         {:ok, ""} ->
           Shell.info("CA certificate unregistered successfully")
 

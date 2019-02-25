@@ -41,7 +41,7 @@ defmodule NervesHubCLI.MixProject do
     [
       {:pbcs, "~> 0.1"},
       {:x509, "~> 0.3"},
-      {:nerves_hub_core, "~> 0.3"},
+      {:nerves_hub_user_api, "~> 0.4"},
       {:ex_doc, "~> 0.19", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0.0-rc.4", only: [:dev, :test], runtime: false}
     ]

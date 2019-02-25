@@ -138,7 +138,7 @@ defmodule Mix.Tasks.NervesHub.Device do
   def list(org, _opts) do
     auth = Shell.request_auth()
 
-    case NervesHubCore.Device.list(org, auth) do
+    case NervesHubUserAPI.Device.list(org, auth) do
       {:ok, %{"data" => devices}} ->
         Shell.info("")
         Shell.info("Devices:")
@@ -174,7 +174,7 @@ defmodule Mix.Tasks.NervesHub.Device do
 
     auth = Shell.request_auth()
 
-    case NervesHubCore.Device.create(org, identifier, description, tags, auth) do
+    case NervesHubUserAPI.Device.create(org, identifier, description, tags, auth) do
       {:ok, %{"data" => %{} = _device}} ->
         Shell.info("Device #{identifier} created")
 
@@ -190,7 +190,7 @@ defmodule Mix.Tasks.NervesHub.Device do
   def update(org, identifier, ["tags" | tags]) do
     auth = Shell.request_auth()
 
-    case NervesHubCore.Device.update(org, identifier, %{tags: tags}, auth) do
+    case NervesHubUserAPI.Device.update(org, identifier, %{tags: tags}, auth) do
       {:ok, %{"data" => %{} = _device}} ->
         Shell.info("Device #{identifier} updated")
 
@@ -202,7 +202,7 @@ defmodule Mix.Tasks.NervesHub.Device do
   def update(org, identifier, [key, value]) do
     auth = Shell.request_auth()
 
-    case NervesHubCore.Device.update(org, identifier, %{key => value}, auth) do
+    case NervesHubUserAPI.Device.update(org, identifier, %{key => value}, auth) do
       {:ok, %{"data" => %{} = _device}} ->
         Shell.info("Device #{identifier} updated")
 
@@ -256,7 +256,7 @@ defmodule Mix.Tasks.NervesHub.Device do
   def cert_list(org, identifier) do
     auth = Shell.request_auth()
 
-    case NervesHubCore.Device.cert_list(org, identifier, auth) do
+    case NervesHubUserAPI.Device.cert_list(org, identifier, auth) do
       {:ok, %{"data" => certs}} ->
         render_certs(identifier, certs)
 
@@ -279,7 +279,7 @@ defmodule Mix.Tasks.NervesHub.Device do
 
     with safe_csr <- Base.encode64(pem_csr),
          {:ok, %{"data" => %{"cert" => cert}}} <-
-           NervesHubCore.Device.cert_sign(org, identifier, safe_csr, auth),
+           NervesHubUserAPI.Device.cert_sign(org, identifier, safe_csr, auth),
          :ok <- File.write(Path.join(path, "#{identifier}-cert.pem"), cert),
          :ok <- File.write(Path.join(path, "#{identifier}-key.pem"), pem_key) do
       Shell.info("Finished")

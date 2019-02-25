@@ -121,7 +121,7 @@ defmodule Mix.Tasks.NervesHub.Firmware do
   def list(org, product) do
     auth = Shell.request_auth()
 
-    case NervesHubCore.Firmware.list(org, product, auth) do
+    case NervesHubUserAPI.Firmware.list(org, product, auth) do
       {:ok, %{"data" => []}} ->
         Shell.info("No firmware has been published for product: #{product}")
 
@@ -184,7 +184,7 @@ defmodule Mix.Tasks.NervesHub.Firmware do
 
     ttl = opts[:ttl]
 
-    case NervesHubCore.Firmware.create(org, product, firmware, ttl, auth) do
+    case NervesHubUserAPI.Firmware.create(org, product, firmware, ttl, auth) do
       {:ok, %{"data" => %{} = firmware}} ->
         Shell.info("\nFirmware published successfully")
 
@@ -199,7 +199,7 @@ defmodule Mix.Tasks.NervesHub.Firmware do
   defp delete(uuid, org, product) do
     auth = Shell.request_auth()
 
-    case NervesHubCore.Firmware.delete(org, product, uuid, auth) do
+    case NervesHubUserAPI.Firmware.delete(org, product, uuid, auth) do
       {:ok, ""} ->
         Shell.info("Firmware deleted successfully")
 

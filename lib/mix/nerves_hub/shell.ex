@@ -20,7 +20,7 @@ defmodule Mix.NervesHubCLI.Shell do
     System.get_env("NERVES_HUB_NON_INTERACTIVE") || Mix.shell().yes?(output)
   end
 
-  @spec request_auth(String.t()) :: NervesHubCore.Auth.t()
+  @spec request_auth(String.t()) :: NervesHubUserAPI.Auth.t()
   def request_auth(prompt \\ "Local NervesHub user password:") do
     env_cert = System.get_env("NERVES_HUB_CERT")
     env_key = System.get_env("NERVES_HUB_KEY")
@@ -29,7 +29,7 @@ defmodule Mix.NervesHubCLI.Shell do
       env_cert = try_decode64(env_cert)
       env_key = try_decode64(env_key)
 
-      %NervesHubCore.Auth{
+      %NervesHubUserAPI.Auth{
         cert: X509.Certificate.from_pem!(env_cert),
         key: X509.PrivateKey.from_pem!(env_key)
       }
