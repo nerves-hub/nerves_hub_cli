@@ -4,7 +4,7 @@ defmodule NervesHubCLI.MixProject do
   def project do
     [
       app: :nerves_hub_cli,
-      version: "0.6.0",
+      version: "0.7.0",
       elixir: "~> 1.6",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
