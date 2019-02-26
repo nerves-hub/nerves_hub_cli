@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.7.0
+
+* Enhancements
+  * Change dependency `nerves_hub_core` to `nerves_hub_user_api`
+  * Updated prompts for deployment and device tags
+
 ## v0.6.0
 
 This release makes a backwards incompatible API change that affects
