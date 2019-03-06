@@ -39,6 +39,12 @@ defmodule Mix.Tasks.NervesHub.Device do
 
     mix nerves_hub.device update 1234 tags dev qa
 
+  ## delete
+
+  Delete a device on NervesHub
+
+    mix nerves_hub.device delete DEVICE_IDENTIFIER
+
   ## burn
 
   Combine a firmware image with NervesHub provisioning information and burn the
@@ -101,6 +107,9 @@ defmodule Mix.Tasks.NervesHub.Device do
       ["create"] ->
         create(org, opts)
 
+      ["delete", identifier] ->
+        delete(org, identifier)
+
       ["burn", identifier] ->
         burn(identifier, opts)
 
@@ -127,6 +136,7 @@ defmodule Mix.Tasks.NervesHub.Device do
       mix nerves_hub.device list
       mix nerves_hub.device create
       mix nerves_hub.device update KEY VALUE
+      mix nerves_hub.device delete DEVICE_IDENTIFIER
       mix nerves_hub.device burn DEVICE_IDENTIFIER
       mix nerves_hub.device cert list DEVICE_IDENTIFIER
       mix nerves_hub.device cert create DEVICE_IDENTIFIER
@@ -213,6 +223,18 @@ defmodule Mix.Tasks.NervesHub.Device do
 
   def update(_org, _identifier, data) do
     Shell.render_error("Unable to update data: #{inspect(data)}")
+  end
+
+  def delete(org, identifier) do
+    auth = Shell.request_auth()
+
+    case NervesHubUserAPI.Device.delete(org, identifier, auth) do
+      {:ok, _} ->
+        Shell.info("Device #{identifier} deleted")
+
+      error ->
+        Shell.render_error(error)
+    end
   end
 
   def burn(identifier, opts) do
