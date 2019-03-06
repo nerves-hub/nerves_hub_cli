@@ -152,19 +152,8 @@ defmodule Mix.Tasks.NervesHub.Device do
 
     case NervesHubUserAPI.Device.list(org, auth) do
       {:ok, %{"data" => devices}} ->
-        Shell.info("")
-        Shell.info("Devices:")
-
-        Enum.each(devices, fn params ->
-          Shell.info("------------")
-
-          render_device(params)
-          |> String.trim_trailing()
-          |> Shell.info()
-        end)
-
-        Shell.info("------------")
-        Shell.info("")
+        Shell.info(render_devices(org, devices))
+        Shell.info("Total devices: #{Enum.count(devices)}")
 
       error ->
         Shell.render_error(error)
@@ -355,14 +344,21 @@ defmodule Mix.Tasks.NervesHub.Device do
     """
   end
 
-  defp render_device(params) do
-    """
-      identifier:   #{params["identifier"]}
-      tags:         #{Enum.join(params["tags"], ", ")}
-      version:      #{params["version"]}
-      status:       #{params["status"]}
-      last
-      connected:    #{params["last_communication"]}
-    """
+  defp render_devices(org, devices) do
+    title = "Devices for #{org}"
+    header = ["Identifier", "Tags", "Version", "Status", "Last connected"]
+
+    rows =
+      Enum.map(devices, fn device ->
+        [
+          device["identifier"],
+          Enum.join(device["tags"], ", "),
+          device["version"],
+          device["status"],
+          device["last_communication"]
+        ]
+      end)
+
+    TableRex.quick_render!(rows, header, title)
   end
 end
