@@ -1,8 +1,10 @@
 defmodule Mix.NervesHubCLI.Shell do
+  @spec info(IO.ANSI.ansidata()) :: :ok
   def info(output) do
     Mix.shell().info(output)
   end
 
+  @spec error(IO.ANSI.ansidata()) :: :ok
   def error(output) do
     Mix.shell().error(output)
   end
@@ -12,12 +14,14 @@ defmodule Mix.NervesHubCLI.Shell do
     Mix.raise(output)
   end
 
+  @spec prompt(String.t()) :: String.t()
   def prompt(output) do
     Mix.shell().prompt(output) |> String.trim()
   end
 
-  def yes?(output) do
-    System.get_env("NERVES_HUB_NON_INTERACTIVE") || Mix.shell().yes?(output)
+  @spec yes?(String.t()) :: boolean()
+  def yes?(message) do
+    System.get_env("NERVES_HUB_NON_INTERACTIVE") || Mix.shell().yes?(message)
   end
 
   @spec request_auth(String.t()) :: NervesHubUserAPI.Auth.t()
@@ -64,6 +68,7 @@ defmodule Mix.NervesHubCLI.Shell do
 
   # Password prompt that hides input by every 1ms
   # clearing the line with stderr
+  @spec password_get(String.t()) :: String.t()
   def password_get(prompt) do
     password_clean(prompt)
     |> String.trim()
@@ -75,6 +80,7 @@ defmodule Mix.NervesHubCLI.Shell do
     System.halt(1)
   end
 
+  @spec do_render_error(any()) :: :ok
   def do_render_error(errors) when is_list(errors) do
     Enum.each(errors, &do_render_error/1)
   end
@@ -82,6 +88,7 @@ defmodule Mix.NervesHubCLI.Shell do
   def do_render_error({error, reasons}) when is_list(reasons) do
     error("#{error}")
     for reason <- reasons, do: error("  #{reason}")
+    :ok
   end
 
   def do_render_error({:error, %{"status" => "forbidden"}}) do
@@ -102,6 +109,7 @@ defmodule Mix.NervesHubCLI.Shell do
   def do_render_error({:error, %{"errors" => reasons}}) when is_list(reasons) do
     error("HTTP error")
     for {key, reason} <- reasons, do: error("  #{key}: #{reason}")
+    :ok
   end
 
   def do_render_error(error) do

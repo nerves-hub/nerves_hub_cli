@@ -9,7 +9,7 @@ defmodule Mix.NervesHubCLI.Utils do
   @doc """
   Print the API endpoint that's being used to communicate with the NervesHub server
   """
-  @spec show_api_endpoint() :: String.t()
+  @spec show_api_endpoint() :: :ok
   def show_api_endpoint() do
     endpoint = NervesHubUserAPI.API.endpoint()
     uri = URI.parse(endpoint)
