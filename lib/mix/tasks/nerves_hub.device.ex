@@ -186,11 +186,19 @@ defmodule Mix.Tasks.NervesHub.Device do
 
     case NervesHubUserAPI.Device.create(org, identifier, description, tags, auth) do
       {:ok, %{"data" => %{} = _device}} ->
-        Shell.info("Device #{identifier} created")
+        Shell.info("""
+        Device #{identifier} created.
 
-        if Shell.yes?("Would you like to generate certificates?") do
-          cert_create(org, identifier, opts, auth)
-        end
+        If your device has an ATECCx08A module or NervesKey that has been
+        provisioned by a CA/signing certificate known to NervesHub, it is
+        ready to go.
+
+        If not using a hardware module to protect the device's private
+        key, create and register a certificate and key pair manually by
+        running:
+
+          mix nerves.device cert create #{identifier}
+        """)
 
       error ->
         Shell.render_error(error)
