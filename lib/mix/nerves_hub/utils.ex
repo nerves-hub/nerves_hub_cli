@@ -2,6 +2,7 @@ defmodule Mix.NervesHubCLI.Utils do
   alias NervesHubCLI.Config
   alias Mix.NervesHubCLI.Shell
 
+  @spec product(keyword()) :: String.t()
   def product(opts) do
     Keyword.get(opts, :product) || config()[:name] || config()[:app]
   end
@@ -17,6 +18,7 @@ defmodule Mix.NervesHubCLI.Utils do
     Shell.info("NervesHub server: #{uri.host}:#{uri.port}")
   end
 
+  @spec org(keyword()) :: String.t()
   def org(opts) do
     # command-line options
     # environment
@@ -52,6 +54,7 @@ defmodule Mix.NervesHubCLI.Utils do
     org
   end
 
+  @spec firmware() :: Path.t()
   def firmware do
     images_path =
       (config()[:images_path] || Path.join([Mix.Project.build_path(), "nerves", "images"]))
@@ -61,6 +64,7 @@ defmodule Mix.NervesHubCLI.Utils do
     Path.join(images_path, filename)
   end
 
+  @spec metadata(Path.t()) :: {:error, any()} | {:ok, map()}
   def metadata(firmware) do
     case System.cmd("fwup", ["-m", "-i", firmware]) do
       {metadata, 0} ->

@@ -92,6 +92,7 @@ defmodule Mix.Tasks.NervesHub.Device do
 
   @data_dir "nerves-hub"
 
+  @spec run([String.t()]) :: :ok | no_return()
   def run(args) do
     Application.ensure_all_started(:nerves_hub_cli)
 
@@ -145,6 +146,7 @@ defmodule Mix.Tasks.NervesHub.Device do
     """)
   end
 
+  @spec list(String.t(), keyword()) :: :ok
   def list(org, _opts) do
     auth = Shell.request_auth()
 
@@ -169,6 +171,7 @@ defmodule Mix.Tasks.NervesHub.Device do
     end
   end
 
+  @spec create(String.t(), keyword()) :: :ok
   def create(org, opts) do
     identifier = opts[:identifier] || Shell.prompt("Identifier (e.g., serial number):")
     description = opts[:description] || Shell.prompt("Description:")
@@ -205,6 +208,7 @@ defmodule Mix.Tasks.NervesHub.Device do
     end
   end
 
+  @spec update(String.t(), String.t(), [String.t()]) :: :ok
   def update(org, identifier, ["tags" | tags]) do
     auth = Shell.request_auth()
 
@@ -233,6 +237,7 @@ defmodule Mix.Tasks.NervesHub.Device do
     Shell.render_error("Unable to update data: #{inspect(data)}")
   end
 
+  @spec delete(String.t(), String.t()) :: :ok
   def delete(org, identifier) do
     auth = Shell.request_auth()
 
@@ -245,6 +250,7 @@ defmodule Mix.Tasks.NervesHub.Device do
     end
   end
 
+  @spec burn(String.t(), keyword()) :: :ok
   def burn(identifier, opts) do
     path = opts[:path] || Path.join(File.cwd!(), @data_dir)
     cert_path = opts[:cert]
@@ -283,6 +289,7 @@ defmodule Mix.Tasks.NervesHub.Device do
     Mix.Task.run("burn", [])
   end
 
+  @spec cert_list(String.t(), String.t()) :: :ok
   def cert_list(org, identifier) do
     auth = Shell.request_auth()
 
@@ -295,6 +302,7 @@ defmodule Mix.Tasks.NervesHub.Device do
     end
   end
 
+  @spec cert_create(String.t(), String.t(), keyword(), nil | NervesHubUserAPI.Auth.t()) :: :ok
   def cert_create(org, identifier, opts, auth \\ nil) do
     Shell.info("Creating certificate for #{identifier}")
     path = opts[:path] || Path.join(File.cwd!(), @data_dir)
