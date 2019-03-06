@@ -28,14 +28,13 @@ defmodule Mix.Tasks.NervesHub.Product do
 
   ## delete
 
-  Call `list` to retrieve product names
-
     mix nerves_hub.firmware delete [product_name]
 
   ## update
 
-  Update values on a product.
-  Call `list` to retrieve product names
+  Update product metadata.
+
+  Call `list` to retrieve product names and metadata keys
 
   ### Examples
 
