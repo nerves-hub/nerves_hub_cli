@@ -164,12 +164,14 @@ defmodule Mix.Tasks.NervesHub.Device do
   def create(org, opts) do
     identifier = opts[:identifier] || Shell.prompt("Identifier (e.g., serial number):")
     description = opts[:description] || Shell.prompt("Description:")
-    tags = Keyword.get_values(opts, :tag)
+
+    # Tags may be specified using multiple `--tag` options or as `--tag "a, b, c"`
+    tags = Keyword.get_values(opts, :tag) |> Enum.flat_map(&split_tag_string/1)
 
     tags =
       if tags == [] do
-        Shell.prompt("One or more tags:")
-        |> String.split()
+        Shell.prompt("One or more comma-separated tags:")
+        |> split_tag_string()
       else
         tags
       end
@@ -199,6 +201,9 @@ defmodule Mix.Tasks.NervesHub.Device do
 
   @spec update(String.t(), String.t(), [String.t()]) :: :ok
   def update(org, identifier, ["tags" | tags]) do
+    # Split up tags with comma separators
+    tags = Enum.flat_map(tags, &split_tag_string/1)
+
     auth = Shell.request_auth()
 
     case NervesHubUserAPI.Device.update(org, identifier, %{tags: tags}, auth) do

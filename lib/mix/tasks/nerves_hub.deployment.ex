@@ -133,12 +133,13 @@ defmodule Mix.Tasks.NervesHub.Deployment do
     firmware = opts[:firmware] || Shell.prompt("Firmware uuid:")
     vsn = opts[:version] || Shell.prompt("Version condition:")
 
-    tags = Keyword.get_values(opts, :tag)
+    # Tags may be specified using multiple `--tag` options or as `--tag "a, b, c"`
+    tags = Keyword.get_values(opts, :tag) |> Enum.flat_map(&split_tag_string/1)
 
     tags =
       if tags == [] do
-        Shell.prompt("One or more device tags:")
-        |> String.split()
+        Shell.prompt("One or more comma-separated device tags:")
+        |> split_tag_string()
       else
         tags
       end

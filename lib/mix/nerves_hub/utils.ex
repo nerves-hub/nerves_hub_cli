@@ -115,6 +115,46 @@ defmodule Mix.NervesHubCLI.Utils do
     for {key, val} <- map, do: {to_string(key), val}, into: %{}
   end
 
+  @doc """
+  Split up a string of comma-separated tags
+
+  Invalid tags raise.
+
+    iex> Mix.NervesHubCLI.Utils.split_tag_string("a, b, c")
+    ["a", "b", "c"]
+
+    iex> Mix.NervesHubCLI.Utils.split_tag_string("a space tag, b, c")
+    ** (RuntimeError) Tag 'a space tag' should not contain white space
+
+    iex> Mix.NervesHubCLI.Utils.split_tag_string("\\"tag_in_quotes\\"")
+    ** (RuntimeError) Tag '\"tag_in_quotes\"' should not contain quotes
+
+  """
+  @spec split_tag_string(String.t()) :: [String.t()]
+  def split_tag_string(str) do
+    tags =
+      str
+      |> String.split(",", trim: true)
+      |> Enum.map(&String.trim/1)
+
+    Enum.each(tags, &check_valid_tag/1)
+
+    tags
+  end
+
+  defp check_valid_tag(tag) do
+    cond do
+      String.contains?(tag, [" ", "\t", "\n"]) ->
+        raise "Tag '#{tag}' should not contain white space"
+
+      String.contains?(tag, ["\"", "'"]) ->
+        raise "Tag '#{tag}' should not contain quotes"
+
+      true ->
+        :ok
+    end
+  end
+
   defp config() do
     Mix.Project.config()
   end
