@@ -351,7 +351,7 @@ defmodule Mix.Tasks.NervesHub.Device do
 
   defp render_devices(org, devices) do
     title = "Devices for #{org}"
-    header = ["Identifier", "Tags", "Version", "Status", "Last connected"]
+    header = ["Identifier", "Tags", "Version", "Status", "Last connected", "Description"]
 
     rows =
       Enum.map(devices, fn device ->
@@ -360,7 +360,8 @@ defmodule Mix.Tasks.NervesHub.Device do
           Enum.join(device["tags"], ", "),
           device["version"],
           device["status"],
-          device["last_communication"]
+          device["last_communication"],
+          device["description"]
         ]
       end)
 
