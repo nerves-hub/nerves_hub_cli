@@ -54,6 +54,9 @@ defmodule Mix.NervesHubCLI.Utils do
     org
   end
 
+  @doc """
+  Return the path to the generated firmware bundle
+  """
   @spec firmware() :: Path.t()
   def firmware do
     images_path =
@@ -64,6 +67,9 @@ defmodule Mix.NervesHubCLI.Utils do
     Path.join(images_path, filename)
   end
 
+  @doc """
+  Read the firmware metadata from the specified firmware bundle
+  """
   @spec metadata(Path.t()) :: {:error, any()} | {:ok, map()}
   def metadata(firmware) do
     case System.cmd("fwup", ["-m", "-i", firmware]) do
@@ -101,6 +107,10 @@ defmodule Mix.NervesHubCLI.Utils do
     end
   end
 
+  @doc """
+  Turn map keys into strings
+  """
+  @spec stringify(map()) :: map()
   def stringify(map) when is_map(map) do
     for {key, val} <- map, do: {to_string(key), val}, into: %{}
   end
