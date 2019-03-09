@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.7.1
+
+* Enhancements
+  * Added device deletion support
+  * Improved formatting when listing devices
+  * Tag entry is always comma-separated now (it previously was space
+    delimited, but that was inconsistent with the GUI)
+
 ## v0.7.0
 
 * Enhancements
