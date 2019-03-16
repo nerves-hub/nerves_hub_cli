@@ -191,7 +191,7 @@ defmodule Mix.Tasks.NervesHub.Device do
         key, create and register a certificate and key pair manually by
         running:
 
-          mix nerves.device cert create #{identifier}
+          mix nerves_hub.device cert create #{identifier}
         """)
 
       error ->
