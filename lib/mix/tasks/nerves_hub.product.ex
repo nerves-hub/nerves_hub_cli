@@ -16,7 +16,7 @@ defmodule Mix.Tasks.NervesHub.Product do
   product. This information can be passed by specifying one or all of the command
   line options.
 
-    mix nerves_hub.product create
+      mix nerves_hub.product create
 
   ### Command-line options
 
@@ -24,11 +24,11 @@ defmodule Mix.Tasks.NervesHub.Product do
 
   ## list
 
-    mix nerves_hub.product list
+      mix nerves_hub.product list
 
   ## delete
 
-    mix nerves_hub.firmware delete [product_name]
+      mix nerves_hub.firmware delete [product_name]
 
   ## update
 
@@ -40,7 +40,7 @@ defmodule Mix.Tasks.NervesHub.Product do
 
   Change product name
 
-    mix nerves_hub.product update example name example_new
+      mix nerves_hub.product update example name example_new
   """
 
   @switches [

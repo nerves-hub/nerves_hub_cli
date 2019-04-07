@@ -27,15 +27,15 @@ defmodule Mix.Tasks.NervesHub.Key do
   To ensure that firmware includes keys registered with NervesHub, add the
   following entry in your project's `config.exs`:
 
-    # List the public firmware signing keys to include on the device
-    config :nerves_hub,
-      public_keys: [:my_dev_key, :my_prod_key]
+      # List the public firmware signing keys to include on the device
+      config :nerves_hub,
+        public_keys: [:my_dev_key, :my_prod_key]
 
   ## list
 
   List the keys known to NervesHub
 
-    mix nerves_hub.key list
+      mix nerves_hub.key list
 
   ### Command-line options
 
@@ -46,7 +46,7 @@ defmodule Mix.Tasks.NervesHub.Key do
   Create a new firmware signing key pair with the specified name and register
   the public key with NervesHub
 
-    mix nerves_hub.key create NAME
+      mix nerves_hub.key create NAME
 
   ### Command-line options
 
@@ -56,7 +56,7 @@ defmodule Mix.Tasks.NervesHub.Key do
 
   Delete a signing key locally and on NervesHub
 
-    mix nerves_hub.key delete NAME
+      mix nerves_hub.key delete NAME
 
   ### Command-line options
 
@@ -67,7 +67,7 @@ defmodule Mix.Tasks.NervesHub.Key do
 
   Import an existing key locally and on NervesHub
 
-    mix nerves_hub.key import NAME PUBLIC_KEY_FILE PRIVATE_KEY_FILE
+      mix nerves_hub.key import NAME PUBLIC_KEY_FILE PRIVATE_KEY_FILE
 
   ### Command-line options
 
@@ -77,7 +77,7 @@ defmodule Mix.Tasks.NervesHub.Key do
 
   Export a signing key to a tar.gz archive.
 
-    mix nerves_hub.key export NAME
+      mix nerves_hub.key export NAME
 
   ### Command-line options
 

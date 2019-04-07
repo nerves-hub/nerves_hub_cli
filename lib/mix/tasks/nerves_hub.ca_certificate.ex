@@ -11,20 +11,20 @@ defmodule Mix.Tasks.NervesHub.CaCertificate do
 
   When a device connects for the first time to NervesHub, it
   is possible to automatically register it if its certificate
-  has been signed by a trusted CA certficate. This set of
-  utilities helps manage the trusted CA certficates.
+  has been signed by a trusted CA certificate. This set of
+  utilities helps manage the trusted CA certificates.
 
   ## list
 
-  mix nerves_hub.ca_certificate list
+      mix nerves_hub.ca_certificate list
 
   ## register
 
-  mix nerves_hub.ca_certificate register CERT_PATH
+      mix nerves_hub.ca_certificate register CERT_PATH
 
   ## unregister
 
-  mix nerves_hub.ca_certificate unregister CERT_SERIAL
+      mix nerves_hub.ca_certificate unregister CERT_SERIAL
   """
 
   @switches [

@@ -16,7 +16,7 @@ defmodule Mix.Tasks.NervesHub.Device do
   device. This information can be passed by specifying one or all of the command
   line options.
 
-    mix nerves_hub.device create
+      mix nerves_hub.device create
 
   ### Command-line options
 
@@ -33,17 +33,17 @@ defmodule Mix.Tasks.NervesHub.Device do
 
   List all devices
 
-    mix nerves_hub.device list
+      mix nerves_hub.device list
 
   Update device tags
 
-    mix nerves_hub.device update 1234 tags dev qa
+      mix nerves_hub.device update 1234 tags dev qa
 
   ## delete
 
   Delete a device on NervesHub
 
-    mix nerves_hub.device delete DEVICE_IDENTIFIER
+      mix nerves_hub.device delete DEVICE_IDENTIFIER
 
   ## burn
 
@@ -53,7 +53,7 @@ defmodule Mix.Tasks.NervesHub.Device do
   generate a new cert pair for the device. The command will end with calling
   mix firmware.burn.
 
-    mix nerves_hub.device burn DEVICE_IDENTIFIER
+      mix nerves_hub.device burn DEVICE_IDENTIFIER
 
   ### Command-line options
 
@@ -65,14 +65,14 @@ defmodule Mix.Tasks.NervesHub.Device do
 
   List all certificates for a device.
 
-    mix nerves_hub.device cert list DEVICE_IDENTIFIER
+      mix nerves_hub.device cert list DEVICE_IDENTIFIER
 
   ## cert create
 
   Creates a new device certificate pair. The certificates will be placed in the
   current working directory if no path is specified.
 
-    mix nerves_hub.device cert create DEVICE_IDENTIFIER
+      mix nerves_hub.device cert create DEVICE_IDENTIFIER
 
   ### Command-line options
 

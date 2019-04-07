@@ -8,7 +8,7 @@ defmodule Mix.Tasks.NervesHub.Deployment do
 
   ## list
 
-    mix nerves_hub.deployment list
+      mix nerves_hub.deployment list
 
   ### Command-line options
 
@@ -19,7 +19,7 @@ defmodule Mix.Tasks.NervesHub.Deployment do
 
   Create a new deployment
 
-    mix nerves_hub.deployment create
+      mix nerves_hub.deployment create
 
   ### Command-line options
 
@@ -38,15 +38,15 @@ defmodule Mix.Tasks.NervesHub.Deployment do
 
   Update active firmware version
 
-    mix nerves_hub.deployment update dev firmware fd53d87c-99ca-5770-5540-edb5058ced5b
+      mix nerves_hub.deployment update dev firmware fd53d87c-99ca-5770-5540-edb5058ced5b
 
   Activate / Deactivate a deployment
 
-    mix nerves_hub.deployment update dev is_active true
+      mix nerves_hub.deployment update dev is_active true
 
   General usage:
 
-    mix nerves_hub.firmware update [deployment_name] [key] [value]
+      mix nerves_hub.firmware update [deployment_name] [key] [value]
 
   """
 
