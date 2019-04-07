@@ -349,6 +349,8 @@ defmodule Mix.Tasks.NervesHub.Device do
     """
   end
 
+  defp render_devices(_org, []), do: ""
+
   defp render_devices(org, devices) do
     title = "Devices for #{org}"
     header = ["Identifier", "Tags", "Version", "Status", "Last connected", "Description"]
