@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.7.2
+
+* Bug fixes
+  * Fixed error when running `mix nerves_hub.device list` and there weren't any
+    devices
+
 ## v0.7.1
 
 * Enhancements
