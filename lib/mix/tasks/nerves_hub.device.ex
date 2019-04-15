@@ -35,6 +35,16 @@ defmodule Mix.Tasks.NervesHub.Device do
 
       mix nerves_hub.device list
 
+  ### Command-line options
+
+  * `--identifier` - (Optional) Only show device matching an identifier
+  * `--description` - (Optional) Only show devices matching a description
+  * `--tag` - (Optional) Only show devices matching tags. Multiple tags can be
+  supplied.
+  * `--status` - (Optional) Only show devices matching status
+  * `--version` - (Optional) Only show devices matching version
+
+
   Update device tags
 
       mix nerves_hub.device update 1234 tags dev qa
@@ -87,7 +97,11 @@ defmodule Mix.Tasks.NervesHub.Device do
     description: :string,
     tag: :keep,
     key: :string,
-    cert: :string
+    cert: :string,
+
+    # device list filters
+    status: :string,
+    version: :string
   ]
 
   @data_dir "nerves-hub"
@@ -147,12 +161,14 @@ defmodule Mix.Tasks.NervesHub.Device do
   end
 
   @spec list(String.t(), keyword()) :: :ok
-  def list(org, _opts) do
+  def list(org, opts) do
     auth = Shell.request_auth()
 
     case NervesHubUserAPI.Device.list(org, auth) do
       {:ok, %{"data" => devices}} ->
-        Shell.info(render_devices(org, devices))
+        filetered_devices = Enum.filter(devices, &filter_devices(&1, opts))
+        Shell.info(render_devices(org, filetered_devices))
+        Shell.info("Total devices displayed: #{Enum.count(filetered_devices)}")
         Shell.info("Total devices: #{Enum.count(devices)}")
 
       error ->
@@ -369,4 +385,31 @@ defmodule Mix.Tasks.NervesHub.Device do
 
     TableRex.quick_render!(rows, header, title)
   end
+
+  defp filter_devices(device, [{:status, val} | rest]) do
+    if device["status"] == val, do: filter_devices(device, rest)
+  end
+
+  defp filter_devices(device, [{:version, version} | rest]) do
+    if device["version"] == version, do: filter_devices(device, rest)
+  end
+
+  defp filter_devices(device, [{:tag, tag} | rest]) do
+    if Enum.any?(device["tags"], fn device_tag -> device_tag == tag end),
+      do: filter_devices(device, rest)
+  end
+
+  defp filter_devices(device, [{:identifier, identifier} | rest]) do
+    if device["identifier"] == identifier, do: filter_devices(device, rest)
+  end
+
+  defp filter_devices(device, [{:description, description} | rest]) do
+    if device["description"] == description, do: filter_devices(device, rest)
+  end
+
+  defp filter_devices(device, [_ | rest]) do
+    filter_devices(device, rest)
+  end
+
+  defp filter_devices(device, []), do: device
 end
