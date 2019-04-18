@@ -28,7 +28,7 @@ defmodule Mix.Tasks.NervesHub.Product do
 
   ## delete
 
-      mix nerves_hub.firmware delete [product_name]
+      mix nerves_hub.product delete [product_name]
 
   ## update
 
@@ -41,6 +41,49 @@ defmodule Mix.Tasks.NervesHub.Product do
   Change product name
 
       mix nerves_hub.product update example name example_new
+
+  # Managing user roles
+
+  The following functions allow the management of user roles within your product.
+  Roles are a way of granting users a permission level so they may perform
+  actions for your product. The following is a list of valid roles in order of
+  highest role to lowest role:
+
+    * `admin`
+    * `delete`
+    * `write`
+    * `read`
+
+  NervesHub will validate all actions with your user role. If an action you are
+  trying to perform requires `write`, the user performing the action will be
+  required to have an org role of `write` or higher (`admin`, `delete`).
+
+  Managing user roles for your product will require that your user has the
+  product role of `admin`.
+
+  ## user list
+
+  List the users and their role for the product.
+
+      mix nerves_hub.product user list PRODUCT_NAME
+
+  ## user add
+
+  Add an existing user to a product with a role.
+
+      mix nerves_hub.product user add PRODUCT_NAME USERNAME ROLE
+
+  ## user update
+
+  Update an existing user for your product with a new role.
+
+      mix nerves_hub.product user update PRODUCT_NAME USERNAME ROLE
+
+  ## user remove
+
+  Remove an existing user from having a role for your product.
+
+      mix nerves_hub.product user remove PRODUCT_NAME USERNAME
   """
 
   @switches [
@@ -69,6 +112,18 @@ defmodule Mix.Tasks.NervesHub.Product do
       ["update", product, key, value] ->
         update(org, product, key, value)
 
+      ["user", "list", product] ->
+        user_list(org, product)
+
+      ["user", "add", product, username, role] ->
+        user_add(org, product, username, role)
+
+      ["user", "update", product, username, role] ->
+        user_update(org, product, username, role)
+
+      ["user", "remove", product, username] ->
+        user_remove(org, product, username)
+
       _ ->
         render_help()
     end
@@ -84,6 +139,11 @@ defmodule Mix.Tasks.NervesHub.Product do
       mix nerves_hub.product create
       mix nerves_hub.product delete PRODUCT_NAME
       mix nerves_hub.product update PRODUCT_NAME KEY VALUE
+
+      mix nerves_hub.product user list PRODUCT_NAME
+      mix nerves_hub.product user add PRODUCT_NAME USERNAME ROLE
+      mix nerves_hub.product user update PRODUCT_NAME USERNAME ROLE
+      mix nerves_hub.product user remove PRODUCT_NAME USERNAME ROLE
 
     Run `mix help nerves_hub.product` for more information.
     """)
@@ -119,6 +179,7 @@ defmodule Mix.Tasks.NervesHub.Product do
     config = Mix.Project.config()
 
     name = opts[:name] || config[:name] || config[:app] || Shell.prompt("Product name:")
+    name = to_string(name)
 
     Shell.info("")
     Shell.info("Creating product '#{name}'...")
@@ -167,9 +228,99 @@ defmodule Mix.Tasks.NervesHub.Product do
     end
   end
 
+  def user_list(org, product) do
+    auth = Shell.request_auth()
+
+    case NervesHubUserAPI.ProductUser.list(org, product, auth) do
+      {:ok, %{"data" => users}} ->
+        render_users(users)
+
+      error ->
+        Shell.info("Failed to list product users \nreason: #{inspect(error)}")
+    end
+  end
+
+  def user_add(org, product, username, role, auth \\ nil) do
+    Shell.info("")
+    Shell.info("Adding user '#{username}' to product '#{product}' with role '#{role}'...")
+
+    auth = auth || Shell.request_auth()
+
+    case NervesHubUserAPI.ProductUser.add(org, product, username, String.to_atom(role), auth) do
+      {:ok, %{"data" => %{} = _product_user}} ->
+        Shell.info("User '#{username}' was added.")
+
+      error ->
+        Shell.render_error(error)
+    end
+  end
+
+  def user_update(org, product, username, role) do
+    Shell.info("")
+    Shell.info("Updating user '#{username}' in product '#{product}' to role '#{role}'...")
+
+    auth = Shell.request_auth()
+
+    case NervesHubUserAPI.ProductUser.update(org, product, username, String.to_atom(role), auth) do
+      {:ok, %{"data" => %{} = _product_user}} ->
+        Shell.info("User '#{username}' was updated.")
+
+      {:error, %{"errors" => %{"detail" => "Not Found"}}} ->
+        Shell.error("""
+        '#{username}' is not a user for product '#{product}'.
+        """)
+
+        if Shell.yes?("Would you like to add them?") do
+          user_add(org, product, username, role, auth)
+        end
+
+      error ->
+        Shell.render_error(error)
+    end
+  end
+
+  def user_remove(org, product, username) do
+    Shell.info("")
+    Shell.info("Removing user '#{username}' from product '#{product}'...")
+
+    auth = Shell.request_auth()
+
+    case NervesHubUserAPI.ProductUser.remove(org, product, username, auth) do
+      {:ok, ""} ->
+        Shell.info("User '#{username}' was removed.")
+
+      {:error, %{"errors" => %{"detail" => "Not Found"}}} ->
+        Shell.error("""
+        '#{username}' is not a user for the product '#{product}'
+        """)
+
+      error ->
+        IO.inspect(error)
+        Shell.render_error(error)
+    end
+  end
+
   defp render_product(params) do
     """
       name: #{params["name"]}
     """
+  end
+
+  defp render_users(users) when is_list(users) do
+    Shell.info("\nProduct users:")
+
+    Enum.each(users, fn params ->
+      Shell.info("------------")
+
+      render_user(params)
+    end)
+
+    Shell.info("------------")
+    Shell.info("")
+  end
+
+  defp render_user(params) do
+    Shell.info("  username:   #{params["username"]}")
+    Shell.info("  role:       #{params["role"]}")
   end
 end
