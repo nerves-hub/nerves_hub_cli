@@ -1,5 +1,33 @@
 # Changelog
 
+## v0.8.0
+
+* Enhancements
+  * Added mix tasks
+    * `mix nerves_hub.org user list` - List the users and their role for the
+      organization.
+    * `mix nerves_hub.org user add USERNAME ROLE` - Add an existing user to an
+      org with a role.
+    * `mix nerves_hub.org user update USERNAME ROLE`- Update an existing user
+      in your org with a new role.
+    * `mix nerves_hub.org user remove USERNAME` - Remove an existing user from
+      having a role in your organization.
+    * `mix nerves_hub.product user list PRODUCT_NAME` - List the users and their
+      role for the product.
+    * `mix nerves_hub.product user add PRODUCT_NAME USERNAME ROLE` - Add an
+      existing user to a product with a role.
+    * `mix nerves_hub.product user update PRODUCT_NAME USERNAME ROLE`- Update an
+      existing user for your product with a new role.
+    * `mix nerves_hub.product user remove PRODUCT_NAME USERNAME` - Remove an
+      existing user from having a role for your product.
+  * Added filtering for `mix nerves_hub.device list`
+    * `--identifier` - (Optional) Only show device matching an identifier
+    * `--description` - (Optional) Only show devices matching a description
+    * `--tag` - (Optional) Only show devices matching tags. Multiple tags can be
+    supplied.
+    * `--status` - (Optional) Only show devices matching status
+    * `--version` - (Optional) Only show devices matching version
+
 ## v0.7.2
 
 * Bug fixes
