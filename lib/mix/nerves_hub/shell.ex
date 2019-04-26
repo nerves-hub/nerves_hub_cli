@@ -1,4 +1,6 @@
 defmodule Mix.NervesHubCLI.Shell do
+  @password_retries_allowed 3
+
   @spec info(IO.ANSI.ansidata()) :: :ok
   def info(output) do
     Mix.shell().info(output)
@@ -38,15 +40,29 @@ defmodule Mix.NervesHubCLI.Shell do
         key: X509.PrivateKey.from_pem!(env_key)
       }
     else
-      password = password_get(prompt)
-
-      case NervesHubCLI.User.auth(password) do
+      case request_password(prompt, @password_retries_allowed) do
         {:ok, auth} ->
           auth
 
         {:error, _} ->
           __MODULE__.raise("Invalid password")
       end
+    end
+  end
+
+  def request_password(_prompt, 0) do
+    {:error, :failed_password}
+  end
+
+  def request_password(prompt, count) do
+    password = password_get(prompt)
+
+    case NervesHubCLI.User.auth(password) do
+      {:ok, auth} ->
+        {:ok, auth}
+
+      {:error, _} ->
+        request_password("Please enter the password again:", count - 1)
     end
   end
 
