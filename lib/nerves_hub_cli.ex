@@ -30,11 +30,15 @@ defmodule NervesHubCLI do
   @doc """
   Convert a list of fwup public keys or references into a list of keys.
   """
-  @spec resolve_fwup_public_keys([fwup_public_key_ref()]) :: [binary()]
-  def resolve_fwup_public_keys([]), do: []
+  @spec resolve_fwup_public_keys([fwup_public_key_ref()], binary() | nil) :: [binary()]
+  def resolve_fwup_public_keys(keys, org \\ nil)
 
-  def resolve_fwup_public_keys(keys) when is_list(keys) do
-    org = Mix.NervesHubCLI.Utils.org([])
+  def resolve_fwup_public_keys([], _org), do: []
+
+  def resolve_fwup_public_keys(keys, org) when is_list(keys) do
+    opts = if is_bitstring(org), do: [org: org], else: []
+
+    org = Mix.NervesHubCLI.Utils.org(opts)
     local_keys = NervesHubCLI.Key.local_keys(org)
 
     Enum.reduce(keys, [], &[find_key(&1, local_keys) | &2])
