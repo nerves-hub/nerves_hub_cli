@@ -164,7 +164,12 @@ defmodule Mix.Tasks.NervesHub.Key do
 
   def create(name, org, opts) do
     if NervesHubCLI.Key.exists?(org, name) do
-      Shell.raise("The key '#{name}' already exists. Please choose a different name.")
+      Shell.raise("""
+      The key '#{name}' already exists.
+
+      Please choose a different name or delete by
+      running `mix nerves_hub.key delete #{name} [--local]`
+      """)
     else
       if Keyword.get(opts, :local, false) do
         with {:ok, key} <- create_local(name, org) do
