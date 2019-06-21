@@ -31,7 +31,6 @@ defmodule NervesHubCLI.MixProject do
 
   defp package do
     [
-      maintainers: ["Justin Schneck"],
       licenses: ["Apache-2.0"],
       links: %{"GitHub" => "https://github.com/nerves-hub/nerves_hub_cli"}
     ]
