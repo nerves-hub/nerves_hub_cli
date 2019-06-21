@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.9.0
+
+Backwards incompatible changes:
+
+The NervesHubUserAPI.Device and NervesHubUserAPI.DeviceCertificate endpoints
+have moved to include `product` as part of its path.
+
+* Update dependencies
+  * [nerves_hub_user_api v0.6.0](https://github.com/nerves-hub/nerves_hub_user_api/releases/tag/v0.6.0)
+
 ## v0.8.0
 
 * Enhancements
