@@ -20,6 +20,8 @@ defmodule Mix.Tasks.NervesHub.Device do
 
   ### Command-line options
 
+    * `--product` - (Optional) The product name to publish the firmware to.
+      This defaults to the Mix Project config `:app` name.
     * `--identifier` - (Optional) The device identifier
     * `--description` - (Optional) The description of the device
     * `--tag` - (Optional) Multiple tags can be set by passing this key multiple
@@ -37,6 +39,8 @@ defmodule Mix.Tasks.NervesHub.Device do
 
   ### Command-line options
 
+  * `--product` - (Optional) The product name to publish the firmware to.
+      This defaults to the Mix Project config `:app` name.
   * `--identifier` - (Optional) Only show device matching an identifier
   * `--description` - (Optional) Only show devices matching a description
   * `--tag` - (Optional) Only show devices matching tags. Multiple tags can be
@@ -67,6 +71,8 @@ defmodule Mix.Tasks.NervesHub.Device do
 
   ### Command-line options
 
+    * `--product` - (Optional) The product name to publish the firmware to.
+      This defaults to the Mix Project config `:app` name.
     * `--cert` - (Optional) A path to an existing device certificate
     * `--key` - (Optional) A path to an existing device private key
     * `--path` - (Optional) The path to put the device certificates
@@ -77,6 +83,11 @@ defmodule Mix.Tasks.NervesHub.Device do
 
       mix nerves_hub.device cert list DEVICE_IDENTIFIER
 
+  ### Command-line options
+
+    * `--product` - (Optional) The product name to publish the firmware to.
+      This defaults to the Mix Project config `:app` name.
+
   ## cert create
 
   Creates a new device certificate pair. The certificates will be placed in the
@@ -86,12 +97,15 @@ defmodule Mix.Tasks.NervesHub.Device do
 
   ### Command-line options
 
+    * `--product` - (Optional) The product name to publish the firmware to.
+      This defaults to the Mix Project config `:app` name.
     * `--path` - (Optional) A local location for storing certificates
 
   """
 
   @switches [
     org: :string,
+    product: :string,
     path: :string,
     identifier: :string,
     description: :string,
@@ -114,28 +128,29 @@ defmodule Mix.Tasks.NervesHub.Device do
 
     show_api_endpoint()
     org = org(opts)
+    product = product(opts)
 
     case args do
       ["list"] ->
-        list(org, opts)
+        list(org, product, opts)
 
       ["create"] ->
-        create(org, opts)
+        create(org, product, opts)
 
       ["delete", identifier] ->
-        delete(org, identifier)
+        delete(org, product, identifier)
 
       ["burn", identifier] ->
         burn(identifier, opts)
 
       ["cert", "list", device] ->
-        cert_list(org, device)
+        cert_list(org, product, device)
 
       ["cert", "create", device] ->
-        cert_create(org, device, opts)
+        cert_create(org, product, device, opts)
 
       ["update", identifier | update_data] ->
-        update(org, identifier, update_data)
+        update(org, product, identifier, update_data)
 
       _ ->
         render_help()
@@ -160,14 +175,14 @@ defmodule Mix.Tasks.NervesHub.Device do
     """)
   end
 
-  @spec list(String.t(), keyword()) :: :ok
-  def list(org, opts) do
+  @spec list(String.t(), String.t(), keyword()) :: :ok
+  def list(org, product, opts) do
     auth = Shell.request_auth()
 
-    case NervesHubUserAPI.Device.list(org, auth) do
+    case NervesHubUserAPI.Device.list(org, product, auth) do
       {:ok, %{"data" => devices}} ->
         filetered_devices = Enum.filter(devices, &filter_devices(&1, opts))
-        Shell.info(render_devices(org, filetered_devices))
+        Shell.info(render_devices(org, product, filetered_devices))
         Shell.info("Total devices displayed: #{Enum.count(filetered_devices)}")
         Shell.info("Total devices: #{Enum.count(devices)}")
 
@@ -176,8 +191,8 @@ defmodule Mix.Tasks.NervesHub.Device do
     end
   end
 
-  @spec create(String.t(), keyword()) :: :ok
-  def create(org, opts) do
+  @spec create(String.t(), String.t(), keyword()) :: :ok
+  def create(org, product, opts) do
     identifier = opts[:identifier] || Shell.prompt("Identifier (e.g., serial number):")
     description = opts[:description] || Shell.prompt("Description:")
 
@@ -194,7 +209,7 @@ defmodule Mix.Tasks.NervesHub.Device do
 
     auth = Shell.request_auth()
 
-    case NervesHubUserAPI.Device.create(org, identifier, description, tags, auth) do
+    case NervesHubUserAPI.Device.create(org, product, identifier, description, tags, auth) do
       {:ok, %{"data" => %{} = _device}} ->
         Shell.info("""
         Device #{identifier} created.
@@ -215,14 +230,14 @@ defmodule Mix.Tasks.NervesHub.Device do
     end
   end
 
-  @spec update(String.t(), String.t(), [String.t()]) :: :ok
-  def update(org, identifier, ["tags" | tags]) do
+  @spec update(String.t(), String.t(), String.t(), [String.t()]) :: :ok
+  def update(org, product, identifier, ["tags" | tags]) do
     # Split up tags with comma separators
     tags = Enum.flat_map(tags, &split_tag_string/1)
 
     auth = Shell.request_auth()
 
-    case NervesHubUserAPI.Device.update(org, identifier, %{tags: tags}, auth) do
+    case NervesHubUserAPI.Device.update(org, product, identifier, %{tags: tags}, auth) do
       {:ok, %{"data" => %{} = _device}} ->
         Shell.info("Device #{identifier} updated")
 
@@ -231,10 +246,10 @@ defmodule Mix.Tasks.NervesHub.Device do
     end
   end
 
-  def update(org, identifier, [key, value]) do
+  def update(org, product, identifier, [key, value]) do
     auth = Shell.request_auth()
 
-    case NervesHubUserAPI.Device.update(org, identifier, %{key => value}, auth) do
+    case NervesHubUserAPI.Device.update(org, product, identifier, %{key => value}, auth) do
       {:ok, %{"data" => %{} = _device}} ->
         Shell.info("Device #{identifier} updated")
 
@@ -243,15 +258,15 @@ defmodule Mix.Tasks.NervesHub.Device do
     end
   end
 
-  def update(_org, _identifier, data) do
+  def update(_org, _product, _identifier, data) do
     Shell.render_error("Unable to update data: #{inspect(data)}")
   end
 
-  @spec delete(String.t(), String.t()) :: :ok
-  def delete(org, identifier) do
+  @spec delete(String.t(), String.t(), String.t()) :: :ok
+  def delete(org, product, identifier) do
     auth = Shell.request_auth()
 
-    case NervesHubUserAPI.Device.delete(org, identifier, auth) do
+    case NervesHubUserAPI.Device.delete(org, product, identifier, auth) do
       {:ok, _} ->
         Shell.info("Device #{identifier} deleted")
 
@@ -299,11 +314,11 @@ defmodule Mix.Tasks.NervesHub.Device do
     Mix.Task.run("burn", [])
   end
 
-  @spec cert_list(String.t(), String.t()) :: :ok
-  def cert_list(org, identifier) do
+  @spec cert_list(String.t(), String.t(), String.t()) :: :ok
+  def cert_list(org, product, identifier) do
     auth = Shell.request_auth()
 
-    case NervesHubUserAPI.Device.cert_list(org, identifier, auth) do
+    case NervesHubUserAPI.Device.cert_list(org, product, identifier, auth) do
       {:ok, %{"data" => certs}} ->
         render_certs(identifier, certs)
 
@@ -312,8 +327,14 @@ defmodule Mix.Tasks.NervesHub.Device do
     end
   end
 
-  @spec cert_create(String.t(), String.t(), keyword(), nil | NervesHubUserAPI.Auth.t()) :: :ok
-  def cert_create(org, identifier, opts, auth \\ nil) do
+  @spec cert_create(
+          String.t(),
+          String.t(),
+          String.t(),
+          keyword(),
+          nil | NervesHubUserAPI.Auth.t()
+        ) :: :ok
+  def cert_create(org, product, identifier, opts, auth \\ nil) do
     Shell.info("Creating certificate for #{identifier}")
     path = opts[:path] || Path.join(File.cwd!(), @data_dir)
     File.mkdir_p(path)
@@ -327,7 +348,7 @@ defmodule Mix.Tasks.NervesHub.Device do
 
     with safe_csr <- Base.encode64(pem_csr),
          {:ok, %{"data" => %{"cert" => cert}}} <-
-           NervesHubUserAPI.Device.cert_sign(org, identifier, safe_csr, auth),
+           NervesHubUserAPI.Device.cert_sign(org, product, identifier, safe_csr, auth),
          :ok <- File.write(Path.join(path, "#{identifier}-cert.pem"), cert),
          :ok <- File.write(Path.join(path, "#{identifier}-key.pem"), pem_key) do
       Shell.info("Finished")
@@ -365,10 +386,10 @@ defmodule Mix.Tasks.NervesHub.Device do
     """
   end
 
-  defp render_devices(_org, []), do: ""
+  defp render_devices(_org, _product, []), do: ""
 
-  defp render_devices(org, devices) do
-    title = "Devices for #{org}"
+  defp render_devices(org, product, devices) do
+    title = "Devices for #{org} / #{product}"
 
     header = [
       "Identifier",
