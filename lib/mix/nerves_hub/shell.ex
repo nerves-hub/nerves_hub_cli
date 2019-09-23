@@ -91,9 +91,9 @@ defmodule Mix.NervesHubCLI.Shell do
   end
 
   @spec render_error([{:error, any()}]) :: no_return()
-  def render_error(errors) do
+  def render_error(errors, halt \\ true) do
     _ = do_render_error(errors)
-    System.halt(1)
+    halt && System.halt(1)
   end
 
   @spec do_render_error(any()) :: :ok
