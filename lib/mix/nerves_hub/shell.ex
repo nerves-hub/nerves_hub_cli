@@ -107,6 +107,10 @@ defmodule Mix.NervesHubCLI.Shell do
     :ok
   end
 
+  def do_render_error({:error, reason}) when is_binary(reason) do
+    error(reason)
+  end
+
   def do_render_error({:error, %{"status" => "forbidden"}}) do
     error("Invalid credentials")
     error("Your user certificate has either expired or has been revoked.")
