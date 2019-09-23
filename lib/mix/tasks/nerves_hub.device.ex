@@ -3,7 +3,9 @@ defmodule Mix.Tasks.NervesHub.Device do
 
   import Mix.NervesHubCLI.Utils
 
-  alias Mix.NervesHubCLI.Shell
+  alias Mix.NervesHubCLI.{Shell, Bulk}
+
+  alias NimbleCSV.RFC4180, as: CSV
 
   @shortdoc "Manages your NervesHub devices"
 
@@ -26,6 +28,34 @@ defmodule Mix.Tasks.NervesHub.Device do
     * `--description` - (Optional) The description of the device
     * `--tag` - (Optional) Multiple tags can be set by passing this key multiple
       times
+
+  ## bulk_create
+
+  Create many NervesHub devices via a csv file. 
+
+      mix nerves_hub.device bulk_create
+
+  The CSV file should be formated as:
+  ```csv
+  identifier,tags,description
+  ```
+
+  Where `tags` is a double-quoted string, containing comma delimited tags. 
+
+  ### Example CSV file:
+
+  ```csv
+  identifier,tags,description
+  00000000d712d174,"tag1,tag2,tag3",some useful description of the device
+  00000000deadb33f,"qa,region1",this device should only be used with QA
+  ```
+
+  ### Command-line options
+
+    * `--csv` - Path to a CSV file
+    
+    * `--product` - (Optional) The product name to publish the firmware to.
+      This defaults to the Mix Project config `:app` name.
 
   ## update
 
@@ -134,7 +164,10 @@ defmodule Mix.Tasks.NervesHub.Device do
 
     # device list filters
     status: :string,
-    version: :string
+    version: :string,
+
+    # device bulk_create
+    csv: :string
   ]
 
   @data_dir "nerves-hub"
@@ -155,6 +188,9 @@ defmodule Mix.Tasks.NervesHub.Device do
 
       ["create"] ->
         create(org, product, opts)
+
+      ["bulk_create"] ->
+        bulk_create(org, product, opts)
 
       ["delete", identifier] ->
         delete(org, product, identifier)
@@ -243,6 +279,28 @@ defmodule Mix.Tasks.NervesHub.Device do
 
           mix nerves_hub.device cert create #{identifier}
         """)
+
+      error ->
+        Shell.render_error(error)
+    end
+  end
+
+  def bulk_create(org, product, args) do
+    auth = Shell.request_auth()
+
+    with {:ok, path} <- Keyword.fetch(args, :csv),
+         {:ok, _} <- File.stat(path),
+         stream <- File.stream!(path) do
+      stream
+      |> CSV.parse_stream()
+      |> Enum.to_list()
+      |> Bulk.create_devices(org, product, auth)
+    else
+      :error ->
+        Shell.render_error({:error, "--csv is required for bulk_create"})
+
+      {:error, :enoent} ->
+        Shell.render_error({:error, "CSV file not found"})
 
       error ->
         Shell.render_error(error)
