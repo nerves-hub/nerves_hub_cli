@@ -131,12 +131,12 @@ defmodule Mix.Tasks.NervesHub.User do
   end
 
   def auth() do
-    email = Shell.prompt("Email address:") |> String.trim()
+    username_or_email = Shell.prompt("Username or email address:") |> String.trim()
     password = Shell.password_get("NervesHub password:") |> String.trim()
     Shell.info("Authenticating...")
 
-    case NervesHubUserAPI.User.auth(email, password) do
-      {:ok, %{"data" => %{"email" => ^email, "username" => username}}} ->
+    case NervesHubUserAPI.User.auth(username_or_email, password) do
+      {:ok, %{"data" => %{"email" => email, "username" => username}}} ->
         Shell.info("Success")
         generate_certificate(username, email, password)
 
