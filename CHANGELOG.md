@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.9.1
+
+* Enhancements
+  * Updated user auth to support logging in with username or email.
+  * Improved error message formatting.
+
 ## v0.9.0
 
 Backwards incompatible changes:
