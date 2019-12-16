@@ -76,6 +76,8 @@ defmodule Mix.Tasks.NervesHub.Device do
     * `--cert` - (Optional) A path to an existing device certificate
     * `--key` - (Optional) A path to an existing device private key
     * `--path` - (Optional) The path to put the device certificates
+    * `--firmware` - (Optional) The path to the fw file to use. Defaults to
+      `<image_path>/<otp_app>.fw`
 
   ## cert list
 
@@ -109,6 +111,7 @@ defmodule Mix.Tasks.NervesHub.Device do
     path: :string,
     identifier: :string,
     description: :string,
+    firmware: :string,
     tag: :keep,
     key: :string,
     cert: :string,
@@ -311,7 +314,13 @@ defmodule Mix.Tasks.NervesHub.Device do
     System.put_env("NERVES_SERIAL_NUMBER", identifier)
     System.put_env("NERVES_HUB_CERT", File.read!(cert_path))
     System.put_env("NERVES_HUB_KEY", File.read!(key_path))
-    Mix.Task.run("burn", [])
+
+    burn_args =
+      opts
+      |> Keyword.take([:firmware])
+      |> OptionParser.to_argv()
+
+    Mix.Task.run("burn", burn_args)
   end
 
   @spec cert_list(String.t(), String.t(), String.t()) :: :ok
