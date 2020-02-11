@@ -97,11 +97,22 @@ defmodule Mix.Tasks.NervesHub.Device do
 
       mix nerves_hub.device cert create DEVICE_IDENTIFIER
 
+  By default, this will send a certificate signing request to be signed by
+  NervesHubCA (or other specified CA used with NervesHub if hosting your own).
+
+  You can also use your own issuer CA certificate and key to create and sign
+  locally according to the NervesHub defined certificate template by using the
+  `--issuer` and `--issuer-key` options.
+
   ### Command-line options
 
     * `--product` - (Optional) The product name to publish the firmware to.
       This defaults to the Mix Project config `:app` name.
     * `--path` - (Optional) A local location for storing certificates
+    * `--issuer` - (Optional) Path to issuer CA certificate (requires `--issuer-key`)
+    * `--issuer-key` - (Optional) Path to issuer CA key (requires `--issuer`)
+    * `--validity` - (Optional) Time in years a certificate should be valid.
+      Only used with `--issuer` and `--issuer-key` options. Defaults to 31.
 
   """
 
@@ -115,6 +126,11 @@ defmodule Mix.Tasks.NervesHub.Device do
     tag: :keep,
     key: :string,
     cert: :string,
+
+    # Options for local cert creation
+    issuer: :string,
+    issuer_key: :string,
+    validity: :integer,
 
     # device list filters
     status: :string,
@@ -347,17 +363,22 @@ defmodule Mix.Tasks.NervesHub.Device do
     Shell.info("Creating certificate for #{identifier}")
     path = opts[:path] || Path.join(File.cwd!(), @data_dir)
     File.mkdir_p(path)
-    auth = auth || Shell.request_auth()
 
     key = X509.PrivateKey.new_ec(:secp256r1)
     pem_key = X509.PrivateKey.to_pem(key)
 
     csr = X509.CSR.new(key, "/O=#{org}/CN=#{identifier}")
-    pem_csr = X509.CSR.to_pem(csr)
 
-    with safe_csr <- Base.encode64(pem_csr),
-         {:ok, %{"data" => %{"cert" => cert}}} <-
-           NervesHubUserAPI.Device.cert_sign(org, product, identifier, safe_csr, auth),
+    create_args =
+      if opts[:issuer] && opts[:issuer_key] do
+        # create cert locally with provided issuer
+        {csr, opts}
+      else
+        # request cert from NervesHub
+        {org, product, identifier, csr, auth}
+      end
+
+    with {:ok, cert} <- do_cert_create(create_args),
          :ok <- File.write(Path.join(path, "#{identifier}-cert.pem"), cert),
          :ok <- File.write(Path.join(path, "#{identifier}-key.pem"), pem_key) do
       Shell.info("Finished")
@@ -452,4 +473,35 @@ defmodule Mix.Tasks.NervesHub.Device do
   end
 
   defp filter_devices(device, []), do: device
+
+  defp do_cert_create({csr, opts}) do
+    Shell.info("Issuer path: #{opts[:issuer]}")
+    Shell.info("Issuer Key path: #{opts[:issuer_key]}")
+
+    with {:ok, issuer_pem} <- File.read(opts[:issuer]),
+         {:ok, issuer_key_pem} <- File.read(opts[:issuer_key]),
+         {:ok, issuer} <- X509.Certificate.from_pem(issuer_pem),
+         {:ok, issuer_key} <- X509.PrivateKey.from_pem(issuer_key_pem) do
+      subject_rdn = X509.CSR.subject(csr) |> X509.RDNSequence.to_string()
+      public_key = X509.CSR.public_key(csr)
+
+      cert =
+        X509.Certificate.new(public_key, subject_rdn, issuer, issuer_key,
+          template: NervesHubCLI.Certificate.device_template(opts[:validity])
+        )
+
+      {:ok, X509.Certificate.to_pem(cert)}
+    end
+  end
+
+  defp do_cert_create({org, product, id, csr, auth}) do
+    auth = auth || Shell.request_auth()
+    pem_csr = X509.CSR.to_pem(csr)
+
+    with safe_csr <- Base.encode64(pem_csr),
+         {:ok, %{"data" => %{"cert" => cert}}} <-
+           NervesHubUserAPI.Device.cert_sign(org, product, id, safe_csr, auth) do
+      {:ok, cert}
+    end
+  end
 end
