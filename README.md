@@ -15,8 +15,8 @@ command-line. Features include:
 * Manage user and organization accounts
 
 The recommended way of using the CLI is to include
-[`nerves_hub`](https://github.com/nerves-hub/nerves_hub) in your dependencies.
-`nerves_hub` pulls in `nerves_hub_cli` and includes the target runtime
+[`nerves_hub_link`](https://github.com/nerves-hub/nerves_hub_link) in your dependencies.
+`nerves_hub_link` pulls in `nerves_hub_cli` and includes the target runtime
 components necessary to use it.
 
 Once installed, you can access available commands and documentation from the
@@ -53,4 +53,4 @@ automation. The following variables are available:
 * `NERVES_HUB_NON_INTERACTIVE` - Force all yes/no user interaction to be yes
 
 For more information on using the CLI, see the
-[`nerves_hub`](https://github.com/nerves-hub/nerves_hub) documentation.
+[`nerves_hub_link`](https://github.com/nerves-hub/nerves_hub_link) documentation.
