@@ -31,7 +31,7 @@ defmodule Mix.Tasks.NervesHub.Device do
 
   ## bulk_create
 
-  Create many NervesHub devices via a csv file. 
+  Create many NervesHub devices via a csv file.
 
       mix nerves_hub.device bulk_create
 
@@ -40,7 +40,7 @@ defmodule Mix.Tasks.NervesHub.Device do
   identifier,tags,description
   ```
 
-  Where `tags` is a double-quoted string, containing comma delimited tags. 
+  Where `tags` is a double-quoted string, containing comma delimited tags.
 
   ### Example CSV file:
 
@@ -53,7 +53,7 @@ defmodule Mix.Tasks.NervesHub.Device do
   ### Command-line options
 
     * `--csv` - Path to a CSV file
-    
+
     * `--product` - (Optional) The product name to publish the firmware to.
       This defaults to the Mix Project config `:app` name.
 
@@ -269,26 +269,23 @@ defmodule Mix.Tasks.NervesHub.Device do
     end
   end
 
+  @spec bulk_create(String.t(), String.t(), keyword()) :: [any()]
   def bulk_create(org, product, args) do
     auth = Shell.request_auth()
+    path = args[:csv]
 
-    with {:ok, path} <- Keyword.fetch(args, :csv),
-         {:ok, _} <- File.stat(path),
-         stream <- File.stream!(path) do
-      stream
-      |> CSV.parse_stream()
-      |> Enum.to_list()
-      |> Bulk.create_devices(org, product, auth)
-    else
-      :error ->
-        Shell.render_error({:error, "--csv is required for bulk_create"})
-
-      {:error, :enoent} ->
-        Shell.render_error({:error, "CSV file not found"})
-
-      error ->
-        Shell.render_error(error)
+    unless is_bitstring(path) do
+      Shell.render_error({:error, "--csv is required for bulk_create"})
     end
+
+    unless File.exists?(path) do
+      Shell.render_error({:error, "CSV file not found"})
+    end
+
+    File.stream!(path)
+    |> CSV.parse_stream()
+    |> Enum.to_list()
+    |> Bulk.create_devices(org, product, auth)
   end
 
   @spec update(String.t(), String.t(), String.t(), [String.t()]) :: :ok

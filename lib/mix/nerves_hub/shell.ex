@@ -90,10 +90,13 @@ defmodule Mix.NervesHubCLI.Shell do
     |> String.trim()
   end
 
-  @spec render_error([{:error, any()}]) :: no_return()
-  def render_error(errors, halt \\ true) do
+  @dialyzer [{:no_return, render_error: 1}, {:no_fail_call, render_error: 1}]
+
+  @spec render_error([{:error, any()}] | {:error, any()}, boolean() | nil) ::
+          boolean() | nil | no_return()
+  def render_error(errors, halt? \\ true) do
     _ = do_render_error(errors)
-    halt && System.halt(1)
+    halt? && System.halt(1)
   end
 
   @spec do_render_error(any()) :: :ok
