@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.10.0
+
+* Breaking changes
+  * Decouples deprecated `:nerves_hub` config values and will fail compilation if used.
+  To set your organization for the CLI, use `:nerves_hub_cli` key:
+  ```elixir
+  config :nerves_hub_cli, org: "my-org"
+  ```
+
+* Enhancements
+  * `mix nerves_hub.device bulk_create --csv path/to/file.csv` - Support bulk upload
+  from CSV definitions
+  * Add ability to use your own signer CA and key locally when creating device certificate
+  `mix nerves_hub.device cert create --signer-cert path/to/cert --signer-key path/to/key`
+
 ## v0.9.1
 
 * Enhancements
