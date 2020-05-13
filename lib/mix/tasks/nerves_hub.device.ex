@@ -130,19 +130,20 @@ defmodule Mix.Tasks.NervesHub.Device do
   By default, this will send a certificate signing request to be signed by
   NervesHubCA (or other specified CA used with NervesHub if hosting your own).
 
-  You can also use your own issuer CA certificate and key to create and sign
-  locally according to the NervesHub defined certificate template by using the
-  `--issuer` and `--issuer-key` options.
+  You can also take on the role of the CA by providing your own signer
+  certificate and key and using the `--signer-cert` and `--signer-key` options.
+  These will be used with a NervesHub-defined certificate template to sign the
+  generated device certificate locally
 
   ### Command-line options
 
     * `--product` - (Optional) The product name to publish the firmware to.
       This defaults to the Mix Project config `:app` name.
     * `--path` - (Optional) A local location for storing certificates
-    * `--issuer` - (Optional) Path to issuer CA certificate (requires `--issuer-key`)
-    * `--issuer-key` - (Optional) Path to issuer CA key (requires `--issuer`)
+    * `--signer-cert` - (Optional) Path to the signer certificate (requires `--signer-key`)
+    * `--signer-key` - (Optional) Path to signer certificate's private key (requires `--signer-cert`)
     * `--validity` - (Optional) Time in years a certificate should be valid.
-      Only used with `--issuer` and `--issuer-key` options. Defaults to 31.
+      Only used with `--signer-cert` and `--signer-key` options. Defaults to 31.
 
   """
 
@@ -158,8 +159,8 @@ defmodule Mix.Tasks.NervesHub.Device do
     cert: :string,
 
     # Options for local cert creation
-    issuer: :string,
-    issuer_key: :string,
+    signer_cert: :string,
+    signer_key: :string,
     validity: :integer,
 
     # device list filters
@@ -270,7 +271,7 @@ defmodule Mix.Tasks.NervesHub.Device do
         Device #{identifier} created.
 
         If your device has an ATECCx08A module or NervesKey that has been
-        provisioned by a CA/signing certificate known to NervesHub, it is
+        provisioned by a CA/signer certificate known to NervesHub, it is
         ready to go.
 
         If not using a hardware module to protect the device's private
@@ -425,8 +426,8 @@ defmodule Mix.Tasks.NervesHub.Device do
     csr = X509.CSR.new(key, "/O=#{org}/CN=#{identifier}")
 
     create_args =
-      if opts[:issuer] && opts[:issuer_key] do
-        # create cert locally with provided issuer
+      if opts[:signer_cert] && opts[:signer_key] do
+        # create cert locally with provided signer
         {csr, opts}
       else
         # request cert from NervesHub
@@ -530,18 +531,18 @@ defmodule Mix.Tasks.NervesHub.Device do
   defp filter_devices(device, []), do: device
 
   defp do_cert_create({csr, opts}) do
-    Shell.info("Issuer path: #{opts[:issuer]}")
-    Shell.info("Issuer Key path: #{opts[:issuer_key]}")
+    Shell.info("Signer cert path: #{opts[:signer_cert]}")
+    Shell.info("Signer key path: #{opts[:signer_key]}")
 
-    with {:ok, issuer_pem} <- File.read(opts[:issuer]),
-         {:ok, issuer_key_pem} <- File.read(opts[:issuer_key]),
-         {:ok, issuer} <- X509.Certificate.from_pem(issuer_pem),
-         {:ok, issuer_key} <- X509.PrivateKey.from_pem(issuer_key_pem) do
+    with {:ok, signer_cert_pem} <- File.read(opts[:signer_cert]),
+         {:ok, signer_key_pem} <- File.read(opts[:signer_key]),
+         {:ok, signer_cert} <- X509.Certificate.from_pem(signer_cert_pem),
+         {:ok, signer_key} <- X509.PrivateKey.from_pem(signer_key_pem) do
       subject_rdn = X509.CSR.subject(csr) |> X509.RDNSequence.to_string()
       public_key = X509.CSR.public_key(csr)
 
       cert =
-        X509.Certificate.new(public_key, subject_rdn, issuer, issuer_key,
+        X509.Certificate.new(public_key, subject_rdn, signer_cert, signer_key,
           template: NervesHubCLI.Certificate.device_template(opts[:validity])
         )
 
