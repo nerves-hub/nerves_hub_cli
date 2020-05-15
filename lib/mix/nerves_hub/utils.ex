@@ -161,13 +161,24 @@ defmodule Mix.NervesHubCLI.Utils do
 
   defp org_from_env() do
     if Application.get_env(:nerves_hub, :org) do
+      org = Application.get_env(:nerves_hub, :org)
+
       Shell.raise("""
 
-      Using :nerves_hub env for your org is deprecated
+      Specifying your NervesHub organization using the :nerves_hub application
+      environment is no longer supported.
 
-      Set it with:
+      Please edit your config.exs and replace:
 
-        config :nerves_hub_cli, org: "org_name"
+        config :nerves_hub, org: "#{org}"
+
+      With:
+
+        config :nerves_hub_cli, org: "#{org}"
+
+      Another source of this issue is having an old version of `:nerves_hub_link`.
+      If you are using `:nerves_hub_link`, make sure that you're using v0.8.0 or
+      later.
       """)
     else
       Application.get_env(:nerves_hub_cli, :org)
