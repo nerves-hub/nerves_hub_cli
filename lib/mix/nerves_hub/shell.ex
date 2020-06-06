@@ -140,7 +140,7 @@ defmodule Mix.NervesHubCLI.Shell do
   end
 
   defp try_decode64(value) do
-    case Base.decode64(value) do
+    case Base.decode64(value, ignore: :whitespace) do
       {:ok, value} -> value
       _ -> value
     end
