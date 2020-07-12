@@ -22,7 +22,6 @@ defmodule NervesHubCLI.MixProject do
 
   def application do
     [
-      extra_applications: [:logger],
       mod: {NervesHubCLI.Application, []}
     ]
   end
