@@ -11,10 +11,7 @@ defmodule NervesHubCLI.MixProject do
       docs: docs(),
       description: description(),
       package: package(),
-      dialyzer: [
-        plt_add_apps: [:public_key, :asn1, :crypto, :mix],
-        ignore_warnings: "dialyzer.ignore-warnings"
-      ]
+      dialyzer: dialyzer()
     ]
   end
 
@@ -44,7 +41,15 @@ defmodule NervesHubCLI.MixProject do
       {:table_rex, "~> 2.0.0 or ~> 3.0.0"},
       {:nimble_csv, "~> 0.7"},
       {:ex_doc, "~> 0.19", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.0.0-rc.4", only: [:dev, :test], runtime: false}
+      {:dialyxir, "~> 1.0.0", only: [:dev, :test], runtime: false}
+    ]
+  end
+
+  defp dialyzer() do
+    [
+      flags: [:race_conditions, :unmatched_returns, :error_handling, :underspecs],
+      plt_add_apps: [:public_key, :asn1, :crypto, :mix],
+      ignore_warnings: "dialyzer.ignore-warnings"
     ]
   end
 

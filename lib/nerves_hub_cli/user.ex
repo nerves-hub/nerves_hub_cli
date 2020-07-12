@@ -5,9 +5,11 @@ defmodule NervesHubCLI.User do
   @key "key.encrypted"
   @cert "cert.pem"
 
+  @spec init :: :ok
   def init() do
-    data_dir()
-    |> File.mkdir_p()
+    File.mkdir_p!(data_dir())
+
+    :ok
   end
 
   @spec save_certs(binary(), binary(), String.t()) :: :ok | {:error, atom()}
@@ -37,8 +39,8 @@ defmodule NervesHubCLI.User do
 
   @spec deauth() :: :ok
   def deauth() do
-    File.rm(user_data_path(@cert))
-    File.rm(user_data_path(@key))
+    _ = File.rm(user_data_path(@cert))
+    _ = File.rm(user_data_path(@key))
     :ok
   end
 
