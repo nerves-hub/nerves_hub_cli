@@ -92,7 +92,7 @@ defmodule Mix.Tasks.NervesHub.Key do
   @data_dir "nerves-hub"
 
   def run(args) do
-    Application.ensure_all_started(:nerves_hub_cli)
+    _ = Application.ensure_all_started(:nerves_hub_cli)
 
     {opts, args} = OptionParser.parse!(args, strict: @switches)
 

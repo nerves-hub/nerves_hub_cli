@@ -8,10 +8,8 @@ defmodule NervesHubCLI.Key do
 
   def create(org, key_name, key_password) do
     path = data_dir(org)
-    File.mkdir_p(path)
-
     tmp_dir = Path.join(path, "tmp")
-    File.mkdir_p(tmp_dir)
+    File.mkdir_p!(tmp_dir)
 
     default_private_key_file = Path.join(tmp_dir, @gen_file <> @private_ext)
     default_public_key_file = Path.join(tmp_dir, @gen_file <> @public_ext)
@@ -24,18 +22,18 @@ defmodule NervesHubCLI.Key do
          :ok <- File.write(default_private_key_file, encrypted_key),
          :ok <- File.cp(default_private_key_file, final_private_key),
          :ok <- File.cp(default_public_key_file, final_public_key) do
-      File.rm_rf(tmp_dir)
+      _ = File.rm_rf!(tmp_dir)
       {:ok, final_public_key, final_private_key}
     else
       error ->
-        File.rm_rf(tmp_dir)
+        _ = File.rm_rf!(tmp_dir)
         error
     end
   end
 
   def import(org, key_name, key_password, public_key_file, private_key_file) do
     path = data_dir(org)
-    File.mkdir_p(path)
+    File.mkdir_p!(path)
 
     final_private_key = Path.join(path, key_name <> @private_ext)
     final_public_key = Path.join(path, key_name <> @public_ext)
@@ -71,13 +69,13 @@ defmodule NervesHubCLI.Key do
 
   def delete(org, name) do
     path = data_dir(org)
-    File.rm(Path.join(path, name <> @private_ext))
-    File.rm(Path.join(path, name <> @public_ext))
+    _ = File.rm(Path.join(path, name <> @private_ext))
+    _ = File.rm(Path.join(path, name <> @public_ext))
   end
 
   def local_keys(org) do
     path = data_dir(org)
-    File.mkdir_p(path)
+    File.mkdir_p!(path)
 
     private_keys =
       path

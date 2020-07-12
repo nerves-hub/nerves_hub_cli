@@ -175,7 +175,7 @@ defmodule Mix.Tasks.NervesHub.Device do
 
   @spec run([String.t()]) :: :ok | no_return()
   def run(args) do
-    Application.ensure_all_started(:nerves_hub_cli)
+    _ = Application.ensure_all_started(:nerves_hub_cli)
 
     {opts, args} = OptionParser.parse!(args, strict: @switches)
 
@@ -418,7 +418,7 @@ defmodule Mix.Tasks.NervesHub.Device do
   def cert_create(org, product, identifier, opts, auth \\ nil) do
     Shell.info("Creating certificate for #{identifier}")
     path = opts[:path] || Path.join(File.cwd!(), @data_dir)
-    File.mkdir_p(path)
+    File.mkdir_p!(path)
 
     key = X509.PrivateKey.new_ec(:secp256r1)
     pem_key = X509.PrivateKey.to_pem(key)

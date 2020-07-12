@@ -93,10 +93,15 @@ defmodule Mix.NervesHubCLI.Shell do
   @dialyzer [{:no_return, render_error: 1}, {:no_fail_call, render_error: 1}]
 
   @spec render_error([{:error, any()}] | {:error, any()}, boolean() | nil) ::
-          boolean() | nil | no_return()
+          :ok | no_return()
   def render_error(errors, halt? \\ true) do
     _ = do_render_error(errors)
-    halt? && System.halt(1)
+
+    if halt? do
+      System.halt(1)
+    else
+      :ok
+    end
   end
 
   @spec do_render_error(any()) :: :ok

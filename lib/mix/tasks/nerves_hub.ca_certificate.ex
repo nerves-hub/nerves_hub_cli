@@ -32,7 +32,7 @@ defmodule Mix.Tasks.NervesHub.CaCertificate do
   ]
 
   def run(args) do
-    Application.ensure_all_started(:nerves_hub_cli)
+    _ = Application.ensure_all_started(:nerves_hub_cli)
 
     {opts, args} = OptionParser.parse!(args, strict: @switches)
 
