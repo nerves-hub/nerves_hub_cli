@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.10.1
+
+* Bug fixes
+  * Ignore whitepace in base64-encoded string input
+
 ## v0.10.0
 
 * Breaking changes
