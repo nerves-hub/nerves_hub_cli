@@ -11,7 +11,12 @@ defmodule NervesHubCLI.MixProject do
       docs: docs(),
       description: description(),
       package: package(),
-      dialyzer: dialyzer()
+      dialyzer: dialyzer(),
+      preferred_cli_env: %{
+        docs: :docs,
+        "hex.publish": :docs,
+        "hex.build": :docs
+      }
     ]
   end
 
@@ -40,7 +45,7 @@ defmodule NervesHubCLI.MixProject do
       {:nerves_hub_user_api, "~> 0.6"},
       {:table_rex, "~> 2.0.0 or ~> 3.0.0"},
       {:nimble_csv, "~> 0.7"},
-      {:ex_doc, "~> 0.19", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.19", only: :docs, runtime: false},
       {:dialyxir, "~> 1.0.0", only: [:dev, :test], runtime: false}
     ]
   end
