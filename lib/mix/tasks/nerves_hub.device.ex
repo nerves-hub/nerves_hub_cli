@@ -286,7 +286,7 @@ defmodule Mix.Tasks.NervesHub.Device do
     end
   end
 
-  @spec bulk_create(String.t(), String.t(), keyword()) :: [any()]
+  @spec bulk_create(String.t(), String.t(), keyword()) :: :ok
   def bulk_create(org, product, args) do
     auth = Shell.request_auth()
     path = args[:csv]
@@ -303,6 +303,7 @@ defmodule Mix.Tasks.NervesHub.Device do
     |> CSV.parse_stream()
     |> Enum.to_list()
     |> Bulk.create_devices(org, product, auth)
+    |> Bulk.display_results(path)
   end
 
   @spec update(String.t(), String.t(), String.t(), [String.t()]) :: :ok
