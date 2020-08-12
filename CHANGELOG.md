@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.10.2
+
+* Enhancements
+  * More results printout in the `nerves_hub.device bulk_create` task which reports
+    errors, malformed lines, and successful creates.
+
 ## v0.10.1
 
 * Bug fixes
