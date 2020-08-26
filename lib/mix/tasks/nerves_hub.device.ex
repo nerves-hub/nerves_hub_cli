@@ -22,7 +22,7 @@ defmodule Mix.Tasks.NervesHub.Device do
 
   ### Command-line options
 
-    * `--product` - (Optional) The product name to publish the firmware to.
+    * `--product` - (Optional) The product name.
       This defaults to the Mix Project config `:app` name.
     * `--identifier` - (Optional) The device identifier
     * `--description` - (Optional) The description of the device
@@ -54,7 +54,7 @@ defmodule Mix.Tasks.NervesHub.Device do
 
     * `--csv` - Path to a CSV file
 
-    * `--product` - (Optional) The product name to publish the firmware to.
+    * `--product` - (Optional) The product name.
       This defaults to the Mix Project config `:app` name.
 
   ## update
@@ -69,7 +69,7 @@ defmodule Mix.Tasks.NervesHub.Device do
 
   ### Command-line options
 
-  * `--product` - (Optional) The product name to publish the firmware to.
+  * `--product` - (Optional) The product name.
       This defaults to the Mix Project config `:app` name.
   * `--identifier` - (Optional) Only show device matching an identifier
   * `--description` - (Optional) Only show devices matching a description
@@ -101,7 +101,7 @@ defmodule Mix.Tasks.NervesHub.Device do
 
   ### Command-line options
 
-    * `--product` - (Optional) The product name to publish the firmware to.
+    * `--product` - (Optional) The product name.
       This defaults to the Mix Project config `:app` name.
     * `--cert` - (Optional) A path to an existing device certificate
     * `--key` - (Optional) A path to an existing device private key
@@ -117,7 +117,7 @@ defmodule Mix.Tasks.NervesHub.Device do
 
   ### Command-line options
 
-    * `--product` - (Optional) The product name to publish the firmware to.
+    * `--product` - (Optional) The product name.
       This defaults to the Mix Project config `:app` name.
 
   ## cert create
@@ -137,7 +137,7 @@ defmodule Mix.Tasks.NervesHub.Device do
 
   ### Command-line options
 
-    * `--product` - (Optional) The product name to publish the firmware to.
+    * `--product` - (Optional) The product name.
       This defaults to the Mix Project config `:app` name.
     * `--path` - (Optional) A local location for storing certificates
     * `--signer-cert` - (Optional) Path to the signer certificate (requires `--signer-key`)
@@ -145,6 +145,16 @@ defmodule Mix.Tasks.NervesHub.Device do
     * `--validity` - (Optional) Time in years a certificate should be valid.
       Only used with `--signer-cert` and `--signer-key` options. Defaults to 31.
 
+  ## cert import
+
+  Import a trusted certificate for authenticating a device.
+
+      mix nerves_hub.device cert import DEVICE_IDENTIFIER CERT_PATH
+
+  ### Command-line options
+
+    * `--product` - (Optional) The product name.
+      This defaults to the Mix Project config `:app` name.
   """
 
   @switches [
@@ -205,6 +215,9 @@ defmodule Mix.Tasks.NervesHub.Device do
       ["cert", "create", device] ->
         cert_create(org, product, device, opts)
 
+      ["cert", "import", device, cert_path] ->
+        cert_import(org, product, device, cert_path, opts)
+
       ["update", identifier | update_data] ->
         update(org, product, identifier, update_data)
 
@@ -226,6 +239,7 @@ defmodule Mix.Tasks.NervesHub.Device do
       mix nerves_hub.device burn DEVICE_IDENTIFIER
       mix nerves_hub.device cert list DEVICE_IDENTIFIER
       mix nerves_hub.device cert create DEVICE_IDENTIFIER
+      mix nerves_hub.device cert import DEVICE_IDENTIFIER CERT_PATH
 
     Run `mix help nerves_hub.device` for more information.
     """)
@@ -440,6 +454,27 @@ defmodule Mix.Tasks.NervesHub.Device do
          :ok <- File.write(Path.join(path, "#{identifier}-key.pem"), pem_key) do
       Shell.info("Finished")
       :ok
+    else
+      error ->
+        Shell.render_error(error)
+    end
+  end
+
+  @spec cert_import(
+          String.t(),
+          String.t(),
+          String.t(),
+          String.t(),
+          keyword()
+        ) :: :ok
+  def cert_import(org, product, identifier, cert_path, _opts) do
+    Shell.info("Importing certificate for #{identifier}")
+
+    with {:ok, cert_pem} <- File.read(cert_path),
+         auth <- Shell.request_auth(),
+         {:ok, %{"data" => %{"serial" => serial}}} <-
+           NervesHubUserAPI.DeviceCertificate.create(org, product, identifier, cert_pem, auth) do
+      Shell.info("Device certificate '#{serial}' registered.")
     else
       error ->
         Shell.render_error(error)
