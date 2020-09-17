@@ -400,7 +400,7 @@ defmodule Mix.Tasks.NervesHub.Device do
   def cert_list(org, product, identifier) do
     auth = Shell.request_auth()
 
-    case NervesHubUserAPI.Device.cert_list(org, product, identifier, auth) do
+    case NervesHubUserAPI.DeviceCertificate.list(org, product, identifier, auth) do
       {:ok, %{"data" => certs}} ->
         render_certs(identifier, certs)
 
@@ -557,7 +557,7 @@ defmodule Mix.Tasks.NervesHub.Device do
 
     with safe_csr <- Base.encode64(pem_csr),
          {:ok, %{"data" => %{"cert" => cert}}} <-
-           NervesHubUserAPI.Device.cert_sign(org, product, id, safe_csr, auth) do
+           NervesHubUserAPI.DeviceCertificate.sign(org, product, id, safe_csr, auth) do
       {:ok, cert}
     end
   end
