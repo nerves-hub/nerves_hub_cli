@@ -3,10 +3,11 @@ defmodule NervesHubCLI.MixProject do
 
   @version "0.10.4"
   @source_url "https://github.com/nerves-hub/nerves_hub_cli"
+  @app :nerves_hub_cli
 
   def project do
     [
-      app: :nerves_hub_cli,
+      app: @app,
       version: @version,
       elixir: "~> 1.6",
       start_permanent: Mix.env() == :prod,
@@ -18,14 +19,16 @@ defmodule NervesHubCLI.MixProject do
       preferred_cli_env: %{
         docs: :docs,
         "hex.publish": :docs,
-        "hex.build": :docs
-      }
+        "hex.build": :docs,
+        release: :prod
+      },
+      releases: [{@app, release()}]
     ]
   end
 
   def application do
     [
-      mod: {NervesHubCLI.Application, []}
+      # mod: {NervesHubCLI.Application, []}
     ]
   end
 
@@ -42,6 +45,7 @@ defmodule NervesHubCLI.MixProject do
 
   defp deps do
     [
+      {:bakeware, "~> 0.1.4", runtime: false},
       {:pbcs, "~> 0.1"},
       {:x509, "~> 0.3"},
       {:nerves_hub_user_api, "~> 0.7.1"},
@@ -67,6 +71,15 @@ defmodule NervesHubCLI.MixProject do
       skip_undefined_reference_warnings_on: ["CHANGELOG.md"],
       source_ref: "v#{@version}",
       source_url: @source_url
+    ]
+  end
+
+  defp release do
+    [
+      overwrite: true,
+      cookie: "#{@app}_cookie",
+      steps: [:assemble, &Bakeware.assemble/1],
+      strip_beams: Mix.env() == :prod
     ]
   end
 end
