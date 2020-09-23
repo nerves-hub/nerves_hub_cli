@@ -42,7 +42,7 @@ defmodule Mix.Tasks.NervesHub.Deployment do
 
   Activate / Deactivate a deployment
 
-      mix nerves_hub.deployment update dev is_active true
+      mix nerves_hub.deployment update dev state on
 
   General usage:
 
@@ -152,9 +152,9 @@ defmodule Mix.Tasks.NervesHub.Deployment do
 
         Deployment #{name} created.
 
-        This deployment is not activated by default. To activate it, run:
+        This deployment is not on by default. To turn it on, run:
 
-        mix nerves_hub.deployment update #{name} is_active true
+        mix nerves_hub.deployment update #{name} state on
         """)
 
       error ->
@@ -163,6 +163,21 @@ defmodule Mix.Tasks.NervesHub.Deployment do
   end
 
   def update(deployment, key, value, org, product, auth \\ nil) do
+    if key =~ ~r/is_active/i do
+      Shell.info("""
+
+      #{IO.ANSI.yellow()}warning: #{IO.ANSI.default_color()}Using #{IO.ANSI.yellow()}is_active#{
+        IO.ANSI.default_color()
+      } is deprecated. Please change your request to use #{IO.ANSI.cyan()}state#{
+        IO.ANSI.default_color()
+      } instead ¬
+
+      #{IO.ANSI.cyan()}  mix nerves_hub.deployment update #{deployment} state (on|off)#{
+        IO.ANSI.default_color()
+      }
+      """)
+    end
+
     auth = auth || Shell.request_auth()
 
     case NervesHubUserAPI.Deployment.update(
@@ -190,7 +205,7 @@ defmodule Mix.Tasks.NervesHub.Deployment do
   defp render_deployment(params) do
     """
       name:      #{params["name"]}
-      is_active: #{params["is_active"]}
+      state:     #{params["state"]}
       firmware:  #{params["firmware_uuid"]}
       #{render_conditions(params["conditions"])}
     """
