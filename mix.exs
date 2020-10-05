@@ -43,7 +43,7 @@ defmodule NervesHubCLI.MixProject do
       {:x509, "~> 0.3"},
       {:nerves_hub_user_api, "~> 0.7"},
       {:table_rex, "~> 2.0.0 or ~> 3.0.0"},
-      {:nimble_csv, "~> 0.7"},
+      {:nimble_csv, "~> 0.7 or ~> 1.1"},
       {:ex_doc, "~> 0.19", only: :docs, runtime: false},
       {:dialyxir, "~> 1.0.0", only: [:dev, :test], runtime: false}
     ]
