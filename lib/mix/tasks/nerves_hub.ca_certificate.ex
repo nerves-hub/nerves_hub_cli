@@ -28,7 +28,8 @@ defmodule Mix.Tasks.NervesHub.CaCertificate do
   """
 
   @switches [
-    org: :string
+    org: :string,
+    description: :string
   ]
 
   def run(args) do
@@ -44,7 +45,7 @@ defmodule Mix.Tasks.NervesHub.CaCertificate do
         list(org)
 
       ["register", certificate_path] ->
-        register(certificate_path, org)
+        register(certificate_path, org, opts)
 
       ["unregister", serial] ->
         unregister(serial, org)
@@ -80,11 +81,12 @@ defmodule Mix.Tasks.NervesHub.CaCertificate do
     end
   end
 
-  def register(cert_path, org) do
+  def register(cert_path, org, opts \\ []) do
     with {:ok, cert_pem} <- File.read(cert_path),
-         auth = Shell.request_auth(),
+         auth <- Shell.request_auth(),
+         description <- Keyword.get(opts, :description),
          {:ok, %{"data" => %{"serial" => serial}}} <-
-           NervesHubUserAPI.CACertificate.create(org, cert_pem, auth) do
+           NervesHubUserAPI.CACertificate.create(org, cert_pem, auth, description) do
       Shell.info("CA certificate '#{serial}' registered.")
     else
       error ->
