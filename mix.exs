@@ -1,10 +1,13 @@
 defmodule NervesHubCLI.MixProject do
   use Mix.Project
 
+  @version "0.10.2"
+  @source_url "https://github.com/nerves-hub/nerves_hub_cli"
+
   def project do
     [
       app: :nerves_hub_cli,
-      version: "0.10.2",
+      version: @version,
       elixir: "~> 1.6",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -33,7 +36,7 @@ defmodule NervesHubCLI.MixProject do
   defp package do
     [
       licenses: ["Apache-2.0"],
-      links: %{"GitHub" => "https://github.com/nerves-hub/nerves_hub_cli"}
+      links: %{"GitHub" => @source_url}
     ]
   end
 
@@ -44,7 +47,7 @@ defmodule NervesHubCLI.MixProject do
       {:nerves_hub_user_api, "~> 0.7"},
       {:table_rex, "~> 2.0.0 or ~> 3.0.0"},
       {:nimble_csv, "~> 0.7 or ~> 1.1"},
-      {:ex_doc, "~> 0.19", only: :docs, runtime: false},
+      {:ex_doc, "~> 0.22", only: :docs, runtime: false},
       {:dialyxir, "~> 1.0.0", only: [:dev, :test], runtime: false}
     ]
   end
@@ -61,7 +64,9 @@ defmodule NervesHubCLI.MixProject do
     [
       extras: ["README.md", "CHANGELOG.md"],
       main: "readme",
-      skip_undefined_reference_warnings_on: ["CHANGELOG.md"]
+      skip_undefined_reference_warnings_on: ["CHANGELOG.md"],
+      source_ref: "v#{@version}",
+      source_url: @source_url
     ]
   end
 end
