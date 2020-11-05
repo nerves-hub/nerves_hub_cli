@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.10.3
+
+* Bug fixes
+  * Fix deprecation warnings for `nerves_hub_user_api` calls
+
 ## v0.10.2
 
 * Enhancements
