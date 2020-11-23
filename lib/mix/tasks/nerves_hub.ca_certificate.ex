@@ -133,8 +133,9 @@ defmodule Mix.Tasks.NervesHub.CaCertificate do
     {:ok, not_after, _} = DateTime.from_iso8601(params["not_after"])
 
     """
-      serial:     #{params["serial"]}
-      validity:   #{DateTime.to_date(not_before)} - #{DateTime.to_date(not_after)} UTC
+      serial:      #{params["serial"]}
+      validity:    #{DateTime.to_date(not_before)} - #{DateTime.to_date(not_after)} UTC
+      description: #{params["description"]}
     """
   end
 end
