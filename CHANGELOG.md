@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.10.4
+
+* Enhancements
+  * Added `mix nerves_hub.device cert import DEVICE_ID CERT_PATH` for adding
+    trusted device certificates.
+  * Changed Deployment `is_active` true/false to `state` on/off to match wording
+    on the server.
+
 ## v0.10.3
 
 * Bug fixes
