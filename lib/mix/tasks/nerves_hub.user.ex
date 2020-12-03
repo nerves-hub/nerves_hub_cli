@@ -197,7 +197,11 @@ defmodule Mix.Tasks.NervesHub.User do
     Shell.info("NervesHub uses client-side SSL certificates to authenticate CLI requests.")
     Shell.info("")
     Shell.info("The next step will create an SSL certificate and store it in your ")
-    Shell.info("'~/.nerves-hub' directory. A password is required to protect it. This password")
+
+    Shell.info(
+      "'#{NervesHubCLI.home_dir()}' directory. A password is required to protect it. This password"
+    )
+
     Shell.info("does not need to be your NervesHub password. It will never be sent to NervesHub")
     Shell.info("or any other computer. If you lose it, you will need to run")
     Shell.info("'mix nerves_hub.user auth' and create a new certificate.")
