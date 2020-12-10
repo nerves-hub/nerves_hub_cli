@@ -142,6 +142,25 @@ defmodule Mix.NervesHubCLI.Utils do
     tags
   end
 
+  @doc """
+  Takes the integer serial representation of a certificate serial number
+  and converts it to a hex string with `:` separators to match typical
+  output from OpenSSL
+  """
+  @spec serial_as_hex(binary | integer) :: binary
+  def serial_as_hex(serial_int) when is_integer(serial_int) do
+    serial_int
+    |> Integer.to_string(16)
+    |> to_charlist()
+    |> Enum.chunk_every(2)
+    |> Enum.join(":")
+  end
+
+  def serial_as_hex(serial_str) when is_binary(serial_str) do
+    String.to_integer(serial_str)
+    |> serial_as_hex()
+  end
+
   defp check_valid_tag(tag) do
     cond do
       String.contains?(tag, [" ", "\t", "\n"]) ->

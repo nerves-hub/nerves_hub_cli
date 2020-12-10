@@ -87,7 +87,7 @@ defmodule Mix.Tasks.NervesHub.CaCertificate do
          description <- Keyword.get(opts, :description),
          {:ok, %{"data" => %{"serial" => serial}}} <-
            NervesHubUserAPI.CACertificate.create(org, cert_pem, auth, description) do
-      Shell.info("CA certificate '#{serial}' registered.")
+      Shell.info("CA certificate '#{serial_as_hex(serial)}' registered.")
     else
       error ->
         Shell.render_error(error)
@@ -98,6 +98,8 @@ defmodule Mix.Tasks.NervesHub.CaCertificate do
     if Shell.yes?("Unregister CA certificate '#{serial}'?") do
       auth = Shell.request_auth()
       Shell.info("Unregistering CA certificate '#{serial}'")
+
+      serial = if String.contains?(serial, ":"), do: serial_from_hex(serial), else: serial
 
       case NervesHubUserAPI.CACertificate.delete(org, serial, auth) do
         {:ok, ""} ->
@@ -134,8 +136,15 @@ defmodule Mix.Tasks.NervesHub.CaCertificate do
 
     """
       serial:      #{params["serial"]}
+      serial hex:  #{serial_as_hex(params["serial"])}
       validity:    #{DateTime.to_date(not_before)} - #{DateTime.to_date(not_after)} UTC
       description: #{params["description"]}
     """
+  end
+
+  defp serial_from_hex(hex) do
+    String.replace(hex, ":", "")
+    |> String.to_integer(16)
+    |> to_string()
   end
 end

@@ -474,7 +474,7 @@ defmodule Mix.Tasks.NervesHub.Device do
          auth <- Shell.request_auth(),
          {:ok, %{"data" => %{"serial" => serial}}} <-
            NervesHubUserAPI.DeviceCertificate.create(org, product, identifier, cert_pem, auth) do
-      Shell.info("Device certificate '#{serial}' registered.")
+      Shell.info("Device certificate '#{serial_as_hex(serial)}' registered.")
     else
       error ->
         Shell.render_error(error)
@@ -504,6 +504,7 @@ defmodule Mix.Tasks.NervesHub.Device do
 
     """
       serial:     #{params["serial"]}
+      serial hex: #{serial_as_hex(params["serial"])}
       validity:   #{DateTime.to_date(not_before)} - #{DateTime.to_date(not_after)} UTC
     """
   end
