@@ -527,7 +527,7 @@ defmodule Mix.Tasks.NervesHub.Device do
       Enum.map(devices, fn device ->
         [
           device["identifier"],
-          Enum.join(device["tags"], ", "),
+          Enum.join(device["tags"] || [], ", "),
           device["version"],
           device["firmware_metadata"]["uuid"],
           device["status"],
@@ -548,7 +548,9 @@ defmodule Mix.Tasks.NervesHub.Device do
   end
 
   defp filter_devices(device, [{:tag, tag} | rest]) do
-    if Enum.any?(device["tags"], fn device_tag -> device_tag == tag end),
+    tags = device["tags"] || []
+
+    if Enum.any?(tags, fn device_tag -> device_tag == tag end),
       do: filter_devices(device, rest)
   end
 
