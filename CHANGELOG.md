@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.10.5
+
+* Bug Fixes
+  * Fixes issue rendering devices when the device does not have any tags
+
+* Enhancements
+  * Certificate serials are now also displayed as a hex value to match OpenSSL output
+  * Add cert description to ca_certificate list
+  * More specific location output when creating user auth cert
+
 ## v0.10.4
 
 * Enhancements
