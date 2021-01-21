@@ -181,8 +181,6 @@ defmodule Mix.Tasks.NervesHub.Device do
     csv: :string
   ]
 
-  @data_dir "nerves-hub"
-
   @spec run([String.t()]) :: :ok | no_return()
   def run(args) do
     _ = Application.ensure_all_started(:nerves_hub_cli)
@@ -367,7 +365,7 @@ defmodule Mix.Tasks.NervesHub.Device do
 
   @spec burn(String.t(), keyword()) :: :ok
   def burn(identifier, opts) do
-    path = opts[:path] || Path.join(File.cwd!(), @data_dir)
+    path = opts[:path] || NervesHubCLI.home_dir()
     cert_path = opts[:cert]
     key_path = opts[:key]
 
@@ -432,7 +430,7 @@ defmodule Mix.Tasks.NervesHub.Device do
         ) :: :ok
   def cert_create(org, product, identifier, opts, auth \\ nil) do
     Shell.info("Creating certificate for #{identifier}")
-    path = opts[:path] || Path.join(File.cwd!(), @data_dir)
+    path = opts[:path] || NervesHubCLI.home_dir()
     File.mkdir_p!(path)
 
     key = X509.PrivateKey.new_ec(:secp256r1)
