@@ -51,7 +51,6 @@ defmodule Mix.Tasks.NervesHub.User do
   """
 
   @switches [path: :string]
-  @data_dir "nerves-hub"
 
   def run(args) do
     _ = Application.ensure_all_started(:nerves_hub_cli)
@@ -156,7 +155,7 @@ defmodule Mix.Tasks.NervesHub.User do
   end
 
   def cert_export(opts) do
-    path = opts[:path] || Path.join(File.cwd!(), @data_dir)
+    path = opts[:path] || NervesHubCLI.home_dir()
     password = Shell.password_get("Local user password:")
 
     with :ok <- File.mkdir_p(path),

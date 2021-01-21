@@ -89,7 +89,6 @@ defmodule Mix.Tasks.NervesHub.Key do
     path: :string,
     local: :boolean
   ]
-  @data_dir "nerves-hub"
 
   def run(args) do
     _ = Application.ensure_all_started(:nerves_hub_cli)
@@ -234,7 +233,7 @@ defmodule Mix.Tasks.NervesHub.Key do
   end
 
   def export(key, org, opts) do
-    path = opts[:path] || Path.join(File.cwd!(), @data_dir)
+    path = opts[:path] || NervesHubCLI.home_dir()
 
     with :ok <- File.mkdir_p(path),
          {:ok, public_key, private_key} <- Shell.request_keys(org, key),
