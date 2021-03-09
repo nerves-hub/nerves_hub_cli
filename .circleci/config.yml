@@ -1,25 +1,36 @@
 version: 2
+
+defaults: &defaults
+  working_directory: ~/repo
+  environment:
+    LC_ALL: C.UTF-8
+
+install_hex_rebar: &install_hex_rebar
+  run:
+    name: Install hex and rebar
+    command: |
+      mix local.hex --force
+      mix local.rebar --force
+
 jobs:
   build:
     docker:
-      - image: hexpm/elixir:1.11.2-erlang-23.1.1-alpine-3.12.0
-
-    working_directory: ~/repo
+      - image: hexpm/elixir:1.11.3-erlang-23.2.2-alpine-3.12.1
+    <<: *defaults
     steps:
       - checkout
-
-      - run: mix local.hex --force
-      - run: mix local.rebar --force
+      - <<: *install_hex_rebar
       - restore_cache:
           keys:
             - v1-mix-cache-{{ checksum "mix.lock" }}
       - run: mix deps.get
-      - run: mix compile --warnings-as-errors
       - run: mix format --check-formatted
-      - run: mix test
-      - run: mix dialyzer --halt-exit-status
+      - run: mix deps.unlock --check-unused
+      - run: mix compile --warnings-as-errors
       - run: mix docs
       - run: mix hex.build
+      - run: mix test
+      - run: mix dialyzer
       - save_cache:
           key: v1-mix-cache-{{ checksum "mix.lock" }}
           paths:
