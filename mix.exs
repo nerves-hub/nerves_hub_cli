@@ -48,7 +48,7 @@ defmodule NervesHubCLI.MixProject do
       {:table_rex, "~> 2.0.0 or ~> 3.0"},
       {:nimble_csv, "~> 0.7 or ~> 1.1"},
       {:ex_doc, "~> 0.22", only: :docs, runtime: false},
-      {:dialyxir, "~> 1.0.0", only: [:dev, :test], runtime: false}
+      {:dialyxir, "~> 1.1.0", only: [:dev, :test], runtime: false}
     ]
   end
 
