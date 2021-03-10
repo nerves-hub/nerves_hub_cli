@@ -58,5 +58,7 @@ For more information on using the CLI, see the
 
 ## Connecting to other environments
 
-NervesHubCLI can be directed to target other ennvironments beside the public
-NervesHub instance. See the [documentation](https://docs.nerves-hub.org/nerves-hub/setup/connecting-other-envs) for example config values to do this.
+NervesHubCLI can be directed to target other environments beside the public
+NervesHub instance. See the
+[documentation](https://docs.nerves-hub.org/nerves-hub/setup/connecting-other-envs)
+for example config values to do this.
