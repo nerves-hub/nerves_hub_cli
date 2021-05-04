@@ -55,7 +55,6 @@ automation. The following variables are available:
 For more information on using the CLI, see the
 [`nerves_hub_link`](https://github.com/nerves-hub/nerves_hub_link) documentation.
 
-
 ## Connecting to other environments
 
 NervesHubCLI can be directed to target other environments beside the public
