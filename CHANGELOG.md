@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.11.1
+
+* Bug Fixes
+  * Fixes issue using a `:ca_store` module from the root project by forcing
+    a full compile of the project, which implicitly loads the needed module.
+
 ## v0.11.0
 
 * Breaking Changes
@@ -8,7 +14,7 @@
     then no changes are required.
     If you are manually supplying `:ca_certs` config value to connect to another instance
     of NervesHub, then you will need to update you config following the new instructions
-    for [Configuration](https://github.com/nerves-hub/nerves_hub_user_api#configuration) 
+    for [Configuration](https://github.com/nerves-hub/nerves_hub_user_api#configuration)
     in the NervesHubUserAPI README.
 
 ## v0.10.5
