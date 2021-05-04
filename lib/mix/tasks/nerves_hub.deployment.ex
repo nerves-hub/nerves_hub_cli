@@ -64,6 +64,8 @@ defmodule Mix.Tasks.NervesHub.Deployment do
   ]
 
   def run(args) do
+    # compile the project in case we need CA certs from it
+    _ = Mix.Task.run("compile")
     _ = Application.ensure_all_started(:nerves_hub_cli)
 
     {opts, args} = OptionParser.parse!(args, strict: @switches)
