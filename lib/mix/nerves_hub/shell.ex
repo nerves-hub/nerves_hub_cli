@@ -71,11 +71,11 @@ defmodule Mix.NervesHubCLI.Shell do
   end
 
   def request_keys(org, name, prompt) do
-    env_pub_key = System.get_env("NERVES_HUB_FW_PRIVATE_KEY")
-    env_priv_key = System.get_env("NERVES_HUB_FW_PUBLIC_KEY")
+    env_pub_key = System.get_env("NERVES_HUB_FW_PUBLIC_KEY")
+    env_priv_key = System.get_env("NERVES_HUB_FW_PRIVATE_KEY")
 
     if env_pub_key != nil and env_priv_key != nil do
-      {:ok, env_priv_key, env_pub_key}
+      {:ok, env_pub_key, env_priv_key}
     else
       key_password = password_get(prompt)
       NervesHubCLI.Key.get(org, name, key_password)
