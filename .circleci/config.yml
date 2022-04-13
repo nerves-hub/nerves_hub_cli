@@ -15,7 +15,7 @@ install_hex_rebar: &install_hex_rebar
 jobs:
   build:
     docker:
-      - image: hexpm/elixir:1.11.3-erlang-23.2.2-alpine-3.12.1
+      - image: hexpm/elixir:1.13.4-erlang-24.3.3-alpine-3.14.5
     <<: *defaults
     steps:
       - checkout

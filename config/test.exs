@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 config :nerves_hub_cli,
   home_dir: Path.expand("test/.nerves-hub")
