@@ -161,6 +161,15 @@ defmodule Mix.NervesHubCLI.Utils do
     |> serial_as_hex()
   end
 
+  @doc """
+  Get User Access Token for use with the session
+  """
+  def token(opts \\ []) do
+    opts[:token] ||
+      System.get_env("NERVES_HUB_TOKEN") || System.get_env("NH_TOKEN") ||
+      Config.get(:token)
+  end
+
   defp check_valid_tag(tag) do
     cond do
       String.contains?(tag, [" ", "\t", "\n"]) ->

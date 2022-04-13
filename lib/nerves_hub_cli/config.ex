@@ -1,6 +1,12 @@
 defmodule NervesHubCLI.Config do
   @config "nerves-hub.config"
 
+  def delete(key) do
+    read()
+    |> Map.delete(key)
+    |> write()
+  end
+
   def put(key, value) do
     read()
     |> Map.put(key, value)

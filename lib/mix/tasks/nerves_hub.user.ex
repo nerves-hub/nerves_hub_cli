@@ -13,9 +13,18 @@ defmodule Mix.Tasks.NervesHub.User do
   @moduledoc """
   Manage your NervesHub user account.
 
-  Users are authenticated to the NervesHub API by supplying a valid
-  client certificate with every request. User certificates can be generated
-  and managed on https://www.nerves-hub.org/account/certificates
+  Users are authenticated to the NervesHub API with a user access token
+  presented in each request. This token can be manually supplied with the
+  `NERVES_HUB_TOKEN` or `NH_TOKEN` environment variables. Or you can use
+  `mix nerves_hub.user auth` to authenticate with the web, generate a token,
+  and save it locally in your config in `$NERVES_HUB_HOME`
+
+  **Legacy Authentication**
+
+  NervesHub API used to work by supplying a valid client certificate with every
+  request. This behavior will be deprecated, but can still be used in the meantime
+  for backwards compatibility. User certificates can be generated with the
+  `--use_peer_auth` option in `mix nerves_hub.user auth` command
 
   NervesHub will look for the following files in the location of $NERVES_HUB_HOME
 
@@ -37,6 +46,12 @@ defmodule Mix.Tasks.NervesHub.User do
 
       mix nerves_hub.user auth
 
+  ### Command-line options
+
+    * `--note` - (Optional) Note for the access token that is generated. Defaults to `hostname`
+    * `--use_peer_auth` - (Optional) Use client certificate authentication instead of
+      token authentication. This should rarely be used and will soon be deprecated.
+
   ## deauth
 
       mix nerves_hub.user deauth
@@ -50,7 +65,11 @@ defmodule Mix.Tasks.NervesHub.User do
     * `--path` - (Optional) A local location for exporting certificate.
   """
 
-  @switches [path: :string]
+  @switches [
+    note: :string,
+    path: :string,
+    use_peer_auth: :boolean
+  ]
 
   def run(args) do
     # compile the project in case we need CA certs from it
@@ -69,7 +88,7 @@ defmodule Mix.Tasks.NervesHub.User do
         register()
 
       ["auth"] ->
-        auth()
+        auth(opts)
 
       ["deauth"] ->
         deauth()
@@ -131,12 +150,23 @@ defmodule Mix.Tasks.NervesHub.User do
     register(username, email, password)
   end
 
-  def auth() do
+  def auth(opts) do
     username_or_email = Shell.prompt("Username or email address:") |> String.trim()
     password = Shell.password_get("NervesHub password:") |> String.trim()
     Shell.info("Authenticating...")
 
-    case NervesHubUserAPI.User.auth(username_or_email, password) do
+    result =
+      if opts[:use_peer_auth] do
+        NervesHubUserAPI.User.auth(username_or_email, password)
+      else
+        NervesHubUserAPI.User.login(username_or_email, password, opts[:note])
+      end
+
+    case result do
+      {:ok, %{"data" => %{"token" => token}}} ->
+        _ = Config.put(:token, token)
+        Shell.info("Success")
+
       {:ok, %{"data" => %{"email" => email, "username" => username}}} ->
         Shell.info("Success")
         generate_certificate(username, email, password)

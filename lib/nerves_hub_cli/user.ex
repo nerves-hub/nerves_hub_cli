@@ -41,6 +41,7 @@ defmodule NervesHubCLI.User do
   def deauth() do
     _ = File.rm(user_data_path(@cert))
     _ = File.rm(user_data_path(@key))
+    _ = NervesHubCLI.Config.delete(:token)
     :ok
   end
 

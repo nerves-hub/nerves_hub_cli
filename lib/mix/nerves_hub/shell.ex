@@ -1,6 +1,8 @@
 defmodule Mix.NervesHubCLI.Shell do
   @password_retries_allowed 3
 
+  alias Mix.NervesHubCLI.Utils
+
   @spec info(IO.ANSI.ansidata()) :: :ok
   def info(output) do
     Mix.shell().info(output)
@@ -28,6 +30,14 @@ defmodule Mix.NervesHubCLI.Shell do
 
   @spec request_auth(String.t()) :: NervesHubUserAPI.Auth.t()
   def request_auth(prompt \\ "Local NervesHub user password:") do
+    if token = Utils.token() do
+      %NervesHubUserAPI.Auth{token: token}
+    else
+      use_peer_auth(prompt)
+    end
+  end
+
+  defp use_peer_auth(prompt) do
     env_cert = System.get_env("NERVES_HUB_CERT")
     env_key = System.get_env("NERVES_HUB_KEY")
 
