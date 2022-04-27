@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.12.0
+
+* Enhancements
+  * Support token authentication with NervesHub - This should be backwards compatible
+    but does emit a warning when the user peer client cert is used for authentication.
+    Use `mix nerves_hub.user auth` to generate a token if your NervesHub instance
+    supports it, or create in the user settings of the web.
+
+* Bug Fixes
+  * Fixes a variable mismatch (thanks @pojiro)
+
 ## v0.11.1
 
 * Bug Fixes
