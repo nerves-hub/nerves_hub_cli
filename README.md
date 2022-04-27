@@ -42,6 +42,7 @@ $ mix help nerves_hub.device
 `NervesHubCLI` may be configured using environment variables to simplify
 automation. The following variables are available:
 
+* `NERVES_HUB_TOKEN` (or `NH_TOKEN`) - Token used to authenticate API requests
 * `NERVES_HUB_CERT` - Certificate contents for authenticating with NervesHub
 * `NERVES_HUB_KEY`  - The private key associated with `NERVES_HUB_CERT`
 * `NERVES_HUB_ORG`  - NervesHub organization to use
