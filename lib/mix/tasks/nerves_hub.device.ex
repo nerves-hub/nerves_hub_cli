@@ -488,7 +488,7 @@ defmodule Mix.Tasks.NervesHub.Device do
     Enum.each(certs, fn params ->
       Shell.info("------------")
 
-      render_certs(identifier, params)
+      render_cert(identifier, params)
       |> String.trim_trailing()
       |> Shell.info()
     end)
@@ -497,7 +497,7 @@ defmodule Mix.Tasks.NervesHub.Device do
     Shell.info("")
   end
 
-  defp render_certs(_identifier, params) do
+  defp render_cert(_identifier, params) do
     {:ok, not_before, _} = DateTime.from_iso8601(params["not_before"])
 
     {:ok, not_after, _} = DateTime.from_iso8601(params["not_after"])

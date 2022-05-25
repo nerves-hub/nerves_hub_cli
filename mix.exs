@@ -55,7 +55,7 @@ defmodule NervesHubCLI.MixProject do
 
   defp dialyzer() do
     [
-      flags: [:race_conditions, :unmatched_returns, :error_handling, :underspecs],
+      flags: [:missing_return, :extra_return, :unmatched_returns, :error_handling, :underspecs],
       plt_add_apps: [:public_key, :asn1, :crypto, :mix],
       ignore_warnings: "dialyzer.ignore-warnings"
     ]
