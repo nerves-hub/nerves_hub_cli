@@ -154,7 +154,7 @@ defmodule Mix.Tasks.NervesHub.Product do
   def list(org) do
     auth = Shell.request_auth()
 
-    case NervesHubUserAPI.Product.list(org, auth) do
+    case NervesHubCLI.API.Product.list(org, auth) do
       {:ok, %{"data" => []}} ->
         Shell.info("No products have been created.")
 
@@ -188,7 +188,7 @@ defmodule Mix.Tasks.NervesHub.Product do
 
     auth = Shell.request_auth()
 
-    case NervesHubUserAPI.Product.create(org, name, auth) do
+    case NervesHubCLI.API.Product.create(org, name, auth) do
       {:ok, %{"data" => %{} = _product}} ->
         Shell.info("Product '#{name}' created.")
 
@@ -201,7 +201,7 @@ defmodule Mix.Tasks.NervesHub.Product do
     if Shell.yes?("Delete product '#{product_name}'?") do
       auth = Shell.request_auth()
 
-      case NervesHubUserAPI.Product.delete(org, product_name, auth) do
+      case NervesHubCLI.API.Product.delete(org, product_name, auth) do
         {:ok, ""} ->
           Shell.info("Product deleted successfully.")
 
@@ -214,7 +214,7 @@ defmodule Mix.Tasks.NervesHub.Product do
   def update(org, product, key, value) do
     auth = Shell.request_auth()
 
-    case NervesHubUserAPI.Product.update(org, product, Map.put(%{}, key, value), auth) do
+    case NervesHubCLI.API.Product.update(org, product, Map.put(%{}, key, value), auth) do
       {:ok, %{"data" => product}} ->
         Shell.info("")
         Shell.info("Product updated:")
@@ -233,7 +233,7 @@ defmodule Mix.Tasks.NervesHub.Product do
   def user_list(org, product) do
     auth = Shell.request_auth()
 
-    case NervesHubUserAPI.ProductUser.list(org, product, auth) do
+    case NervesHubCLI.API.ProductUser.list(org, product, auth) do
       {:ok, %{"data" => users}} ->
         render_users(users)
 
@@ -248,7 +248,7 @@ defmodule Mix.Tasks.NervesHub.Product do
 
     auth = auth || Shell.request_auth()
 
-    case NervesHubUserAPI.ProductUser.add(org, product, username, String.to_atom(role), auth) do
+    case NervesHubCLI.API.ProductUser.add(org, product, username, String.to_atom(role), auth) do
       {:ok, %{"data" => %{} = _product_user}} ->
         Shell.info("User '#{username}' was added.")
 
@@ -263,7 +263,7 @@ defmodule Mix.Tasks.NervesHub.Product do
 
     auth = Shell.request_auth()
 
-    case NervesHubUserAPI.ProductUser.update(org, product, username, String.to_atom(role), auth) do
+    case NervesHubCLI.API.ProductUser.update(org, product, username, String.to_atom(role), auth) do
       {:ok, %{"data" => %{} = _product_user}} ->
         Shell.info("User '#{username}' was updated.")
 
@@ -287,7 +287,7 @@ defmodule Mix.Tasks.NervesHub.Product do
 
     auth = Shell.request_auth()
 
-    case NervesHubUserAPI.ProductUser.remove(org, product, username, auth) do
+    case NervesHubCLI.API.ProductUser.remove(org, product, username, auth) do
       {:ok, ""} ->
         Shell.info("User '#{username}' was removed.")
 

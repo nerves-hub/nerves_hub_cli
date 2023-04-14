@@ -249,7 +249,7 @@ defmodule Mix.Tasks.NervesHub.Device do
   def list(org, product, opts) do
     auth = Shell.request_auth()
 
-    case NervesHubUserAPI.Device.list(org, product, auth) do
+    case NervesHubCLI.API.Device.list(org, product, auth) do
       {:ok, %{"data" => devices}} ->
         filetered_devices = Enum.filter(devices, &filter_devices(&1, opts))
         Shell.info(render_devices(org, product, filetered_devices))
@@ -279,7 +279,7 @@ defmodule Mix.Tasks.NervesHub.Device do
 
     auth = Shell.request_auth()
 
-    case NervesHubUserAPI.Device.create(org, product, identifier, description, tags, auth) do
+    case NervesHubCLI.API.Device.create(org, product, identifier, description, tags, auth) do
       {:ok, %{"data" => %{} = _device}} ->
         Shell.info("""
         Device #{identifier} created.
@@ -327,7 +327,7 @@ defmodule Mix.Tasks.NervesHub.Device do
 
     auth = Shell.request_auth()
 
-    case NervesHubUserAPI.Device.update(org, product, identifier, %{tags: tags}, auth) do
+    case NervesHubCLI.API.Device.update(org, product, identifier, %{tags: tags}, auth) do
       {:ok, %{"data" => %{} = _device}} ->
         Shell.info("Device #{identifier} updated")
 
@@ -339,7 +339,7 @@ defmodule Mix.Tasks.NervesHub.Device do
   def update(org, product, identifier, [key, value]) do
     auth = Shell.request_auth()
 
-    case NervesHubUserAPI.Device.update(org, product, identifier, %{key => value}, auth) do
+    case NervesHubCLI.API.Device.update(org, product, identifier, %{key => value}, auth) do
       {:ok, %{"data" => %{} = _device}} ->
         Shell.info("Device #{identifier} updated")
 
@@ -356,7 +356,7 @@ defmodule Mix.Tasks.NervesHub.Device do
   def delete(org, product, identifier) do
     auth = Shell.request_auth()
 
-    case NervesHubUserAPI.Device.delete(org, product, identifier, auth) do
+    case NervesHubCLI.API.Device.delete(org, product, identifier, auth) do
       {:ok, _} ->
         Shell.info("Device #{identifier} deleted")
 
@@ -414,7 +414,7 @@ defmodule Mix.Tasks.NervesHub.Device do
   def cert_list(org, product, identifier) do
     auth = Shell.request_auth()
 
-    case NervesHubUserAPI.DeviceCertificate.list(org, product, identifier, auth) do
+    case NervesHubCLI.API.DeviceCertificate.list(org, product, identifier, auth) do
       {:ok, %{"data" => certs}} ->
         render_certs(identifier, certs)
 
@@ -428,7 +428,7 @@ defmodule Mix.Tasks.NervesHub.Device do
           String.t(),
           String.t(),
           keyword(),
-          nil | NervesHubUserAPI.Auth.t()
+          nil | NervesHubCLI.API.Auth.t()
         ) :: :ok
   def cert_create(org, product, identifier, opts, auth \\ nil) do
     Shell.info("Creating certificate for #{identifier}")
@@ -473,7 +473,7 @@ defmodule Mix.Tasks.NervesHub.Device do
     with {:ok, cert_pem} <- File.read(cert_path),
          auth <- Shell.request_auth(),
          {:ok, %{"data" => %{"serial" => serial}}} <-
-           NervesHubUserAPI.DeviceCertificate.create(org, product, identifier, cert_pem, auth) do
+           NervesHubCLI.API.DeviceCertificate.create(org, product, identifier, cert_pem, auth) do
       Shell.info("Device certificate '#{serial_as_hex(serial)}' registered.")
     else
       error ->
@@ -595,7 +595,7 @@ defmodule Mix.Tasks.NervesHub.Device do
 
     with safe_csr <- Base.encode64(pem_csr),
          {:ok, %{"data" => %{"cert" => cert}}} <-
-           NervesHubUserAPI.DeviceCertificate.sign(org, product, id, safe_csr, auth) do
+           NervesHubCLI.API.DeviceCertificate.sign(org, product, id, safe_csr, auth) do
       {:ok, cert}
     end
   end

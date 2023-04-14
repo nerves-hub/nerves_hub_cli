@@ -86,7 +86,7 @@ defmodule Mix.Tasks.NervesHub.User do
   def whoami do
     auth = Shell.request_auth()
 
-    case NervesHubUserAPI.User.me(auth) do
+    case NervesHubCLI.API.User.me(auth) do
       {:ok, %{"data" => data}} ->
         %{"username" => username, "email" => email} = data
 
@@ -105,7 +105,7 @@ defmodule Mix.Tasks.NervesHub.User do
     password = Shell.password_get("NervesHub password:") |> String.trim()
     Shell.info("Authenticating...")
 
-    result = NervesHubUserAPI.User.login(username_or_email, password, opts[:note])
+    result = NervesHubCLI.API.User.login(username_or_email, password, opts[:note])
 
     case result do
       {:ok, %{"data" => %{"token" => token}}} ->
