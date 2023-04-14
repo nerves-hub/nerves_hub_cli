@@ -61,7 +61,7 @@ defmodule Mix.NervesHubCLI.Bulk do
 
         Task.async(fn ->
           result =
-            NervesHubUserAPI.Device.create(org, product, identifier, description, tags, auth)
+            NervesHubCLI.API.Device.create(org, product, identifier, description, tags, auth)
 
           {result, [identifier, description, tags]}
         end)

@@ -104,7 +104,7 @@ defmodule Mix.Tasks.NervesHub.Org do
   def user_list(org) do
     auth = Shell.request_auth()
 
-    case NervesHubUserAPI.OrgUser.list(org, auth) do
+    case NervesHubCLI.API.OrgUser.list(org, auth) do
       {:ok, %{"data" => users}} ->
         render_users(users)
 
@@ -119,7 +119,7 @@ defmodule Mix.Tasks.NervesHub.Org do
 
     auth = auth || Shell.request_auth()
 
-    case NervesHubUserAPI.OrgUser.add(org, username, String.to_atom(role), auth) do
+    case NervesHubCLI.API.OrgUser.add(org, username, String.to_atom(role), auth) do
       {:ok, %{"data" => %{} = _org_user}} ->
         Shell.info("User '#{username}' was added.")
 
@@ -134,7 +134,7 @@ defmodule Mix.Tasks.NervesHub.Org do
 
     auth = Shell.request_auth()
 
-    case NervesHubUserAPI.OrgUser.update(org, username, String.to_atom(role), auth) do
+    case NervesHubCLI.API.OrgUser.update(org, username, String.to_atom(role), auth) do
       {:ok, %{"data" => %{} = _org_user}} ->
         Shell.info("User '#{username}' was updated.")
 
@@ -158,7 +158,7 @@ defmodule Mix.Tasks.NervesHub.Org do
 
     auth = Shell.request_auth()
 
-    case NervesHubUserAPI.OrgUser.remove(org, username, auth) do
+    case NervesHubCLI.API.OrgUser.remove(org, username, auth) do
       {:ok, ""} ->
         Shell.info("User '#{username}' was removed.")
 

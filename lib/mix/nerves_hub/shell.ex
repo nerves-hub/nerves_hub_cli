@@ -26,10 +26,10 @@ defmodule Mix.NervesHubCLI.Shell do
     System.get_env("NERVES_HUB_NON_INTERACTIVE") || Mix.shell().yes?(message)
   end
 
-  @spec request_auth() :: NervesHubUserAPI.Auth.t() | nil
+  @spec request_auth() :: NervesHubCLI.API.Auth.t() | nil
   def request_auth() do
     if token = Utils.token() do
-      %NervesHubUserAPI.Auth{token: token}
+      %NervesHubCLI.API.Auth{token: token}
     end
   end
 
