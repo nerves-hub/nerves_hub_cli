@@ -45,7 +45,8 @@ defmodule NervesHubCLI.MixProject do
       # Avoid broken pbcs 0.1.3 version
       {:pbcs, "== 0.1.2 or ~> 0.1.4"},
       {:x509, "~> 0.3"},
-      {:nerves_hub_user_api, "~> 0.9.0"},
+      # Replace once this new version is on hex
+      {:nerves_hub_user_api, github: "nerves-hub/nerves_hub_user_api"},
       {:table_rex, "~> 2.0.0 or ~> 3.0"},
       {:nimble_csv, "~> 0.7 or ~> 1.1"},
       {:ex_doc, "~> 0.22", only: :docs, runtime: false},

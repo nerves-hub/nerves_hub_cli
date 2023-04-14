@@ -1,6 +1,4 @@
 defmodule Mix.NervesHubCLI.Shell do
-  @password_retries_allowed 3
-
   alias Mix.NervesHubCLI.Utils
 
   @spec info(IO.ANSI.ansidata()) :: :ok
@@ -28,52 +26,15 @@ defmodule Mix.NervesHubCLI.Shell do
     System.get_env("NERVES_HUB_NON_INTERACTIVE") || Mix.shell().yes?(message)
   end
 
-  @spec request_auth(String.t()) :: NervesHubUserAPI.Auth.t()
-  def request_auth(prompt \\ "Local NervesHub user password:") do
+  @spec request_auth() :: NervesHubUserAPI.Auth.t() | nil
+  def request_auth() do
     if token = Utils.token() do
       %NervesHubUserAPI.Auth{token: token}
-    else
-      use_peer_auth(prompt)
-    end
-  end
-
-  defp use_peer_auth(prompt) do
-    env_cert = System.get_env("NERVES_HUB_CERT")
-    env_key = System.get_env("NERVES_HUB_KEY")
-
-    if env_cert != nil and env_key != nil do
-      env_cert = try_decode64(env_cert)
-      env_key = try_decode64(env_key)
-
-      %NervesHubUserAPI.Auth{
-        cert: X509.Certificate.from_pem!(env_cert),
-        key: X509.PrivateKey.from_pem!(env_key)
-      }
-    else
-      case request_password(prompt, @password_retries_allowed) do
-        {:ok, auth} ->
-          auth
-
-        {:error, _} ->
-          __MODULE__.raise("Invalid password")
-      end
     end
   end
 
   def request_password(_prompt, 0) do
     {:error, :failed_password}
-  end
-
-  def request_password(prompt, count) do
-    password = password_get(prompt)
-
-    case NervesHubCLI.User.auth(password) do
-      {:ok, auth} ->
-        {:ok, auth}
-
-      {:error, _} ->
-        request_password("Please enter the password again:", count - 1)
-    end
   end
 
   def request_keys(org, name) do
@@ -131,7 +92,7 @@ defmodule Mix.NervesHubCLI.Shell do
 
   def do_render_error({:error, %{"status" => "forbidden"}}) do
     error("Invalid credentials")
-    error("Your user certificate has either expired or has been revoked.")
+    error("Your user token has either expired or has been revoked.")
     error("Please authenticate again:")
     error("  mix nerves_hub.user auth")
   end
@@ -152,13 +113,6 @@ defmodule Mix.NervesHubCLI.Shell do
 
   def do_render_error(error) do
     error("Unhandled error: #{inspect(error)}")
-  end
-
-  defp try_decode64(value) do
-    case Base.decode64(value, ignore: :whitespace) do
-      {:ok, value} -> value
-      _ -> value
-    end
   end
 
   defp password_clean(prompt) do
