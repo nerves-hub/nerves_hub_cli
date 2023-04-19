@@ -16,14 +16,41 @@ defmodule NervesHubCLI do
     to_string(hostname)
   end
 
-  def home_dir do
-    override_dir =
-      Application.get_env(:nerves_hub_cli, :home_dir) || System.get_env("NERVES_HUB_HOME")
+  def home_dir() do
+    from_config = Application.get_env(:nerves_hub_cli, :home_dir)
+    from_env = System.get_env("NERVES_HUB_HOME")
+    xdg_home_nh = :filename.basedir(:user_data, "nerves-hub", %{os: :linux})
 
-    if override_dir == nil or override_dir == "" do
-      Path.expand("~/.nerves-hub")
-    else
-      override_dir
+    cond do
+      valid_home_dir(from_config) ->
+        Path.expand(from_config)
+
+      valid_home_dir(from_env) ->
+        Path.expand(from_env)
+
+      System.get_env("XDG_DATA_HOME") ->
+        # User set XDG_DATA_HOME so let it pass through
+        xdg_home_nh
+
+      File.dir?(Path.expand("~/.nerves-hub")) and not File.dir?(xdg_home_nh) ->
+        # By this point, defaults are going to be used.
+        # If the old default exists, but the new XDG default does not, then fail to
+        # give the user a chance for easier migration
+        Shell.error("""
+        NervesHubCLI has migrated to use the XDG Base Directory Specifiction and
+        no longer uses the default base directory of ~/.nerves-hub.
+
+        Unfortunately, this requires a one-time manual migration since you currently
+        have configuration stored in ~/.nerves-hub. To continue, please run ¬
+
+          $ mv ~/.nerves-hub #{xdg_home_nh}
+        """)
+
+        :erlang.halt(1)
+
+      true ->
+        # Use default $XDG_DATA_HOME/nerves-hub
+        xdg_home_nh
     end
   end
 
@@ -56,5 +83,9 @@ defmodule NervesHubCLI do
       nil -> Shell.raise("NervesHub is unable to find key: #{inspect(key_name)}")
       value -> value
     end
+  end
+
+  defp valid_home_dir(dir) do
+    is_binary(dir) and dir != ""
   end
 end
