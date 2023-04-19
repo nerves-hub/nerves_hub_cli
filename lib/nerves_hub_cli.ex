@@ -1,14 +1,12 @@
 defmodule NervesHubCLI do
-  alias Mix.NervesHubCLI.Shell
-
   @moduledoc """
   TBD
   """
 
   @typedoc """
-  Firmware update public keys can be referred to by an atom name or by their contents.
+  Firmware update public keys can be referred to by their contents.
   """
-  @type fwup_public_key_ref :: String.t() | atom()
+  @type fwup_public_key_ref :: String.t()
 
   @spec default_description() :: String.t()
   def default_description() do
@@ -16,7 +14,8 @@ defmodule NervesHubCLI do
     to_string(hostname)
   end
 
-  def home_dir do
+  @spec home_dir() :: String.t()
+  def home_dir() do
     override_dir =
       Application.get_env(:nerves_hub_cli, :home_dir) || System.get_env("NERVES_HUB_HOME")
 
@@ -24,37 +23,6 @@ defmodule NervesHubCLI do
       Path.expand("~/.nerves-hub")
     else
       override_dir
-    end
-  end
-
-  @doc """
-  Convert a list of fwup public keys or references into a list of keys.
-  """
-  @spec resolve_fwup_public_keys([fwup_public_key_ref()], binary() | nil) :: [binary()]
-  def resolve_fwup_public_keys(keys, org \\ nil)
-
-  def resolve_fwup_public_keys([], _org), do: []
-
-  def resolve_fwup_public_keys(keys, org) when is_list(keys) do
-    opts = if is_bitstring(org), do: [org: org], else: []
-
-    org = Mix.NervesHubCLI.Utils.org(opts)
-    local_keys = NervesHubCLI.Key.local_keys(org)
-
-    Enum.reduce(keys, [], &[find_key(&1, local_keys) | &2])
-  end
-
-  defp find_key(key, _local_keys) when is_binary(key), do: key
-
-  defp find_key(key_name, local_keys) when is_atom(key_name) do
-    value =
-      Enum.find_value(local_keys, fn %{name: name, key: key} ->
-        to_string(key_name) == name && key
-      end)
-
-    case value do
-      nil -> Shell.raise("NervesHub is unable to find key: #{inspect(key_name)}")
-      value -> value
     end
   end
 end
