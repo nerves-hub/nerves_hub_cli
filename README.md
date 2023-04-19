@@ -3,6 +3,12 @@
 [![CircleCI](https://circleci.com/gh/nerves-hub/nerves_hub_cli.svg?style=svg)](https://circleci.com/gh/nerves-hub/nerves_hub_cli)
 [![Hex version](https://img.shields.io/hexpm/v/nerves_hub_cli.svg "Hex version")](https://hex.pm/packages/nerves_hub_cli)
 
+**Important**
+
+This is the 2.0 development branch of NervesHubCLI. If you have been using NervesHub prior to around April, 2023 and are not following 2.0 development, see the `maint-v0` branch. The `maint-v0` branch is being used in production. 2.0 development is in progress, and we don't have guides or good documentation yet. If you use the 2.0 development branch, we don't expect breaking changes, but please bear with us as we complete the 2.0 release.
+
+---
+
 `NervesHubCLI` provides a set of [Mix](https://hexdocs.pm/mix/Mix.html) tasks so
 that you can work with [NervesHub](https://www.nerves-hub.org) from the
 command-line. Features include:
