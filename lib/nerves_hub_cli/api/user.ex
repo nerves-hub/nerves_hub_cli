@@ -65,16 +65,4 @@ defmodule NervesHubCLI.API.User do
     {:ok, hostname} = :inet.gethostname()
     to_string(hostname)
   end
-
-  @doc """
-  Sign a user certificate for an existing user.
-
-  Verb: POST
-  Path: /users/sign
-  """
-  @spec sign(String.t(), String.t(), String.t(), String.t()) :: {:error, any()} | {:ok, any()}
-  def sign(email, password, csr, description) do
-    params = %{email: email, password: password, csr: csr, description: description}
-    API.request(:post, "users/sign", params)
-  end
 end

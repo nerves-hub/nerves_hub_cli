@@ -24,20 +24,6 @@ defmodule NervesHubCLI.API.DeviceCertificate do
   end
 
   @doc """
-  Sign a new certificate signing request for a device.
-
-  Verb: POST
-  Path: /orgs/:org_name/products/:product_name/devices/:device_identifier/certificates/sign
-  """
-  @spec sign(String.t(), String.t(), String.t(), String.t(), NervesHubCLI.API.Auth.t()) ::
-          {:error, any()} | {:ok, any()}
-  def sign(org_name, product_name, device_identifier, csr, %Auth{} = auth) do
-    params = %{identifier: device_identifier, csr: csr}
-    path = Path.join(path(org_name, product_name, device_identifier), "sign")
-    API.request(:post, path, params, auth)
-  end
-
-  @doc """
   Upload a trusted certificate for a device.
 
   Verb: POST

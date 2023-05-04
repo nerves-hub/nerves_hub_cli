@@ -127,23 +127,19 @@ defmodule Mix.Tasks.NervesHub.Device do
 
       mix nerves_hub.device cert create DEVICE_IDENTIFIER
 
-  By default, this will send a certificate signing request to be signed by
-  NervesHubCA (or other specified CA used with NervesHub if hosting your own).
-
-  You can also take on the role of the CA by providing your own signer
-  certificate and key and using the `--signer-cert` and `--signer-key` options.
+  You must take on the role of the CA by providing your own signer certificate
+  and key and using the `--signer-cert` and `--signer-key` options.
   These will be used with a NervesHub-defined certificate template to sign the
-  generated device certificate locally
+  generated device certificate locally.
 
   ### Command-line options
 
     * `--product` - (Optional) The product name.
       This defaults to the Mix Project config `:app` name.
     * `--path` - (Optional) A local location for storing certificates
-    * `--signer-cert` - (Optional) Path to the signer certificate (requires `--signer-key`)
-    * `--signer-key` - (Optional) Path to signer certificate's private key (requires `--signer-cert`)
-    * `--validity` - (Optional) Time in years a certificate should be valid.
-      Only used with `--signer-cert` and `--signer-key` options. Defaults to 31.
+    * `--signer-cert` - (required) Path to the signer certificate
+    * `--signer-key` - (required) Path to signer certificate's private key
+    * `--validity` - (Optional) Time in years a certificate should be valid. Defaults to 31.
 
   ## cert import
 
@@ -213,7 +209,7 @@ defmodule Mix.Tasks.NervesHub.Device do
         cert_list(org, product, device)
 
       ["cert", "create", device] ->
-        cert_create(org, product, device, opts)
+        cert_create(org, device, opts)
 
       ["cert", "import", device, cert_path] ->
         cert_import(org, product, device, cert_path, opts)
@@ -292,7 +288,7 @@ defmodule Mix.Tasks.NervesHub.Device do
         key, create and register a certificate and key pair manually by
         running:
 
-          mix nerves_hub.device cert create #{identifier}
+          mix nerves_hub.device cert create #{identifier} --signer-key key.pem --signer-cert cert.pem
         """)
 
       error ->
@@ -426,11 +422,9 @@ defmodule Mix.Tasks.NervesHub.Device do
   @spec cert_create(
           String.t(),
           String.t(),
-          String.t(),
-          keyword(),
-          nil | NervesHubCLI.API.Auth.t()
+          keyword()
         ) :: :ok
-  def cert_create(org, product, identifier, opts, auth \\ nil) do
+  def cert_create(org, identifier, opts) do
     Shell.info("Creating certificate for #{identifier}")
     path = opts[:path] || NervesHubCLI.home_dir()
     File.mkdir_p!(path)
@@ -440,16 +434,7 @@ defmodule Mix.Tasks.NervesHub.Device do
 
     csr = X509.CSR.new(key, "/O=#{org}/CN=#{identifier}")
 
-    create_args =
-      if opts[:signer_cert] && opts[:signer_key] do
-        # create cert locally with provided signer
-        {csr, opts}
-      else
-        # request cert from NervesHub
-        {org, product, identifier, csr, auth}
-      end
-
-    with {:ok, cert} <- do_cert_create(create_args),
+    with {:ok, cert} <- do_cert_create(csr, opts),
          :ok <- File.write(Path.join(path, "#{identifier}-cert.pem"), cert),
          :ok <- File.write(Path.join(path, "#{identifier}-key.pem"), pem_key) do
       Shell.info("Finished")
@@ -569,7 +554,7 @@ defmodule Mix.Tasks.NervesHub.Device do
 
   defp filter_devices(device, []), do: device
 
-  defp do_cert_create({csr, opts}) do
+  defp do_cert_create(csr, opts) do
     Shell.info("Signer cert path: #{opts[:signer_cert]}")
     Shell.info("Signer key path: #{opts[:signer_key]}")
 
@@ -586,17 +571,6 @@ defmodule Mix.Tasks.NervesHub.Device do
         )
 
       {:ok, X509.Certificate.to_pem(cert)}
-    end
-  end
-
-  defp do_cert_create({org, product, id, csr, auth}) do
-    auth = auth || Shell.request_auth()
-    pem_csr = X509.CSR.to_pem(csr)
-
-    with safe_csr <- Base.encode64(pem_csr),
-         {:ok, %{"data" => %{"cert" => cert}}} <-
-           NervesHubCLI.API.DeviceCertificate.sign(org, product, id, safe_csr, auth) do
-      {:ok, cert}
     end
   end
 end

@@ -87,11 +87,6 @@ defmodule NervesHubCLI.API.Device do
     DeviceCertificate.list(org_name, product_name, device_identifier, auth)
   end
 
-  @deprecated "use NervesHubCLI.API.DeviceCertificate.sign/5 instead"
-  def cert_sign(org_name, product_name, device_identifier, csr, %Auth{} = auth) do
-    DeviceCertificate.sign(org_name, product_name, device_identifier, csr, auth)
-  end
-
   @doc false
   @spec path(String.t(), String.t()) :: String.t()
   def path(org_name, product_name) do
