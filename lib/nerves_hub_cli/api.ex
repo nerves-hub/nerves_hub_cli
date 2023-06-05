@@ -8,7 +8,7 @@ defmodule NervesHubCLI.API do
   @type role :: :admin | :delete | :write | :read
 
   use Tesla
-  adapter(Tesla.Adapter.Hackney, pool: :nerves_hub_cli)
+  adapter(Tesla.Adapter.Mint)
   if Mix.env() == :dev, do: plug(Tesla.Middleware.Logger)
   plug(Tesla.Middleware.FollowRedirects, max_redirects: 5)
   plug(Tesla.Middleware.JSON)
