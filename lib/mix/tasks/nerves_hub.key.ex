@@ -241,8 +241,8 @@ defmodule Mix.Tasks.NervesHub.Key do
          {:ok, public_key, private_key} <- Shell.request_keys(org, key),
          filename <- key_tar_file_name(path, org, key),
          {:ok, tar} <- :erl_tar.open(to_charlist(filename), [:write, :compressed]),
-         :ok <- :erl_tar.add(tar, {'#{key}.pub', public_key}, []),
-         :ok <- :erl_tar.add(tar, {'#{key}.priv', private_key}, []),
+         :ok <- :erl_tar.add(tar, {~c"#{key}.pub", public_key}, []),
+         :ok <- :erl_tar.add(tar, {~c"#{key}.priv", private_key}, []),
          :ok <- :erl_tar.close(tar) do
       Shell.info("Fwup keys exported to: #{filename}")
     else
