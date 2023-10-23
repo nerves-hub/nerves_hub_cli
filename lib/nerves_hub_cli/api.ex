@@ -153,7 +153,7 @@ defmodule NervesHubCLI.API do
         host = Application.get_env(:nerves_hub_cli, :host)
 
         unless is_nil(ca_store) && scheme == "http" && host == "localhost" do
-          Logger.warn(
+          Logger.warning(
             "[NervesHubLink] No CA store or :cacerts have been specified. Request will fail"
           )
         end
