@@ -44,13 +44,13 @@ defmodule NervesHubCLI.MixProject do
     [
       # Avoid broken pbcs 0.1.3 version
       {:pbcs, "== 0.1.2 or ~> 0.1.4"},
-      {:castore, "~> 0.1"},
+      {:castore, "~> 0.1 or ~> 1.0"},
       {:dialyxir, "~> 1.2", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.23", only: [:docs], runtime: false},
       {:jason, "~> 1.0"},
       {:mint, "~> 1.5"},
       {:nimble_csv, "~> 0.7 or ~> 1.1"},
-      {:table_rex, "~> 2.0.0 or ~> 3.0"},
+      {:table_rex, "~> 2.0.0 or ~> 3.0 or ~> 4.0"},
       {:tesla, "~> 1.2.1 or ~> 1.3"},
       {:x509, "~> 0.3"}
     ]
