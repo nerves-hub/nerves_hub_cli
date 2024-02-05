@@ -1,5 +1,21 @@
 # Changelog
 
+## v2.0.0
+
+Update for compatibility with NervesHub 2.0
+
+* Removed
+  * Remove signing devices (and users) by NervesHub. It is now expected that users
+    manage their own device signer certificates. Device certificates can still be
+    created locally with `mix nerves_hub.device cert create --signer-cert /path/signer-cert.pem --signer-key /path/signer-key.pem`
+  * Remove resolving public keys for fwup. This must now be explicitly set
+
+* Updated
+  * Swap to the Mint adapter instead of `:hackney`
+
+* Added
+  * `:nerves_hub_user_api` has now been merged into this lib
+
 ## v0.12.0
 
 * Enhancements
