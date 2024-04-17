@@ -44,7 +44,7 @@ defmodule NervesHubCLI.MixProject do
     [
       # Avoid broken pbcs 0.1.3 version
       {:pbcs, "== 0.1.2 or ~> 0.1.4"},
-      {:castore, "~> 0.1 or ~> 1.0"},
+      {:castore, "~> 0.1 or ~> 1.0", optional: true},
       {:dialyxir, "~> 1.2", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.23", only: [:docs], runtime: false},
       {:jason, "~> 1.0"},
