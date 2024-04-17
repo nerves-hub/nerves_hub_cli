@@ -148,17 +148,14 @@ defmodule NervesHubCLI.API do
       is_atom(ca_store) and !is_nil(ca_store) ->
         ca_store.ca_certs()
 
+      Code.ensure_loaded?(CAStore) ->
+        CAStore.file_path()
+        |> File.read!()
+        |> X509.from_pem()
+        |> Enum.map(&X509.Certificate.to_der/1)
+
       true ->
-        scheme = Application.get_env(:nerves_hub_cli, :scheme)
-        host = Application.get_env(:nerves_hub_cli, :host)
-
-        unless is_nil(ca_store) && scheme == "http" && host == "localhost" do
-          Logger.warning(
-            "[NervesHubLink] No CA store or :cacerts have been specified. Request will fail"
-          )
-        end
-
-        []
+        :public_key.cacerts_get()
     end
   end
 
