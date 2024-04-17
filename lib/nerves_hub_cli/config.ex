@@ -28,14 +28,14 @@ defmodule NervesHubCLI.Config do
   end
 
   defp write(config) do
+    unless File.dir?(NervesHubCLI.home_dir()) do
+      File.mkdir_p!(NervesHubCLI.home_dir())
+    end
+
     File.write(file(), :erlang.term_to_binary(config))
   end
 
   defp file do
-    Path.join(data_dir(), @config)
-  end
-
-  def data_dir() do
-    NervesHubCLI.home_dir()
+    Path.join(NervesHubCLI.home_dir(), @config)
   end
 end
