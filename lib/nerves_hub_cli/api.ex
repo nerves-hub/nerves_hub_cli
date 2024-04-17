@@ -105,7 +105,9 @@ defmodule NervesHubCLI.API do
 
     [
       ssl_options: ssl_options,
-      recv_timeout: 60_000
+      recv_timeout: 60_000,
+      protocols: [:http1],
+      timeout: 300_000
     ]
   end
 
