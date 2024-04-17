@@ -23,12 +23,6 @@ defmodule NervesHubCLI.MixProject do
     ]
   end
 
-  def application do
-    [
-      mod: {NervesHubCLI.Application, []}
-    ]
-  end
-
   defp description do
     "NervesHub Mix command-line interface "
   end
