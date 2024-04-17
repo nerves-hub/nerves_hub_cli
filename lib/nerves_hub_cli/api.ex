@@ -19,11 +19,18 @@ defmodule NervesHubCLI.API do
   @spec endpoint() :: String.t()
   def endpoint() do
     opts = Application.get_all_env(:nerves_hub_cli)
-    scheme = System.get_env("NERVES_HUB_SCHEME") || opts[:scheme]
-    host = System.get_env("NERVES_HUB_HOST") || opts[:host]
-    port = get_env_as_integer("NERVES_HUB_PORT") || opts[:port]
 
-    %URI{scheme: scheme, host: host, port: port, path: "/api"} |> URI.to_string()
+    if server = System.get_env("NERVES_HUB_URI") || opts[:uri] do
+      URI.parse(server)
+      |> URI.append_path("/api")
+      |> URI.to_string()
+    else
+      scheme = System.get_env("NERVES_HUB_SCHEME") || opts[:scheme]
+      host = System.get_env("NERVES_HUB_HOST") || opts[:host]
+      port = get_env_as_integer("NERVES_HUB_PORT") || opts[:port]
+
+      %URI{scheme: scheme, host: host, port: port, path: "/api"} |> URI.to_string()
+    end
   end
 
   def request(:get, path, params) when is_map(params) do

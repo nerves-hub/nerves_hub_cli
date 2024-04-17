@@ -55,16 +55,19 @@ automation. The following variables are available:
 * `NERVES_HUB_FW_PRIVATE_KEY` - Fwup signing private key
 * `NERVES_HUB_FW_PUBLIC_KEY`  - Fwup signing public key
 * `NERVES_HUB_HOME` - NervesHub CLI data directory (defaults to `~/.nerves-hub`)
-* `NERVES_HUB_HOST` - NervesHub API endpoint IP address or hostname (defaults to `api.nerves-hub.org`)
-* `NERVES_HUB_PORT` - NervesHub API endpoint port (defaults to 443)
+* `NERVES_HUB_URI` - NervesHub API host, port, scheme (all in one)
+* `NERVES_HUB_HOST` - NervesHub API endpoint IP address or hostname
+* `NERVES_HUB_PORT` - NervesHub API endpoint port
+* `NERVES_HUB_SCHEME` - NervesHub API endpoint scheme
 * `NERVES_HUB_NON_INTERACTIVE` - Force all yes/no user interaction to be yes
 
 For more information on using the CLI, see the
 [`nerves_hub_link`](https://github.com/nerves-hub/nerves_hub_link) documentation.
 
-## Connecting to other environments
+## Connecting to NervesHub
 
-NervesHubCLI can be directed to target other environments beside the public
-NervesHub instance. See the
+NervesHubCLI must be configured to connect to your chosen NervesHub host.
+
+See the
 [documentation](https://docs.nerves-hub.org/nerves-hub/setup/connecting-other-envs)
 for example config values to do this.
