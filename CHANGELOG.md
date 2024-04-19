@@ -2,6 +2,8 @@
 
 ## unreleased
 
+## v2.0.1
+
 * Updated
   * You can now use a single URI for defining the NervesHub instance you are connecting.
   * `CAStore` is now an optional dep. If you have included `CAStore` in your Nerves project it will be used, otherwise `:public_key` will be the fallback.
