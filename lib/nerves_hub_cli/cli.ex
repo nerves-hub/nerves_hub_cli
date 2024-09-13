@@ -1,7 +1,7 @@
 defmodule NervesHubCLI.CLI do
   alias NervesHubCLI.CLI.Shell
 
-  @valid_commands ~w"certificate deployment device firmware key org product user help"
+  @valid_commands ~w"certificate deployment device firmware key org product user help config"
 
   def main([command | args]) when command in @valid_commands do
     case command do
@@ -10,9 +10,10 @@ defmodule NervesHubCLI.CLI do
       "device" -> Mix.Tasks.NervesHub.Device.run(args)
       "firmware" -> Mix.Tasks.NervesHub.Firmware.run(args)
       "key" -> NervesHubCLI.CLI.Key.run(args)
-      "org" -> Mix.Tasks.NervesHub.Org.run(args)
+      "org" -> NervesHubCLI.CLI.Org.run(args)
       "product" -> Mix.Tasks.NervesHub.Product.run(args)
       "user" -> NervesHubCLI.CLI.User.run(args)
+      "config" -> NervesHubCLI.CLI.Config.run(args)
     end
   end
 

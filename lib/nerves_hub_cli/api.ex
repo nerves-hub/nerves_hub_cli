@@ -20,7 +20,7 @@ defmodule NervesHubCLI.API do
   def endpoint() do
     opts = Application.get_all_env(:nerves_hub_cli)
 
-    if server = System.get_env("NERVES_HUB_URI") || opts[:uri] do
+    if server = System.get_env("NERVES_HUB_URI") || opts[:uri] || NervesHubCLI.Config.get(:uri) do
       URI.parse(server)
       |> URI.append_path("/api")
       |> URI.to_string()

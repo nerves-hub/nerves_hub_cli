@@ -38,6 +38,8 @@ defmodule NervesHubCLI.CLI.Shell do
   def request_auth() do
     if token = Utils.token() do
       %NervesHubCLI.API.Auth{token: token}
+    else
+      __MODULE__.raise("You are not authenticated")
     end
   end
 

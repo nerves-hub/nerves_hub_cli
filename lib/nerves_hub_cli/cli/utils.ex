@@ -15,6 +15,10 @@ defmodule NervesHubCLI.CLI.Utils do
     endpoint = NervesHubCLI.API.endpoint()
     uri = URI.parse(endpoint)
 
+    if is_nil(uri.host) do
+      Shell.raise("NervesHub URI was not set")
+    end
+
     Shell.info("NervesHub server: #{uri.host}:#{uri.port}")
   end
 
