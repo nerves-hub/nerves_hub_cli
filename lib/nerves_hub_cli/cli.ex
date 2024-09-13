@@ -11,7 +11,7 @@ defmodule NervesHubCLI.CLI do
       "firmware" -> Mix.Tasks.NervesHub.Firmware.run(args)
       "key" -> NervesHubCLI.CLI.Key.run(args)
       "org" -> NervesHubCLI.CLI.Org.run(args)
-      "product" -> Mix.Tasks.NervesHub.Product.run(args)
+      "product" -> NervesHubCLI.CLI.Product.run(args)
       "user" -> NervesHubCLI.CLI.User.run(args)
       "config" -> NervesHubCLI.CLI.Config.run(args)
     end
