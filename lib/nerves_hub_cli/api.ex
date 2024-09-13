@@ -157,11 +157,12 @@ defmodule NervesHubCLI.API do
       is_atom(ca_store) and !is_nil(ca_store) ->
         ca_store.ca_certs()
 
-      Code.ensure_loaded?(CAStore) ->
-        CAStore.file_path()
-        |> File.read!()
-        |> X509.from_pem()
-        |> Enum.map(&X509.Certificate.to_der/1)
+      # CAStore uses the priv directory, which does not work with escripts
+      # Code.ensure_loaded?(CAStore) ->
+      #   CAStore.file_path()
+      #   |> File.read!()
+      #   |> X509.from_pem()
+      #   |> Enum.map(&X509.Certificate.to_der/1)
 
       true ->
         :public_key.cacerts_get()
