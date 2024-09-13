@@ -6,9 +6,9 @@ defmodule NervesHubCLI.CLI do
   def main([command | args]) when command in @valid_commands do
     case command do
       "ca_certificate" -> Mix.Tasks.NervesHub.CaCertificate.run(args)
-      "deployment" -> Mix.Tasks.NervesHub.Deployment.run(args)
+      "deployment" -> NervesHubCLI.CLI.Deployment.run(args)
       "device" -> Mix.Tasks.NervesHub.Device.run(args)
-      "firmware" -> Mix.Tasks.NervesHub.Firmware.run(args)
+      "firmware" -> NervesHubCLI.CLI.Firmware.run(args)
       "key" -> NervesHubCLI.CLI.Key.run(args)
       "org" -> NervesHubCLI.CLI.Org.run(args)
       "product" -> NervesHubCLI.CLI.Product.run(args)
