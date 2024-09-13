@@ -1,11 +1,11 @@
 defmodule NervesHubCLI.CLI do
   alias NervesHubCLI.CLI.Shell
 
-  @valid_commands ~w"certificate deployment device firmware key org product user help config"
+  @valid_commands ~w"ca_certificate deployment device firmware key org product user help config"
 
   def main([command | args]) when command in @valid_commands do
     case command do
-      "ca_certificate" -> Mix.Tasks.NervesHub.CaCertificate.run(args)
+      "ca_certificate" -> NervesHubCLI.CLI.CaCertificate.run(args)
       "deployment" -> NervesHubCLI.CLI.Deployment.run(args)
       "device" -> Mix.Tasks.NervesHub.Device.run(args)
       "firmware" -> NervesHubCLI.CLI.Firmware.run(args)
