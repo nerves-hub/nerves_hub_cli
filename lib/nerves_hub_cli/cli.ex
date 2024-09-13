@@ -7,7 +7,7 @@ defmodule NervesHubCLI.CLI do
     case command do
       "ca_certificate" -> NervesHubCLI.CLI.CaCertificate.run(args)
       "deployment" -> NervesHubCLI.CLI.Deployment.run(args)
-      "device" -> Mix.Tasks.NervesHub.Device.run(args)
+      "device" -> NervesHubCLI.CLI.Device.run(args)
       "firmware" -> NervesHubCLI.CLI.Firmware.run(args)
       "key" -> NervesHubCLI.CLI.Key.run(args)
       "org" -> NervesHubCLI.CLI.Org.run(args)
