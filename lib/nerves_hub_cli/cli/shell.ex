@@ -2,14 +2,17 @@ defmodule NervesHubCLI.CLI.Shell do
   alias Mix.NervesHubCLI.Utils
 
   @spec info(IO.ANSI.ansidata()) :: :ok
-  def info(output) do
-    IO.puts(output)
+  def info(message) do
+    IO.puts(IO.ANSI.format(message))
   end
 
   @spec error(IO.ANSI.ansidata()) :: :ok
-  def error(output) do
-    IO.ANSI.format([:red, output])
-    |> IO.puts()
+  def error(message) do
+    IO.puts(:stderr, IO.ANSI.format(red(message)))
+  end
+
+  defp red(message) do
+    [:red, :bright, message]
   end
 
   @spec raise(String.t()) :: no_return()
@@ -19,8 +22,8 @@ defmodule NervesHubCLI.CLI.Shell do
   end
 
   @spec prompt(String.t()) :: String.t()
-  def prompt(output) do
-    IO.gets(output)
+  def prompt(message) do
+    IO.gets(message <> " ")
     |> String.trim()
   end
 

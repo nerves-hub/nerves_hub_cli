@@ -237,7 +237,7 @@ defmodule NervesHubCLI.CLI.Firmware do
     Enum.each(deployments, fn deployment_name ->
       Shell.info("Deploying firmware to #{deployment_name}")
 
-      Mix.Tasks.NervesHub.Deployment.update(
+      NervesHubCLI.CLI.Deployment.update(
         deployment_name,
         "firmware",
         firmware["uuid"],
