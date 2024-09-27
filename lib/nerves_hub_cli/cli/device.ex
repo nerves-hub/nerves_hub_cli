@@ -14,12 +14,13 @@ defmodule NervesHubCLI.CLI.Device do
   device. This information can be passed by specifying one or all of the command
   line options.
 
-      mix nerves_hub.device create
+      nerves_hub device create
 
   ### Command-line options
 
     * `--product` - (Optional) The product name.
-      This defaults to the Mix Project config `:app` name.
+      This defaults to the NERVES_HUB_PRODUCT environment variable (if set) or
+      the global configuration via `nerves_hub config set product "product_name"`
     * `--identifier` - (Optional) The device identifier
     * `--description` - (Optional) The description of the device
     * `--tag` - (Optional) Multiple tags can be set by passing this key multiple
@@ -29,7 +30,7 @@ defmodule NervesHubCLI.CLI.Device do
 
   Create many NervesHub devices via a csv file.
 
-      mix nerves_hub.device bulk_create
+      nerves_hub device bulk_create
 
   The CSV file should be formated as:
   ```csv
@@ -51,7 +52,8 @@ defmodule NervesHubCLI.CLI.Device do
     * `--csv` - Path to a CSV file
 
     * `--product` - (Optional) The product name.
-      This defaults to the Mix Project config `:app` name.
+      This defaults to the NERVES_HUB_PRODUCT environment variable (if set) or
+      the global configuration via `nerves_hub config set product "product_name"`
 
   ## update
 
@@ -61,12 +63,13 @@ defmodule NervesHubCLI.CLI.Device do
 
   List all devices
 
-      mix nerves_hub.device list
+      nerves_hub device list
 
   ### Command-line options
 
   * `--product` - (Optional) The product name.
-      This defaults to the Mix Project config `:app` name.
+      This defaults to the NERVES_HUB_PRODUCT environment variable (if set) or
+      the global configuration via `nerves_hub config set product "product_name"`
   * `--identifier` - (Optional) Only show device matching an identifier
   * `--description` - (Optional) Only show devices matching a description
   * `--tag` - (Optional) Only show devices matching tags. Multiple tags can be
@@ -77,13 +80,13 @@ defmodule NervesHubCLI.CLI.Device do
 
   Update device tags
 
-      mix nerves_hub.device update 1234 tags dev qa
+      nerves_hub device update 1234 tags dev qa
 
   ## delete
 
   Delete a device on NervesHub
 
-      mix nerves_hub.device delete DEVICE_IDENTIFIER
+      nerves_hub device delete DEVICE_IDENTIFIER
 
   ## burn
 
@@ -93,12 +96,13 @@ defmodule NervesHubCLI.CLI.Device do
   generate a new cert pair for the device. The command will end with calling
   mix firmware.burn.
 
-      mix nerves_hub.device burn DEVICE_IDENTIFIER
+      nerves_hub device burn DEVICE_IDENTIFIER
 
   ### Command-line options
 
     * `--product` - (Optional) The product name.
-      This defaults to the Mix Project config `:app` name.
+      This defaults to the NERVES_HUB_PRODUCT environment variable (if set) or
+      the global configuration via `nerves_hub config set product "product_name"`
     * `--cert` - (Optional) A path to an existing device certificate
     * `--key` - (Optional) A path to an existing device private key
     * `--path` - (Optional) The path to put the device certificates
@@ -109,19 +113,20 @@ defmodule NervesHubCLI.CLI.Device do
 
   List all certificates for a device.
 
-      mix nerves_hub.device cert list DEVICE_IDENTIFIER
+      nerves_hub device cert list DEVICE_IDENTIFIER
 
   ### Command-line options
 
     * `--product` - (Optional) The product name.
-      This defaults to the Mix Project config `:app` name.
+      This defaults to the NERVES_HUB_PRODUCT environment variable (if set) or
+      the global configuration via `nerves_hub config set product "product_name"`
 
   ## cert create
 
   Creates a new device certificate pair. The certificates will be placed in the
   current working directory if no path is specified.
 
-      mix nerves_hub.device cert create DEVICE_IDENTIFIER
+      nerves_hub device cert create DEVICE_IDENTIFIER
 
   You must take on the role of the CA by providing your own signer certificate
   and key and using the `--signer-cert` and `--signer-key` options.
@@ -131,7 +136,8 @@ defmodule NervesHubCLI.CLI.Device do
   ### Command-line options
 
     * `--product` - (Optional) The product name.
-      This defaults to the Mix Project config `:app` name.
+      This defaults to the NERVES_HUB_PRODUCT environment variable (if set) or
+      the global configuration via `nerves_hub config set product "product_name"`
     * `--path` - (Optional) A local location for storing certificates
     * `--signer-cert` - (required) Path to the signer certificate
     * `--signer-key` - (required) Path to signer certificate's private key
@@ -141,12 +147,13 @@ defmodule NervesHubCLI.CLI.Device do
 
   Import a trusted certificate for authenticating a device.
 
-      mix nerves_hub.device cert import DEVICE_IDENTIFIER CERT_PATH
+      nerves_hub device cert import DEVICE_IDENTIFIER CERT_PATH
 
   ### Command-line options
 
     * `--product` - (Optional) The product name.
-      This defaults to the Mix Project config `:app` name.
+      This defaults to the NERVES_HUB_PRODUCT environment variable (if set) or
+      the global configuration via `nerves_hub config set product "product_name"`
   """
 
   @switches [
@@ -217,19 +224,19 @@ defmodule NervesHubCLI.CLI.Device do
   @spec render_help() :: no_return()
   def render_help() do
     Shell.raise("""
-    Invalid arguments to `mix nerves_hub.device`.
+    Invalid arguments to `nerves_hub device`.
 
     Usage:
-      mix nerves_hub.device list
-      mix nerves_hub.device create
-      mix nerves_hub.device update KEY VALUE
-      mix nerves_hub.device delete DEVICE_IDENTIFIER
-      mix nerves_hub.device burn DEVICE_IDENTIFIER
-      mix nerves_hub.device cert list DEVICE_IDENTIFIER
-      mix nerves_hub.device cert create DEVICE_IDENTIFIER
-      mix nerves_hub.device cert import DEVICE_IDENTIFIER CERT_PATH
+      nerves_hub device list
+      nerves_hub device create
+      nerves_hub device update KEY VALUE
+      nerves_hub device delete DEVICE_IDENTIFIER
+      nerves_hub device burn DEVICE_IDENTIFIER
+      nerves_hub device cert list DEVICE_IDENTIFIER
+      nerves_hub device cert create DEVICE_IDENTIFIER
+      nerves_hub device cert import DEVICE_IDENTIFIER CERT_PATH
 
-    Run `mix help nerves_hub.device` for more information.
+    Run `nerves_hub help device` for more information.
     """)
   end
 
@@ -280,7 +287,7 @@ defmodule NervesHubCLI.CLI.Device do
         key, create and register a certificate and key pair manually by
         running:
 
-          mix nerves_hub.device cert create #{identifier} --signer-key key.pem --signer-cert cert.pem
+          nerves_hub device cert create #{identifier} --signer-key key.pem --signer-cert cert.pem
         """)
 
       error ->
@@ -371,7 +378,7 @@ defmodule NervesHubCLI.CLI.Device do
 
             To generate certificates for #{identifier}
 
-              mix nerves_hub.device cert create #{identifier}
+              nerves_hub device cert create #{identifier}
 
           """)
         end

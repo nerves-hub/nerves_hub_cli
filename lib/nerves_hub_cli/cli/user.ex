@@ -10,16 +10,16 @@ defmodule NervesHubCLI.CLI.User do
   Users are authenticated to the NervesHub API with a user access token
   presented in each request. This token can be manually supplied with the
   `NERVES_HUB_TOKEN` or `NH_TOKEN` environment variables. Or you can use
-  `mix nerves_hub.user auth` to authenticate with the web, generate a token,
+  `nerves_hub user auth` to authenticate with the web, generate a token,
   and save it locally in your config in `$NERVES_HUB_HOME`
 
   ## whoami
 
-      mix nerves_hub.user whoami
+      nerves_hub user whoami
 
   ## auth
 
-      mix nerves_hub.user auth
+      nerves_hub user auth
 
   ### Command-line options
 
@@ -27,7 +27,7 @@ defmodule NervesHubCLI.CLI.User do
 
   ## deauth
 
-      mix nerves_hub.user deauth
+      nerves_hub user deauth
 
   ### Command-line options
 
@@ -63,15 +63,15 @@ defmodule NervesHubCLI.CLI.User do
   @spec render_help() :: no_return()
   def render_help() do
     Shell.raise("""
-    Invalid arguments to `mix nerves_hub.user`.
+    Invalid arguments to `nerves_hub user`.
 
     Usage:
 
-      mix nerves_hub.user whoami
-      mix nerves_hub.user auth
-      mix nerves_hub.user deauth
+      nerves_hub user whoami
+      nerves_hub user auth
+      nerves_hub user deauth
 
-    Run `mix help nerves_hub.user` for more information.
+    Run `nerves_hub help user` for more information.
     """)
   end
 

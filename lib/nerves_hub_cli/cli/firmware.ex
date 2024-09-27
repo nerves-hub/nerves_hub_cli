@@ -1,5 +1,4 @@
 defmodule NervesHubCLI.CLI.Firmware do
-
   @moduledoc """
   Manage Firmware on NervesHub
 
@@ -9,12 +8,14 @@ defmodule NervesHubCLI.CLI.Firmware do
   is optional. If it is not specified, NervesHub will locate the firmware
   based off the project settings.
 
-      mix nerves_hub.firmware publish [Optional: /path/to/app.firmware]
+      nerves_hub firmware publish [Optional: /path/to/app.firmware]
 
   ### Command-line options
 
     * `--product` - (Optional) The product name to publish the firmware to.
-      This defaults to the Mix Project config `:app` name.
+      This defaults to the NERVES_HUB_PRODUCT environment variable (if set) or
+      the global configuration via `nerves_hub config set product "product_name"`
+
     * `--deploy` - (Optional) The name of a deployment to update following
       firmware publish. This key can be passed multiple times to update
       multiple deployments.
@@ -23,19 +24,21 @@ defmodule NervesHubCLI.CLI.Firmware do
 
   ## list
 
-      mix nerves_hub.firmware list
+      nerves_hub firmware list
 
   ### Command-line options
 
     * `--product` - (Optional) The product name to publish the firmware to.
-      This defaults to the Mix Project config `:app` name.
+      This defaults to the NERVES_HUB_PRODUCT environment variable (if set) or
+      the global configuration via `nerves_hub config set product "product_name"`
+
 
   ## delete
 
   Firmware can only be deleted if it is not associated to any deployment.
   Call `list` to retrieve firmware UUIDs
 
-      mix nerves_hub.firmware delete [firmware_uuid]
+      nerves_hub firmware delete [firmware_uuid]
 
   ## sign
 
@@ -43,7 +46,7 @@ defmodule NervesHubCLI.CLI.Firmware do
   is optional. If it is not specified, NervesHub will locate the firmware
   based off the project settings.
 
-      mix nerves_hub.firmware sign [Optional: /path/to/app.firmware]
+      nerves_hub firmware sign [Optional: /path/to/app.firmware]
 
   ### Command-line options
 
@@ -104,12 +107,12 @@ defmodule NervesHubCLI.CLI.Firmware do
     Invalid arguments
 
     Usage:
-      mix nerves_hub.firmware list
-      mix nerves_hub.firmware publish
-      mix nerves_hub.firmware delete
-      mix nerves_hub.firmware sign
+      nerves_hub firmware list
+      nerves_hub firmware publish
+      nerves_hub firmware delete
+      nerves_hub firmware sign
 
-    Run `mix help nerves_hub.firmware` for more information.
+    Run `nerves_hub help firmware` for more information.
     """)
   end
 

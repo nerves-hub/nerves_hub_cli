@@ -12,7 +12,7 @@ defmodule NervesHubCLI.CLI.Product do
   product. This information can be passed by specifying one or all of the command
   line options.
 
-      mix nerves_hub.product create
+      nerves_hub product create
 
   ### Command-line options
 
@@ -20,11 +20,11 @@ defmodule NervesHubCLI.CLI.Product do
 
   ## list
 
-      mix nerves_hub.product list
+      nerves_hub product list
 
   ## delete
 
-      mix nerves_hub.product delete [product_name]
+      nerves_hub product delete [product_name]
 
   ## update
 
@@ -36,7 +36,7 @@ defmodule NervesHubCLI.CLI.Product do
 
   Change product name
 
-      mix nerves_hub.product update example name example_new
+      nerves_hub product update example name example_new
 
   # Managing user roles
 
@@ -61,25 +61,25 @@ defmodule NervesHubCLI.CLI.Product do
 
   List the users and their role for the product.
 
-      mix nerves_hub.product user list PRODUCT_NAME
+      nerves_hub product user list PRODUCT_NAME
 
   ## user add
 
   Add an existing user to a product with a role.
 
-      mix nerves_hub.product user add PRODUCT_NAME USERNAME ROLE
+      nerves_hub product user add PRODUCT_NAME USERNAME ROLE
 
   ## user update
 
   Update an existing user for your product with a new role.
 
-      mix nerves_hub.product user update PRODUCT_NAME USERNAME ROLE
+      nerves_hub product user update PRODUCT_NAME USERNAME ROLE
 
   ## user remove
 
   Remove an existing user from having a role for your product.
 
-      mix nerves_hub.product user remove PRODUCT_NAME USERNAME
+      nerves_hub product user remove PRODUCT_NAME USERNAME
   """
 
   @switches [
@@ -126,20 +126,20 @@ defmodule NervesHubCLI.CLI.Product do
   @spec render_help() :: no_return()
   def render_help() do
     Shell.raise("""
-    Invalid arguments to `mix nerves_hub.product`.
+    Invalid arguments to `nerves_hub product`.
 
     Usage:
-      mix nerves_hub.product list
-      mix nerves_hub.product create
-      mix nerves_hub.product delete PRODUCT_NAME
-      mix nerves_hub.product update PRODUCT_NAME KEY VALUE
+      nerves_hub product list
+      nerves_hub product create
+      nerves_hub product delete PRODUCT_NAME
+      nerves_hub product update PRODUCT_NAME KEY VALUE
 
-      mix nerves_hub.product user list PRODUCT_NAME
-      mix nerves_hub.product user add PRODUCT_NAME USERNAME ROLE
-      mix nerves_hub.product user update PRODUCT_NAME USERNAME ROLE
-      mix nerves_hub.product user remove PRODUCT_NAME USERNAME ROLE
+      nerves_hub product user list PRODUCT_NAME
+      nerves_hub product user add PRODUCT_NAME USERNAME ROLE
+      nerves_hub product user update PRODUCT_NAME USERNAME ROLE
+      nerves_hub product user remove PRODUCT_NAME USERNAME ROLE
 
-    Run `mix help nerves_hub.product` for more information.
+    Run `nerves_hub help product` for more information.
     """)
   end
 

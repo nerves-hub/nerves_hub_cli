@@ -29,25 +29,25 @@ defmodule NervesHubCLI.CLI.Org do
 
   List the users and their role for the organization.
 
-      mix nerves_hub.org user list
+      nerves_hub user list
 
   ## user add
 
   Add an existing user to an org with a role.
 
-      mix nerves_hub.org user add USERNAME ROLE
+      nerves_hub user add USERNAME ROLE
 
   ## user update
 
   Update an existing user in your org with a new role.
 
-      mix nerves_hub.org user update USERNAME ROLE
+      nerves_hub user update USERNAME ROLE
 
   ## user remove
 
   Remove an existing user from having a role in your organization.
 
-      mix nerves_hub.org user remove USERNAME
+      nerves_hub user remove USERNAME
   """
 
   @switches [
@@ -81,15 +81,15 @@ defmodule NervesHubCLI.CLI.Org do
   @spec render_help() :: no_return()
   def render_help() do
     Shell.raise("""
-    Invalid arguments to `mix nerves_hub.org`.
+    Invalid arguments to `nerves_hub user`.
 
     Usage:
-      mix nerves_hub.org user list
-      mix nerves_hub.org user add USERNAME ROLE
-      mix nerves_hub.org user update USERNAME ROLE
-      mix nerves_hub.org user remove USERNAME
+      nerves_hub user list
+      nerves_hub user add USERNAME ROLE
+      nerves_hub user update USERNAME ROLE
+      nerves_hub user remove USERNAME
 
-    Run `mix help nerves_hub.org` for more information.
+    Run `nerves_hub help org` for more information.
     """)
   end
 

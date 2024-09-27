@@ -4,7 +4,36 @@ defmodule NervesHubCLI.CLI.Utils do
 
   @spec product(keyword()) :: String.t()
   def product(opts) do
-    Keyword.get(opts, :product) || config()[:name] || config()[:app]
+    # TODO: let's discuss the best default behavior here, if it should be changed
+    # Currently, in order of priority:
+    # - check if the product was passed into the command
+    # - read the environment variables for product
+    # - global config, which was set via `nerves_hub config set product "my_product_name"`
+    # - raise with error message
+    #
+    # Note: the default product name was changed to the directory that `nerves_hub product create` was called from.
+    # Should we make current directory name a default option as well?
+    product =
+      Keyword.get(opts, :product) || System.get_env("NERVES_HUB_PRODUCT") || Config.get(:product) ||
+        Shell.raise("""
+          Cound not determine product
+          Product is set in the following order
+
+            From the command line
+
+              --product product_name
+
+            By setting the environment variable NERVES_HUB_PRODUCT
+
+              export NERVES_HUB_PRODUCT=product_name
+
+            Via global configuration (this applies to all projects)
+            
+              nerves_hub config set product "product_name"
+        """)
+
+    Shell.info("NervesHub product: #{product}")
+    product
   end
 
   @doc """
@@ -24,14 +53,9 @@ defmodule NervesHubCLI.CLI.Utils do
 
   @spec org(keyword()) :: String.t()
   def org(opts) do
-    # command-line options
-    # environment
-    # project
-    # user
-    # not found
+    # TODO: similar to above. We should discuss the best case intended defaults
     org =
-      Keyword.get(opts, :org) || System.get_env("NERVES_HUB_ORG") ||
-        org_from_env() || Config.get(:org) ||
+      Keyword.get(opts, :org) || System.get_env("NERVES_HUB_ORG") || Config.get(:org) ||
         Shell.raise("""
         Cound not determine organization
         Organization is set in the following order
@@ -194,6 +218,7 @@ defmodule NervesHubCLI.CLI.Utils do
     Mix.Project.config()
   end
 
+  # TODO: if mix tasks are not supported, this can be removed
   defp org_from_env() do
     if Application.get_env(:nerves_hub, :org) do
       org = Application.get_env(:nerves_hub, :org)

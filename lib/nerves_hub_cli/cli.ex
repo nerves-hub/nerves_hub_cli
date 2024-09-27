@@ -19,14 +19,14 @@ defmodule NervesHubCLI.CLI do
 
   def main(_args) do
     """
-    This is nerves_hub_cli, the command line app to manage NervesHub resources.
+    This is nerves_hub CLI, the command line app to manage NervesHub resources.
 
     Usage:
       #{executable()} <command> <subcommand> [flags] 
 
     Commands:
       user:\t\t\tManage your NervesHub user account
-      config:\t\tManage CLI configuration options which are persisted between calls
+      config:\t\tSet the global configuration for NervesHub CLI
       certificate:\t\tManage CA certificates for validating device connections
       deployment:\t\tManage NervesHub deployments
       device:\t\tManage your NervesHub devices

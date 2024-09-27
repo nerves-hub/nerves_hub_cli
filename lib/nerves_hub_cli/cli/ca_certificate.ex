@@ -12,15 +12,15 @@ defmodule NervesHubCLI.CLI.CaCertificate do
 
   ## list
 
-      mix nerves_hub.ca_certificate list
+      nerves_hub ca_certificate list
 
   ## register
 
-      mix nerves_hub.ca_certificate register CERT_PATH
+      nerves_hub ca_certificate register CERT_PATH
 
   ## unregister
 
-      mix nerves_hub.ca_certificate unregister CERT_SERIAL
+      nerves_hub ca_certificate unregister CERT_SERIAL
   """
 
   @switches [
@@ -52,14 +52,14 @@ defmodule NervesHubCLI.CLI.CaCertificate do
   @spec render_help() :: no_return()
   def render_help() do
     Shell.raise("""
-    Invalid arguments to `mix nerves_hub.ca_certificate`.
+    Invalid arguments to `nerves_hub ca_certificate`.
 
     Usage:
-      mix nerves_hub.ca_certificate list
-      mix nerves_hub.ca_certificate register CERT_PATH
-      mix nerves_hub.ca_certificate unregister CERT_SERIAL
+      nerves_hub ca_certificate list
+      nerves_hub ca_certificate register CERT_PATH
+      nerves_hub ca_certificate unregister CERT_SERIAL
 
-    Run `mix help nerves_hub.ca_certificate` for more information.
+    Run `nerves_hub help ca_certificate` for more information.
     """)
   end
 

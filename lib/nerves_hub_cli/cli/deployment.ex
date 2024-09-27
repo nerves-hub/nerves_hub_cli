@@ -4,18 +4,19 @@ defmodule NervesHubCLI.CLI.Deployment do
 
   ## list
 
-      mix nerves_hub.deployment list
+      nerves_hub deployment list
 
   ### Command-line options
 
     * `--product` - (Optional) Only show deployments for one product.
-      This defaults to the Mix Project config `:app` name.
+      This defaults to the NERVES_HUB_PRODUCT environment variable (if set) or
+      the global configuration via `nerves_hub config set product "product_name"`
 
   ## create
 
   Create a new deployment
 
-      mix nerves_hub.deployment create
+      nerves_hub deployment create
 
   ### Command-line options
 
@@ -34,15 +35,15 @@ defmodule NervesHubCLI.CLI.Deployment do
 
   Update active firmware version
 
-      mix nerves_hub.deployment update dev firmware fd53d87c-99ca-5770-5540-edb5058ced5b
+      nerves_hub deployment update dev firmware fd53d87c-99ca-5770-5540-edb5058ced5b
 
   Activate / Deactivate a deployment
 
-      mix nerves_hub.deployment update dev state on
+      nerves_hub deployment update dev state on
 
   General usage:
 
-      mix nerves_hub.firmware update [deployment_name] [key] [value]
+      nerves_hub deployment update [deployment_name] [key] [value]
 
   """
 
@@ -84,14 +85,14 @@ defmodule NervesHubCLI.CLI.Deployment do
   @spec render_help() :: no_return()
   def render_help() do
     Shell.raise("""
-    Invalid arguments to `mix nerves_hub.deployment`.
+    Invalid arguments to `nerves_hub deployment`.
 
     Usage:
-      mix nerves_hub.deployment list
-      mix nerves_hub.deployment create
-      mix nerves_hub.deployment update DEPLOYMENT_NAME KEY VALUE
+      nerves_hub deployment list
+      nerves_hub deployment create
+      nerves_hub deployment update DEPLOYMENT_NAME KEY VALUE
 
-    Run `mix help nerves_hub.deployment` for more information.
+    Run `nerves_hub help deployment` for more information.
     """)
   end
 
@@ -148,7 +149,7 @@ defmodule NervesHubCLI.CLI.Deployment do
 
         This deployment is not on by default. To turn it on, run:
 
-        mix nerves_hub.deployment update #{name} state on
+        nerves_hub deployment update #{name} state on
         """)
 
       error ->
@@ -162,7 +163,7 @@ defmodule NervesHubCLI.CLI.Deployment do
 
       #{IO.ANSI.yellow()}warning: #{IO.ANSI.default_color()}Using #{IO.ANSI.yellow()}is_active#{IO.ANSI.default_color()} is deprecated. Please change your request to use #{IO.ANSI.cyan()}state#{IO.ANSI.default_color()} instead ¬
 
-      #{IO.ANSI.cyan()}  mix nerves_hub.deployment update #{deployment} state (on|off)#{IO.ANSI.default_color()}
+      #{IO.ANSI.cyan()}  nerves_hub deployment update #{deployment} state (on|off)#{IO.ANSI.default_color()}
       """)
     end
 
