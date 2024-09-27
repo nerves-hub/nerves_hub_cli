@@ -4,8 +4,6 @@ defmodule NervesHubCLI.CLI.User do
   alias NervesHubCLI.{User, Config}
   alias NervesHubCLI.CLI.Shell
 
-  @shortdoc "Manages your NervesHub user account"
-
   @moduledoc """
   Manage your NervesHub user account.
 

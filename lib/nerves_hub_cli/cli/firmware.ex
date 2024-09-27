@@ -1,5 +1,4 @@
 defmodule NervesHubCLI.CLI.Firmware do
-  @shortdoc "Manages firmware on NervesHub"
 
   @moduledoc """
   Manage Firmware on NervesHub

@@ -2,8 +2,6 @@ defmodule NervesHubCLI.CLI.CaCertificate do
   import NervesHubCLI.CLI.Utils
   alias NervesHubCLI.CLI.Shell
 
-  @shortdoc "Manages CA certificates"
-
   @moduledoc """
   Manages CA certificates for validating device connections
 

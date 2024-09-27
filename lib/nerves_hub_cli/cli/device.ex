@@ -5,8 +5,6 @@ defmodule NervesHubCLI.CLI.Device do
 
   alias NimbleCSV.RFC4180, as: CSV
 
-  @shortdoc "Manages your NervesHub devices"
-
   @moduledoc """
   Manage your NervesHub devices.
 
@@ -397,6 +395,7 @@ defmodule NervesHubCLI.CLI.Device do
       |> Keyword.take([:firmware])
       |> OptionParser.to_argv()
 
+    # TODO: remove reference to mix task
     Mix.Task.run("burn", burn_args)
   end
 

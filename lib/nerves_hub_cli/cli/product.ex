@@ -3,8 +3,6 @@ defmodule NervesHubCLI.CLI.Product do
 
   alias NervesHubCLI.CLI.Shell
 
-  @shortdoc "Manages your products"
-
   @moduledoc """
   Manages your products.
 
@@ -171,10 +169,13 @@ defmodule NervesHubCLI.CLI.Product do
     end
   end
 
-  def create(org, opts) do
-    config = Mix.Project.config()
+  def create(org, _opts) do
+    default_name =
+      File.cwd!()
+      |> Path.split()
+      |> List.last()
 
-    name = opts[:name] || config[:name] || config[:app] || Shell.prompt("Product name:")
+    name = Shell.prompt("Product name (default #{default_name}):") || default_name
     name = to_string(name)
 
     Shell.info("")

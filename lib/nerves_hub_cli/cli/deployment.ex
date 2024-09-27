@@ -1,6 +1,4 @@
 defmodule NervesHubCLI.CLI.Deployment do
-  @shortdoc "Manages NervesHub deployments"
-
   @moduledoc """
   Manage NervesHub deployments
 

@@ -3,8 +3,6 @@ defmodule NervesHubCLI.CLI.Key do
 
   alias NervesHubCLI.CLI.Shell
 
-  @shortdoc "Manages firmware signing keys"
-
   @moduledoc """
   Manages firmware signing keys
 

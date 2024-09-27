@@ -3,8 +3,6 @@ defmodule NervesHubCLI.CLI.Org do
 
   alias NervesHubCLI.CLI.Shell
 
-  @shortdoc "Manages an organization"
-
   @moduledoc """
   Manages an organization
 

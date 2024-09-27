@@ -1,5 +1,5 @@
 defmodule NervesHubCLI.CLI.Shell do
-  alias Mix.NervesHubCLI.Utils
+  alias NervesHubCLI.CLI.Utils
 
   @spec info(IO.ANSI.ansidata()) :: :ok
   def info(message) do

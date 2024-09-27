@@ -63,6 +63,7 @@ defmodule NervesHubCLI.CLI.Utils do
   """
   @spec firmware() :: Path.t()
   def firmware do
+    # TODO: what to replace these paths with?
     images_path =
       (config()[:images_path] || Path.join([Mix.Project.build_path(), "nerves", "images"]))
       |> Path.expand()
@@ -188,6 +189,8 @@ defmodule NervesHubCLI.CLI.Utils do
   end
 
   defp config() do
+    raise RuntimeError, "this shouldn't be used!!"
+
     Mix.Project.config()
   end
 

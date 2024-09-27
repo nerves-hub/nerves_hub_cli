@@ -5,7 +5,7 @@ defmodule NervesHubCLI.CLI.Config do
   @valid_config_keys ["uri"]
 
   def run(args) do
-    {opts, args} = OptionParser.parse!(args, strict: @switches)
+    {_opts, args} = OptionParser.parse!(args, strict: @switches)
 
     case args do
       ["set", key, value] when key in @valid_config_keys ->
