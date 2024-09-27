@@ -5,6 +5,11 @@ defmodule NervesHubCLI.API do
   @file_chunk 4096
   @progress_steps 50
 
+  @castore_certs CAStore.file_path()
+                 |> File.read!()
+                 |> X509.from_pem()
+                 |> Enum.map(&X509.Certificate.to_der/1)
+
   @type role :: :admin | :delete | :write | :read
 
   use Tesla
@@ -157,12 +162,10 @@ defmodule NervesHubCLI.API do
       is_atom(ca_store) and !is_nil(ca_store) ->
         ca_store.ca_certs()
 
-      # CAStore uses the priv directory, which does not work with escripts
-      # Code.ensure_loaded?(CAStore) ->
-      #   CAStore.file_path()
-      #   |> File.read!()
-      #   |> X509.from_pem()
-      #   |> Enum.map(&X509.Certificate.to_der/1)
+      # TODO: These conditions can probably be removed after successfully testing for some time
+      # CAStore certs are saved in the application binary at compile time (not sure if this is okay, security-wise)
+      not is_nil(@castore_certs) and length(@castore_certs) > 0 ->
+        @castore_certs
 
       true ->
         :public_key.cacerts_get()
