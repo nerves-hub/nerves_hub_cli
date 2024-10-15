@@ -25,16 +25,16 @@ defmodule NervesHubCLI.CLI do
       #{executable()} <command> <subcommand> [flags] 
 
     Commands:
-      user:\t\t\tManage your NervesHub user account
-      config:\t\tSet the global configuration for NervesHub CLI
-      certificate:\t\tManage CA certificates for validating device connections
-      deployment:\t\tManage NervesHub deployments
-      device:\t\tManage your NervesHub devices
-      firmware:\t\tManage firmware on NervesHub
-      key:\t\t\tManage firmware signing keys
-      org:\t\t\tManages an organization
-      product:\t\tManages your products on NervesHub
-      help:\t\t\tPrints this message
+      user:           Manage the signed in NervesHub user
+      config:         Manage the global configuration for NervesHub CLI
+      certificate:    Manage CA certificates for validating device connections
+      deployment:     Manage deployments on NervesHub
+      device:         Manage devices on NervesHub
+      firmware:       Manage firmware on NervesHub
+      key:            Manage firmware signing keys
+      org:            Manage a NervesHub organization
+      product:        Manage products on NervesHub
+      help:           Prints this message
 
     To get more information about a specific command, run:
     #{executable()} help <command>
