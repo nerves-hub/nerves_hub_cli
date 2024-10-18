@@ -4,14 +4,13 @@ defmodule NervesHubCLI.CLI.Utils do
 
   @spec product(keyword()) :: String.t()
   def product(opts) do
-    # TODO: let's discuss the best default behavior here, if it should be changed
     # Currently, in order of priority:
     # - check if the product was passed into the command
     # - read the environment variables for product
     # - global config, which was set via `nerves_hub config set product "my_product_name"`
     # - raise with error message
     #
-    # Note: the default product name was changed to the directory that `nerves_hub product create` was called from.
+    # TODO: the default product name was changed to the directory that `nerves_hub product create` was called from.
     # Should we make current directory name a default option as well?
     product =
       Keyword.get(opts, :product) || System.get_env("NERVES_HUB_PRODUCT") || Config.get(:product) ||
@@ -53,7 +52,11 @@ defmodule NervesHubCLI.CLI.Utils do
 
   @spec org(keyword()) :: String.t()
   def org(opts) do
-    # TODO: similar to above. We should discuss the best case intended defaults
+    # Currently, in order of priority:
+    # - check if the org was passed into the command
+    # - read the environment variables for org
+    # - global config, which was set via `nerves_hub config set org "my_product_name"`
+    # - raise with error message
     org =
       Keyword.get(opts, :org) || System.get_env("NERVES_HUB_ORG") || Config.get(:org) ||
         Shell.raise("""
@@ -88,6 +91,8 @@ defmodule NervesHubCLI.CLI.Utils do
   @spec firmware() :: Path.t()
   def firmware do
     # TODO: what to replace these paths with?
+    # this is used in NervesHubCLI.CLI.Firmware for the commands 
+    # `nerves_hub firmware publish` and `nerves_hub firmware sign`
     images_path =
       (config()[:images_path] || Path.join([Mix.Project.build_path(), "nerves", "images"]))
       |> Path.expand()
@@ -216,32 +221,5 @@ defmodule NervesHubCLI.CLI.Utils do
     raise RuntimeError, "this shouldn't be used!!"
 
     Mix.Project.config()
-  end
-
-  # TODO: if mix tasks are not supported, this can be removed
-  defp org_from_env() do
-    if Application.get_env(:nerves_hub, :org) do
-      org = Application.get_env(:nerves_hub, :org)
-
-      Shell.raise("""
-
-      Specifying your NervesHub organization using the :nerves_hub application
-      environment is no longer supported.
-
-      Please edit your config.exs and replace:
-
-        config :nerves_hub, org: "#{org}"
-
-      With:
-
-        config :nerves_hub_cli, org: "#{org}"
-
-      Another source of this issue is having an old version of `:nerves_hub_link`.
-      If you are using `:nerves_hub_link`, make sure that you're using v0.8.0 or
-      later.
-      """)
-    else
-      Application.get_env(:nerves_hub_cli, :org)
-    end
   end
 end
