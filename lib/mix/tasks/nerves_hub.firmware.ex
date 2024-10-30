@@ -81,10 +81,6 @@ defmodule Mix.Tasks.NervesHub.Firmware do
       ["list"] ->
         list(org, product)
 
-      ["publish" | []] ->
-        firmware()
-        |> publish_confirm(org, opts)
-
       ["publish", firmware] when is_binary(firmware) ->
         firmware
         |> Path.expand()
@@ -92,10 +88,6 @@ defmodule Mix.Tasks.NervesHub.Firmware do
 
       ["delete", uuid] when is_binary(uuid) ->
         delete_confirm(uuid, org, product)
-
-      ["sign"] ->
-        firmware()
-        |> sign(org, opts)
 
       ["sign", firmware] ->
         sign(firmware, org, opts)

@@ -9,7 +9,6 @@ defmodule NervesHubCLI.CLI.Config do
 
     case args do
       ["set", key, value] when key in @valid_config_keys ->
-        # TODO: double check the usage of `String.to_atom/1` here. Should be safe since guarded
         String.to_atom(key)
         |> NervesHubCLI.Config.put(value)
 

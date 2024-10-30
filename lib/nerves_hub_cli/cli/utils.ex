@@ -86,22 +86,6 @@ defmodule NervesHubCLI.CLI.Utils do
   end
 
   @doc """
-  Return the path to the generated firmware bundle
-  """
-  @spec firmware() :: Path.t()
-  def firmware do
-    # TODO: what to replace these paths with?
-    # this is used in NervesHubCLI.CLI.Firmware for the commands 
-    # `nerves_hub firmware publish` and `nerves_hub firmware sign`
-    images_path =
-      (config()[:images_path] || Path.join([Mix.Project.build_path(), "nerves", "images"]))
-      |> Path.expand()
-
-    filename = "#{config()[:app]}.fw"
-    Path.join(images_path, filename)
-  end
-
-  @doc """
   Read the firmware metadata from the specified firmware bundle
   """
   @spec metadata(Path.t()) :: {:error, any()} | {:ok, map()}
