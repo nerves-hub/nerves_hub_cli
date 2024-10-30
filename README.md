@@ -9,9 +9,9 @@ This is the 2.0 development branch of NervesHubCLI. If you have been using Nerve
 
 ---
 
-`NervesHubCLI` provides a set of [Mix](https://hexdocs.pm/mix/Mix.html) tasks so
-that you can work with [NervesHub](https://www.nerves-hub.org) from the
-command-line. Features include:
+`NervesHubCLI` is an [escript](https://hexdocs.pm/mix/main/Mix.Tasks.Escript.Build.html) 
+CLI tool for working with [NervesHub](https://www.nerves-hub.org) from the command-line. 
+Features include:
 
 * Uploading firmware to NervesHub
 * Generating device certificates and registration
@@ -20,28 +20,18 @@ command-line. Features include:
 * Manage firmware deployments
 * Manage user and organization accounts
 
-The recommended way of using the CLI is to include
-[`nerves_hub_link`](https://github.com/nerves-hub/nerves_hub_link) in your dependencies.
-`nerves_hub_link` pulls in `nerves_hub_cli` and includes the target runtime
-components necessary to use it.
+The recommended way of using the CLI is to run `mix escript.install hex nerves_hub_cli`. 
+Note that you may have to add the binary installation directory to your PATH
 
 Once installed, you can access available commands and documentation from the
-command-line using `mix help`:
+command-line using `nerves_hub help`:
 
 ```sh
-$ mix help
-...
-mix nerves_hub.deployment # Manages NervesHub deployments
-mix nerves_hub.device     # Manages your NervesHub devices
-mix nerves_hub.firmware   # Manages firmware on NervesHub
-mix nerves_hub.key        # Manages your firmware signing keys
-mix nerves_hub.product    # Manages your products
-mix nerves_hub.user       # Manages your NervesHub user account
-...
-
-$ mix help nerves_hub.device
-...
+$ nerves_hub help
+$ nerves_hub help device
 ```
+
+To uninstall, run `mix escript.uninstall nerves_hub_cli`.
 
 ## Environment variables
 
@@ -68,6 +58,15 @@ For more information on using the CLI, see the
 
 NervesHubCLI must be configured to connect to your chosen NervesHub host.
 
-See the
-[documentation](https://docs.nerves-hub.org/nerves-hub/setup/connecting-other-envs)
-for example config values to do this.
+To configure the NervesHub URI, run:
+
+```sh
+$ nerves_hub config set uri "https://my.nerveshub.instance/"
+```
+
+Finally, you need to authorize your account on the NervesHub instance by running:
+
+```sh
+$ nerves_hub user whoami
+$ nerves_hub user auth
+```
