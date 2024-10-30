@@ -402,8 +402,7 @@ defmodule NervesHubCLI.CLI.Device do
       |> Keyword.take([:firmware])
       |> OptionParser.to_argv()
 
-    # TODO: remove reference to mix task
-    Mix.Task.run("burn", burn_args)
+    System.cmd("mix", ["burn" | burn_args])
   end
 
   @spec cert_list(String.t(), String.t(), String.t()) :: :ok
