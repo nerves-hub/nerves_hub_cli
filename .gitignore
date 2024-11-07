@@ -32,3 +32,6 @@ nerves_hub_cli-*.tar
 # Ignore any nerves-hub certificates
 /nerves-hub
 /*.pem
+
+# Ignore escript binary
+nerves_hub

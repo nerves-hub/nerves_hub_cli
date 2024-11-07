@@ -1,8 +1,4 @@
-defmodule Mix.Tasks.NervesHub.Firmware do
-  use Mix.Task
-
-  @shortdoc "Manages firmware on NervesHub"
-
+defmodule NervesHubCLI.CLI.Firmware do
   @moduledoc """
   Manage Firmware on NervesHub
 
@@ -12,12 +8,14 @@ defmodule Mix.Tasks.NervesHub.Firmware do
   is optional. If it is not specified, NervesHub will locate the firmware
   based off the project settings.
 
-      mix nerves_hub.firmware publish [Optional: /path/to/app.firmware]
+      nerves_hub firmware publish [Optional: /path/to/app.firmware]
 
   ### Command-line options
 
     * `--product` - (Optional) The product name to publish the firmware to.
-      This defaults to the Mix Project config `:app` name.
+      This defaults to the NERVES_HUB_PRODUCT environment variable (if set) or
+      the global configuration via `nerves_hub config set product "product_name"`
+
     * `--deploy` - (Optional) The name of a deployment to update following
       firmware publish. This key can be passed multiple times to update
       multiple deployments.
@@ -26,19 +24,21 @@ defmodule Mix.Tasks.NervesHub.Firmware do
 
   ## list
 
-      mix nerves_hub.firmware list
+      nerves_hub firmware list
 
   ### Command-line options
 
     * `--product` - (Optional) The product name to publish the firmware to.
-      This defaults to the Mix Project config `:app` name.
+      This defaults to the NERVES_HUB_PRODUCT environment variable (if set) or
+      the global configuration via `nerves_hub config set product "product_name"`
+
 
   ## delete
 
   Firmware can only be deleted if it is not associated to any deployment.
   Call `list` to retrieve firmware UUIDs
 
-      mix nerves_hub.firmware delete [firmware_uuid]
+      nerves_hub firmware delete [firmware_uuid]
 
   ## sign
 
@@ -46,7 +46,7 @@ defmodule Mix.Tasks.NervesHub.Firmware do
   is optional. If it is not specified, NervesHub will locate the firmware
   based off the project settings.
 
-      mix nerves_hub.firmware sign [Optional: /path/to/app.firmware]
+      nerves_hub firmware sign [Optional: /path/to/app.firmware]
 
   ### Command-line options
 
@@ -54,9 +54,9 @@ defmodule Mix.Tasks.NervesHub.Firmware do
 
   """
 
-  import Mix.NervesHubCLI.Utils
+  import NervesHubCLI.CLI.Utils
   alias NervesHubCLI.Cmd
-  alias Mix.NervesHubCLI.Shell
+  alias NervesHubCLI.CLI.Shell
 
   @switches [
     org: :string,
@@ -67,10 +67,6 @@ defmodule Mix.Tasks.NervesHub.Firmware do
   ]
 
   def run(args) do
-    # compile the project in case we need CA certs from it
-    _ = Mix.Task.run("compile")
-    _ = Application.ensure_all_started(:nerves_hub_cli)
-
     {opts, args} = OptionParser.parse!(args, strict: @switches)
 
     show_api_endpoint()
@@ -103,12 +99,12 @@ defmodule Mix.Tasks.NervesHub.Firmware do
     Invalid arguments
 
     Usage:
-      mix nerves_hub.firmware list
-      mix nerves_hub.firmware publish
-      mix nerves_hub.firmware delete
-      mix nerves_hub.firmware sign
+      nerves_hub firmware list
+      nerves_hub firmware publish
+      nerves_hub firmware delete
+      nerves_hub firmware sign
 
-    Run `mix help nerves_hub.firmware` for more information.
+    Run `nerves_hub help firmware` for more information.
     """)
   end
 
@@ -235,7 +231,7 @@ defmodule Mix.Tasks.NervesHub.Firmware do
     Enum.each(deployments, fn deployment_name ->
       Shell.info("Deploying firmware to #{deployment_name}")
 
-      Mix.Tasks.NervesHub.Deployment.update(
+      NervesHubCLI.CLI.Deployment.update(
         deployment_name,
         "firmware",
         firmware["uuid"],

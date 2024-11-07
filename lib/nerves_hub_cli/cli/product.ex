@@ -1,0 +1,323 @@
+defmodule NervesHubCLI.CLI.Product do
+  import NervesHubCLI.CLI.Utils
+
+  alias NervesHubCLI.CLI.Shell
+
+  @moduledoc """
+  Manages your products.
+
+  ## create
+
+  Create a new NervesHub product. The shell will prompt for information about the
+  product. This information can be passed by specifying one or all of the command
+  line options.
+
+      nerves_hub product create
+
+  ### Command-line options
+
+    * `--name` - (Optional) The product name
+
+  ## list
+
+      nerves_hub product list
+
+  ## delete
+
+      nerves_hub product delete [product_name]
+
+  ## update
+
+  Update product metadata.
+
+  Call `list` to retrieve product names and metadata keys
+
+  ### Examples
+
+  Change product name
+
+      nerves_hub product update example name example_new
+
+  # Managing user roles
+
+  The following functions allow the management of user roles within your product.
+  Roles are a way of granting users a permission level so they may perform
+  actions for your product. The following is a list of valid roles in order of
+  highest role to lowest role:
+
+    * `admin`
+    * `delete`
+    * `write`
+    * `read`
+
+  NervesHub will validate all actions with your user role. If an action you are
+  trying to perform requires `write`, the user performing the action will be
+  required to have an org role of `write` or higher (`admin`, `delete`).
+
+  Managing user roles for your product will require that your user has the
+  product role of `admin`.
+
+  ## user list
+
+  List the users and their role for the product.
+
+      nerves_hub product user list PRODUCT_NAME
+
+  ## user add
+
+  Add an existing user to a product with a role.
+
+      nerves_hub product user add PRODUCT_NAME USERNAME ROLE
+
+  ## user update
+
+  Update an existing user for your product with a new role.
+
+      nerves_hub product user update PRODUCT_NAME USERNAME ROLE
+
+  ## user remove
+
+  Remove an existing user from having a role for your product.
+
+      nerves_hub product user remove PRODUCT_NAME USERNAME
+  """
+
+  @switches [
+    org: :string,
+    name: :string
+  ]
+
+  def run(args) do
+    {opts, args} = OptionParser.parse!(args, strict: @switches)
+
+    show_api_endpoint()
+    org = org(opts)
+
+    case args do
+      ["list"] ->
+        list(org)
+
+      ["create"] ->
+        create(org, opts)
+
+      ["delete", product_name] ->
+        delete(org, product_name)
+
+      ["update", product, key, value] ->
+        update(org, product, key, value)
+
+      ["user", "list", product] ->
+        user_list(org, product)
+
+      ["user", "add", product, username, role] ->
+        user_add(org, product, username, role)
+
+      ["user", "update", product, username, role] ->
+        user_update(org, product, username, role)
+
+      ["user", "remove", product, username] ->
+        user_remove(org, product, username)
+
+      _ ->
+        render_help()
+    end
+  end
+
+  @spec render_help() :: no_return()
+  def render_help() do
+    Shell.raise("""
+    Invalid arguments to `nerves_hub product`.
+
+    Usage:
+      nerves_hub product list
+      nerves_hub product create
+      nerves_hub product delete PRODUCT_NAME
+      nerves_hub product update PRODUCT_NAME KEY VALUE
+
+      nerves_hub product user list PRODUCT_NAME
+      nerves_hub product user add PRODUCT_NAME USERNAME ROLE
+      nerves_hub product user update PRODUCT_NAME USERNAME ROLE
+      nerves_hub product user remove PRODUCT_NAME USERNAME ROLE
+
+    Run `nerves_hub help product` for more information.
+    """)
+  end
+
+  def list(org) do
+    auth = Shell.request_auth()
+
+    case NervesHubCLI.API.Product.list(org, auth) do
+      {:ok, %{"data" => []}} ->
+        Shell.info("No products have been created.")
+
+      {:ok, %{"data" => products}} ->
+        Shell.info("")
+        Shell.info("Products:")
+
+        Enum.each(products, fn params ->
+          Shell.info("------------")
+
+          render_product(params)
+          |> String.trim_trailing()
+          |> Shell.info()
+        end)
+
+        Shell.info("")
+
+      error ->
+        Shell.render_error(error)
+    end
+  end
+
+  def create(org, _opts) do
+    default_name =
+      File.cwd!()
+      |> Path.split()
+      |> List.last()
+
+    name = Shell.prompt("Product name (default #{default_name}):") || default_name
+    name = to_string(name)
+
+    Shell.info("")
+    Shell.info("Creating product '#{name}'...")
+
+    auth = Shell.request_auth()
+
+    case NervesHubCLI.API.Product.create(org, name, auth) do
+      {:ok, %{"data" => %{} = _product}} ->
+        Shell.info("Product '#{name}' created.")
+
+      error ->
+        Shell.render_error(error)
+    end
+  end
+
+  def delete(org, product_name) do
+    if Shell.yes?("Delete product '#{product_name}'?") do
+      auth = Shell.request_auth()
+
+      case NervesHubCLI.API.Product.delete(org, product_name, auth) do
+        {:ok, ""} ->
+          Shell.info("Product deleted successfully.")
+
+        error ->
+          Shell.render_error(error)
+      end
+    end
+  end
+
+  def update(org, product, key, value) do
+    auth = Shell.request_auth()
+
+    case NervesHubCLI.API.Product.update(org, product, Map.put(%{}, key, value), auth) do
+      {:ok, %{"data" => product}} ->
+        Shell.info("")
+        Shell.info("Product updated:")
+
+        render_product(product)
+        |> String.trim_trailing()
+        |> Shell.info()
+
+        Shell.info("")
+
+      error ->
+        Shell.render_error(error)
+    end
+  end
+
+  def user_list(org, product) do
+    auth = Shell.request_auth()
+
+    case NervesHubCLI.API.ProductUser.list(org, product, auth) do
+      {:ok, %{"data" => users}} ->
+        render_users(users)
+
+      error ->
+        Shell.info("Failed to list product users \nreason: #{inspect(error)}")
+    end
+  end
+
+  def user_add(org, product, username, role, auth \\ nil) do
+    Shell.info("")
+    Shell.info("Adding user '#{username}' to product '#{product}' with role '#{role}'...")
+
+    auth = auth || Shell.request_auth()
+
+    case NervesHubCLI.API.ProductUser.add(org, product, username, String.to_atom(role), auth) do
+      {:ok, %{"data" => %{} = _product_user}} ->
+        Shell.info("User '#{username}' was added.")
+
+      error ->
+        Shell.render_error(error)
+    end
+  end
+
+  def user_update(org, product, username, role) do
+    Shell.info("")
+    Shell.info("Updating user '#{username}' in product '#{product}' to role '#{role}'...")
+
+    auth = Shell.request_auth()
+
+    case NervesHubCLI.API.ProductUser.update(org, product, username, String.to_atom(role), auth) do
+      {:ok, %{"data" => %{} = _product_user}} ->
+        Shell.info("User '#{username}' was updated.")
+
+      {:error, %{"errors" => %{"detail" => "Not Found"}}} ->
+        Shell.error("""
+        '#{username}' is not a user for product '#{product}'.
+        """)
+
+        if Shell.yes?("Would you like to add them?") do
+          user_add(org, product, username, role, auth)
+        end
+
+      error ->
+        Shell.render_error(error)
+    end
+  end
+
+  def user_remove(org, product, username) do
+    Shell.info("")
+    Shell.info("Removing user '#{username}' from product '#{product}'...")
+
+    auth = Shell.request_auth()
+
+    case NervesHubCLI.API.ProductUser.remove(org, product, username, auth) do
+      {:ok, ""} ->
+        Shell.info("User '#{username}' was removed.")
+
+      {:error, %{"errors" => %{"detail" => "Not Found"}}} ->
+        Shell.error("""
+        '#{username}' is not a user for the product '#{product}'
+        """)
+
+      error ->
+        IO.inspect(error)
+        Shell.render_error(error)
+    end
+  end
+
+  defp render_product(params) do
+    """
+      name: #{params["name"]}
+    """
+  end
+
+  defp render_users(users) when is_list(users) do
+    Shell.info("\nProduct users:")
+
+    Enum.each(users, fn params ->
+      Shell.info("------------")
+
+      render_user(params)
+    end)
+
+    Shell.info("------------")
+    Shell.info("")
+  end
+
+  defp render_user(params) do
+    Shell.info("  username:   #{params["username"]}")
+    Shell.info("  role:       #{params["role"]}")
+  end
+end
