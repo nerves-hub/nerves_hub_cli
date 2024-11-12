@@ -8,13 +8,14 @@ defmodule NervesHubCLI.MixProject do
     [
       app: :nerves_hub_cli,
       version: @version,
-      elixir: "~> 1.6",
+      elixir: "~> 1.13",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       docs: docs(),
       description: description(),
       package: package(),
       dialyzer: dialyzer(),
+      escript: escript(),
       preferred_cli_env: %{
         docs: :docs,
         "hex.publish": :docs,
@@ -65,6 +66,13 @@ defmodule NervesHubCLI.MixProject do
       skip_undefined_reference_warnings_on: ["CHANGELOG.md"],
       source_ref: "v#{@version}",
       source_url: @source_url
+    ]
+  end
+
+  def escript do
+    [
+      main_module: NervesHubCLI.CLI,
+      name: :nerves_hub
     ]
   end
 end
