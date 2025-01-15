@@ -2,6 +2,22 @@
 
 ## unreleased
 
+## v2.1.0
+
+This updates NervesHubCLI to be installable as an escript which can be
+installed with `mix escript.install hex nerves_hub_cli`. See the README
+for more information on installation and usage.
+
+Mix tasks are still available for use, but will soon be deprecated. To
+support escript, `mix nerves_hub.firmware` removed the ability to infer
+a firmware location for `sign` and `publish` commands. Instead, firmware
+path must be included as an argument:
+
+```sh
+mix nerves_hub.firmware publish /path/to/firmware
+mix nerves_hub.firmware sign /path/to/firmware
+```
+
 ## v2.0.1
 
 * Updated
