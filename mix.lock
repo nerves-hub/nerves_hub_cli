@@ -1,5 +1,5 @@
 %{
-  "castore": {:hex, :castore, "1.0.11", "4bbd584741601eb658007339ea730b082cc61f3554cf2e8f39bf693a11b49073", [:mix], [], "hexpm", "e03990b4db988df56262852f20de0f659871c35154691427a5047f4967a16a62"},
+  "castore": {:hex, :castore, "1.0.12", "053f0e32700cbec356280c0e835df425a3be4bc1e0627b714330ad9d0f05497f", [:mix], [], "hexpm", "3dca286b2186055ba0c9449b4e95b97bf1b57b47c1f2644555879e659960c224"},
   "dialyxir": {:hex, :dialyxir, "1.4.5", "ca1571ac18e0f88d4ab245f0b60fa31ff1b12cbae2b11bd25d207f865e8ae78a", [:mix], [{:erlex, ">= 0.2.7", [hex: :erlex, repo: "hexpm", optional: false]}], "hexpm", "b0fb08bb8107c750db5c0b324fa2df5ceaa0f9307690ee3c1f6ba5b9eb5d35c3"},
   "earmark_parser": {:hex, :earmark_parser, "1.4.43", "34b2f401fe473080e39ff2b90feb8ddfeef7639f8ee0bbf71bb41911831d77c5", [:mix], [], "hexpm", "970a3cd19503f5e8e527a190662be2cee5d98eed1ff72ed9b3d1a3d466692de8"},
   "erlex": {:hex, :erlex, "0.2.7", "810e8725f96ab74d17aac676e748627a07bc87eb950d2b83acd29dc047a30595", [:mix], [], "hexpm", "3ed95f79d1a844c3f6bf0cea61e0d5612a42ce56da9c03f01df538685365efb0"},
