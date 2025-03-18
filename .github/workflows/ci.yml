@@ -1,0 +1,136 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+  workflow_dispatch:
+  pull_request:
+
+jobs:
+  compile-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+
+    permissions:
+      contents: read
+      packages: read
+
+    env:
+      MIX_ENV: "prod"
+
+    steps:
+      - name: Install system deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y p7zip-full p7zip-rar xz-utils wget
+
+      - name: Install Zig
+        uses: mlugg/setup-zig@v1
+        with:
+          version: 0.14.0
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          version-file: .tool-versions
+          version-type: strict
+
+      - name: Cache deps
+        id: cache-deps
+        uses: actions/cache@v4
+        env:
+          cache-name: cache-elixir-deps
+        with:
+          path: deps
+          key: ${{ runner.os }}-mix-${{ env.cache-name }}-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-${{ env.cache-name }}-
+
+      - name: Cache compiled build
+        id: cache-build
+        uses: actions/cache@v4
+        env:
+          cache-name: cache-compiled-build
+        with:
+          path: _build
+          key: ${{ runner.os }}-mix-${{ env.cache-name }}-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-${{ env.cache-name }}-
+            ${{ runner.os }}-mix-
+
+      - name: Clean to rule out incremental build as a source of flakiness
+        if: github.run_attempt != '1'
+        run: |
+          mix deps.clean --all
+          mix clean
+          rm -rf _build
+        shell: sh
+
+      - name: Install dependencies
+        run: mix deps.get
+
+      - name: Compiles without warnings
+        run: mix compile --warnings-as-errors
+
+      - name: Check Formatting
+        run: mix format --check-formatted
+
+      - name: Check for unused dependencies
+        run: mix deps.unlock --unused
+
+      - name: Build binaries
+        run: mix release
+
+      - name: Rename files
+        run: |
+          mkdir -p release_files/macos-aarch64
+          mkdir -p release_files/macos-x86_64
+          mkdir -p release_files/linux-x86_64
+          mkdir -p release_files/windows-x86_64
+          cp burrito_out/nerves_hub_cli_macos-aarch64 release_files/macos-aarch64/nhcli
+          cp burrito_out/nerves_hub_cli_macos-x86_64 release_files/macos-x86_64/nhcli
+          cp burrito_out/nerves_hub_cli_linux-x86_64 release_files/linux-x86_64/nhcli
+          cp burrito_out/nerves_hub_cli_windows-x86_64.exe release_files/windows-x86_64/nhcli.exe
+
+      - name: "Upload binaries : MacOS aarch_64"
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-arm64
+          path: release_files/macos-aarch64/nhcli
+
+      - name: "Upload binaries : MacOS x86_64"
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-x86_64
+          path: release_files/macos-x86_64/nhcli
+
+      - name: "Upload binaries : Linux x86_64"
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-x86_64
+          path: release_files/linux-x86_64/nhcli
+
+      - name: "Upload binaries : Windows x86_64"
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-x86_64
+          path: release_files/windows-x86_64/nhcli.exe
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            release_files/macos-aarch64/nhcli
+            release_files/macos-x86_64/nhcli
+            release_files/linux-x86_64/nhcli
+            release_files/windows-x86_64/nhcli.exe
+
+      - name: Clean release
+        run: rm -rf _build/prod/rel

@@ -23,10 +23,10 @@ defmodule NervesHubCLI.MixProject do
         steps: [:assemble, &Burrito.wrap/1],
         burrito: [
           targets: [
-            macos_aarch64: [os: :darwin, cpu: :aarch64],
-            macos_x86_64: [os: :darwin, cpu: :x86_64],
-            linux: [os: :linux, cpu: :x86_64],
-            windows: [os: :windows, cpu: :x86_64]
+            "macos-aarch64": [os: :darwin, cpu: :aarch64],
+            "macos-x86_64": [os: :darwin, cpu: :x86_64],
+            "linux-x86_64": [os: :linux, cpu: :x86_64],
+            "windows-x86_64": [os: :windows, cpu: :x86_64]
           ],
           no_clean: false,
           debug: Mix.env() != :prod
