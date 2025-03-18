@@ -5,34 +5,23 @@ defmodule NervesHubCLI.API do
   @file_chunk 4096
   @progress_steps 50
 
-  @castore_certs CAStore.file_path()
-                 |> File.read!()
-                 |> X509.from_pem()
-                 |> Enum.map(&X509.Certificate.to_der/1)
-
   @type role :: :admin | :delete | :write | :read
 
-  use Tesla
-  adapter(Tesla.Adapter.Mint)
-  if Mix.env() == :dev, do: plug(Tesla.Middleware.Logger)
-  plug(Tesla.Middleware.FollowRedirects, max_redirects: 5)
-  plug(Tesla.Middleware.JSON)
+  @adapter Tesla.Adapter.Mint
 
   @doc """
   Return the URL that's used for connecting to NervesHub
   """
   @spec endpoint() :: String.t()
   def endpoint() do
-    opts = Application.get_all_env(:nerves_hub_cli)
-
-    if server = System.get_env("NERVES_HUB_URI") || opts[:uri] || NervesHubCLI.Config.get(:uri) do
+    if server = System.get_env("NERVES_HUB_URI") || NervesHubCLI.Config.get(:uri) do
       URI.parse(server)
       |> URI.append_path("/api")
       |> URI.to_string()
     else
-      scheme = System.get_env("NERVES_HUB_SCHEME") || opts[:scheme]
-      host = System.get_env("NERVES_HUB_HOST") || opts[:host]
-      port = get_env_as_integer("NERVES_HUB_PORT") || opts[:port]
+      scheme = System.get_env("NERVES_HUB_SCHEME")
+      host = System.get_env("NERVES_HUB_HOST")
+      port = get_env_as_integer("NERVES_HUB_PORT")
 
       %URI{scheme: scheme, host: host, port: port, path: "/api"} |> URI.to_string()
     end
@@ -40,7 +29,7 @@ defmodule NervesHubCLI.API do
 
   def request(:get, path, params) when is_map(params) do
     client()
-    |> request(
+    |> Tesla.request(
       method: :get,
       url: URI.encode(path),
       query: Map.to_list(params),
@@ -51,7 +40,12 @@ defmodule NervesHubCLI.API do
 
   def request(verb, path, params, auth \\ %{}) do
     client(auth)
-    |> request(method: verb, url: URI.encode(path), body: params, opts: [adapter: opts()])
+    |> Tesla.request(
+      method: verb,
+      url: URI.encode(path),
+      body: params,
+      opts: [adapter: opts()]
+    )
     |> resp()
   end
 
@@ -80,7 +74,12 @@ defmodule NervesHubCLI.API do
           end).()
 
     client(auth)
-    |> request(method: verb, url: URI.encode(path), body: mp, opts: [adapter: opts()])
+    |> Tesla.request(
+      method: verb,
+      url: URI.encode(path),
+      body: mp,
+      opts: [adapter: opts()]
+    )
     |> resp()
   end
 
@@ -93,12 +92,18 @@ defmodule NervesHubCLI.API do
   defp resp({:error, _reason} = err), do: err
 
   defp client(auth \\ %{}) do
-    middleware = [
-      {Tesla.Middleware.BaseUrl, endpoint()},
-      {Tesla.Middleware.Headers, headers(auth)}
-    ]
+    Tesla.client(middleware(auth), @adapter)
+  end
 
-    Tesla.client(middleware)
+  defp middleware(auth) do
+    [
+      {Tesla.Middleware.BaseUrl, endpoint()},
+      {Tesla.Middleware.Headers, headers(auth)},
+      {Tesla.Middleware.FollowRedirects, max_redirects: 5},
+      Tesla.Middleware.JSON,
+      if(System.get_env("VERBOSE") == "true", do: Tesla.Middleware.Logger, else: nil)
+    ]
+    |> Enum.filter(& &1)
   end
 
   defp headers(%{token: "nh" <> _ = token}) do
@@ -108,12 +113,13 @@ defmodule NervesHubCLI.API do
   defp headers(_), do: []
 
   defp opts() do
-    ssl_options = [
-      verify: :verify_peer,
-      server_name_indication: server_name_indication(),
-      cacerts: ca_certs(),
-      customize_hostname_check: [match_fun: :public_key.pkix_verify_hostname_match_fun(:https)]
-    ]
+    ssl_options =
+      [
+        verify: :verify_peer,
+        server_name_indication: server_name_indication(),
+        cacerts: ca_certs(),
+        customize_hostname_check: [match_fun: :public_key.pkix_verify_hostname_match_fun(:https)]
+      ]
 
     [
       ssl_options: ssl_options,
@@ -124,8 +130,10 @@ defmodule NervesHubCLI.API do
   end
 
   defp server_name_indication do
-    Application.get_env(:nerves_hub_cli, :server_name_indication) ||
-      Application.get_env(:nerves_hub_cli, :host) |> to_charlist()
+    server = System.get_env("NERVES_HUB_URI") || NervesHubCLI.Config.get(:uri)
+
+    URI.parse(server).host
+    |> to_charlist()
   end
 
   def put_progress(size, max) do
@@ -148,28 +156,8 @@ defmodule NervesHubCLI.API do
     System.get_env("NERVES_LOG_DISABLE_PROGRESS_BAR") == nil
   end
 
-  @doc "Returns a list of der encoded CA certs"
-  @spec ca_certs() :: [binary()]
-  def ca_certs do
-    ssl = Application.get_env(:nerves_hub_cli, :ssl, [])
-    ca_store = Application.get_env(:nerves_hub_cli, :ca_store)
-
-    cond do
-      # prefer explicit SSL setting if available
-      is_list(ssl[:cacerts]) ->
-        ssl[:cacerts]
-
-      is_atom(ca_store) and !is_nil(ca_store) ->
-        ca_store.ca_certs()
-
-      # TODO: These conditions can probably be removed after successfully testing for some time
-      # CAStore certs are saved in the application binary at compile time (not sure if this is okay, security-wise)
-      not Enum.empty?(@castore_certs) and length(@castore_certs) > 0 ->
-        @castore_certs
-
-      true ->
-        :public_key.cacerts_get()
-    end
+  defp ca_certs do
+    :public_key.cacerts_get()
   end
 
   defp get_env_as_integer(str) do

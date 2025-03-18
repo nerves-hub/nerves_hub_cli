@@ -13,6 +13,10 @@
 # Ignore .fetch files in case you like to edit your project deps locally.
 /.fetch
 
+/burrito_out
+
+/.elixir_ls
+
 # If the VM crashes, it generates a dump, let's ignore it too.
 erl_crash.dump
 
@@ -32,6 +36,3 @@ nerves_hub_cli-*.tar
 # Ignore any nerves-hub certificates
 /nerves-hub
 /*.pem
-
-# Ignore escript binary
-nerves_hub

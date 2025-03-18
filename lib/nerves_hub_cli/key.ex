@@ -1,5 +1,6 @@
 defmodule NervesHubCLI.Key do
-  alias NervesHubCLI.{Crypto, Cmd}
+  alias NervesHubCLI.Cmd
+  alias NervesHubCLI.Crypto
 
   @gen_file "fwup-key"
 

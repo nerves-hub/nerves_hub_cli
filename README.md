@@ -1,7 +1,6 @@
 # NervesHubCLI
 
 [![CircleCI](https://circleci.com/gh/nerves-hub/nerves_hub_cli.svg?style=svg)](https://circleci.com/gh/nerves-hub/nerves_hub_cli)
-[![Hex version](https://img.shields.io/hexpm/v/nerves_hub_cli.svg "Hex version")](https://hex.pm/packages/nerves_hub_cli)
 
 **Important**
 
@@ -9,8 +8,8 @@ This is the 2.0 development branch of NervesHubCLI. If you have been using Nerve
 
 ---
 
-`NervesHubCLI` is an [escript](https://hexdocs.pm/mix/main/Mix.Tasks.Escript.Build.html) 
-CLI tool for working with [NervesHub](https://www.nerves-hub.org) from the command-line. 
+`NervesHubCLI` is an [escript](https://hexdocs.pm/mix/main/Mix.Tasks.Escript.Build.html)
+CLI tool for working with [NervesHub](https://www.nerves-hub.org) from the command-line.
 Features include:
 
 * Uploading firmware to NervesHub
@@ -20,7 +19,7 @@ Features include:
 * Manage firmware deployments
 * Manage user and organization accounts
 
-The recommended way of using the CLI is to run `mix escript.install hex nerves_hub_cli`. 
+The recommended way of using the CLI is to run `mix escript.install hex nerves_hub_cli`.
 Note that you may have to add the binary installation directory to your PATH
 
 Once installed, you can access available commands and documentation from the

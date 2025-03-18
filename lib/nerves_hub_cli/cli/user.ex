@@ -1,8 +1,8 @@
 defmodule NervesHubCLI.CLI.User do
   import NervesHubCLI.CLI.Utils
 
-  alias NervesHubCLI.{User, Config}
   alias NervesHubCLI.CLI.Shell
+  alias NervesHubCLI.Config
 
   @moduledoc """
   Manage your NervesHub user account.
@@ -115,7 +115,8 @@ defmodule NervesHubCLI.CLI.User do
 
   def deauth() do
     if Shell.yes?("Deauthorize the current user?") do
-      User.deauth()
+      _ = NervesHubCLI.Config.delete(:token)
+      :ok
     end
   end
 end

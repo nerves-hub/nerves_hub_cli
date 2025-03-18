@@ -1,7 +1,8 @@
 defmodule NervesHubCLI.CLI.Device do
   import NervesHubCLI.CLI.Utils
 
-  alias NervesHubCLI.CLI.{Shell, Bulk}
+  alias NervesHubCLI.CLI.Bulk
+  alias NervesHubCLI.CLI.Shell
 
   alias NimbleCSV.RFC4180, as: CSV
 
