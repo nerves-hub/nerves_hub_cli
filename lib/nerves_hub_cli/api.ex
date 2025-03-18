@@ -61,7 +61,7 @@ defmodule NervesHubCLI.API do
 
     stream =
       file
-      |> File.stream!([], @file_chunk)
+      |> File.stream!(@file_chunk, [])
       |> Stream.each(fn chunk ->
         Agent.update(pid, fn sent ->
           size = sent + byte_size(chunk)
