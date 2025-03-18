@@ -200,10 +200,4 @@ defmodule NervesHubCLI.CLI.Utils do
         :ok
     end
   end
-
-  defp config() do
-    raise RuntimeError, "this shouldn't be used!!"
-
-    Mix.Project.config()
-  end
 end
