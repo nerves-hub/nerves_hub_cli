@@ -403,6 +403,8 @@ defmodule NervesHubCLI.CLI.Device do
       |> OptionParser.to_argv()
 
     System.cmd("mix", ["burn" | burn_args])
+
+    :ok
   end
 
   @spec cert_list(String.t(), String.t(), String.t()) :: :ok
