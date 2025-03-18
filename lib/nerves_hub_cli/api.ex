@@ -164,7 +164,7 @@ defmodule NervesHubCLI.API do
 
       # TODO: These conditions can probably be removed after successfully testing for some time
       # CAStore certs are saved in the application binary at compile time (not sure if this is okay, security-wise)
-      not is_nil(@castore_certs) and length(@castore_certs) > 0 ->
+      not Enum.empty?(@castore_certs) and length(@castore_certs) > 0 ->
         @castore_certs
 
       true ->
