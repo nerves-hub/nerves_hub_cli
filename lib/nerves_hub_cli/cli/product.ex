@@ -175,8 +175,7 @@ defmodule NervesHubCLI.CLI.Product do
       |> Path.split()
       |> List.last()
 
-    name = Shell.prompt("Product name (default #{default_name}):") || default_name
-    name = to_string(name)
+    name = Shell.prompt("Product name (default #{default_name}):", default_name)
 
     Shell.info("")
     Shell.info("Creating product '#{name}'...")

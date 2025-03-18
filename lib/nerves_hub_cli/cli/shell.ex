@@ -27,6 +27,14 @@ defmodule NervesHubCLI.CLI.Shell do
     |> String.trim()
   end
 
+  @spec prompt(String.t(), String.t()) :: String.t()
+  def prompt(message, default) do
+    case prompt(message) do
+      "" -> default
+      value -> value
+    end
+  end
+
   @spec yes?(String.t()) :: boolean()
   def yes?(message) do
     System.get_env("NERVES_HUB_NON_INTERACTIVE") ||
