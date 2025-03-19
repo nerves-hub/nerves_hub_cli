@@ -1,21 +1,17 @@
-name: Build
+name: Release
 
 on:
   push:
-    branches:
-      - main
     tags:
       - "v*"
-  workflow_dispatch:
-  pull_request:
 
 jobs:
-  compile-and-test:
+  build-and-release:
     runs-on: ubuntu-latest
     timeout-minutes: 14
 
     permissions:
-      contents: read
+      contents: write
       packages: read
 
     env:
@@ -87,7 +83,7 @@ jobs:
       - name: Build binaries
         run: mix release
 
-      - name: Rename files
+      - name: Rename and move files, and then create tarballs
         run: |
           mkdir -p release_files/macos-aarch64
           mkdir -p release_files/macos-x86_64
@@ -97,30 +93,19 @@ jobs:
           cp burrito_out/nerves_hub_cli_macos-x86_64 release_files/macos-x86_64/nhcli
           cp burrito_out/nerves_hub_cli_linux-x86_64 release_files/linux-x86_64/nhcli
           cp burrito_out/nerves_hub_cli_windows-x86_64.exe release_files/windows-x86_64/nhcli.exe
+          tar -cJf macos-aarch64.tar.xz release_files/macos-aarch64/nhcli
+          tar -cJf macos-x86_64.tar.xz release_files/macos-x86_64/nhcli
+          tar -cJf linux-x86_64.tar.xz release_files/linux-x86_64/nhcli
+          tar -cJf windows-x86_64.tar.xz release_files/windows-x86_64/nhcli.exe
 
-      - name: "Upload binaries : MacOS aarch_64"
-        uses: actions/upload-artifact@v4
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          name: macos-arm64
-          path: release_files/macos-aarch64/nhcli
-
-      - name: "Upload binaries : MacOS x86_64"
-        uses: actions/upload-artifact@v4
-        with:
-          name: macos-x86_64
-          path: release_files/macos-x86_64/nhcli
-
-      - name: "Upload binaries : Linux x86_64"
-        uses: actions/upload-artifact@v4
-        with:
-          name: linux-x86_64
-          path: release_files/linux-x86_64/nhcli
-
-      - name: "Upload binaries : Windows x86_64"
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-x86_64
-          path: release_files/windows-x86_64/nhcli.exe
-
-      - name: Clean release
-        run: rm -rf _build/prod/rel
+          prerelease: contains(github.ref, '-rc')
+          generate_release_notes: true
+          files: |
+            macos-aarch64.tar.xz
+            macos-x86_64.tar.xz
+            linux-x86_64.tar.xz
+            windows-x86_64.tar.xz
