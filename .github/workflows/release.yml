@@ -21,7 +21,7 @@ jobs:
       - name: Install system deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y p7zip-full p7zip-rar xz-utils wget
+          sudo apt-get install -y p7zip-full p7zip-rar xz-utils wget awk
 
       - name: Install Zig
         uses: mlugg/setup-zig@v1
@@ -98,14 +98,32 @@ jobs:
           tar -cJf linux-x86_64.tar.xz release_files/linux-x86_64/nhcli
           tar -cJf windows-x86_64.tar.xz release_files/windows-x86_64/nhcli.exe
 
+      - name: Extract tag version
+        id: extract-version
+        # Strip a string prefix from the git tag name:
+        run: |
+          echo "tag-name=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Release notes
+        run: |
+          {
+            echo 'notes<<EOF'
+            awk '/## ${{ steps.extract-version.outputs.tag-name }}/{flag=1; next} /##/{flag=0} flag' CHANGELOG.md
+            echo EOF
+          } >> $GITHUB_OUTPUT
+        id: extract-release-notes
+
       - name: Release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           prerelease: ${{ contains(github.ref, '-rc') }}
-          generate_release_notes: true
+          body: ${{ steps.extract-release-notes.outputs.notes }}
           files: |
             macos-aarch64.tar.xz
             macos-x86_64.tar.xz
             linux-x86_64.tar.xz
             windows-x86_64.tar.xz
+
+      - name: Clean release
+        run: rm -rf _build/prod/rel
