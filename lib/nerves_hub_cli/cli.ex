@@ -1,11 +1,11 @@
 defmodule NervesHubCLI.CLI do
   alias NervesHubCLI.CLI.Shell
 
-  @valid_commands ~w"ca_certificate deployment device firmware key org product user config help"
+  @valid_commands ~w"cacert deployment device firmware key org product user config help"
 
   def main([command | args]) when command in @valid_commands do
     case command do
-      "ca_certificate" -> NervesHubCLI.CLI.CaCertificate.run(args)
+      "cacert" -> NervesHubCLI.CLI.CACert.run(args)
       "deployment" -> NervesHubCLI.CLI.Deployment.run(args)
       "device" -> NervesHubCLI.CLI.Device.run(args)
       "firmware" -> NervesHubCLI.CLI.Firmware.run(args)
@@ -19,45 +19,51 @@ defmodule NervesHubCLI.CLI do
   end
 
   def main(args) do
+    Shell.header("NervesHub CLI")
+
+    description_or_error(args)
+
     """
+    ## Usage:
 
-    #{header(args)}
+        #{executable()} <command> <subcommand> [flags]
 
-    Usage:
+    ## Commands:
 
-      #{executable()} <command> <subcommand> [flags]
-
-    Commands:
-      user:           Manage the signed in NervesHub user
-      config:         Manage the global configuration for NervesHub CLI
-      certificate:    Manage CA certificates for validating device connections
-      deployment:     Manage deployments on NervesHub
-      device:         Manage devices on NervesHub
-      firmware:       Manage firmware on NervesHub
-      key:            Manage firmware signing keys
-      org:            Manage a NervesHub organization
-      product:        Manage products on NervesHub
-      help:           Prints this message
+    - `user`           - Sign in or out of NervesHub
+    - `config`         - Global configuration for the CLI
+    - `cacert`         - Organization CA Certificates
+    - `deployment`     - Product deployments
+    - `device`         - Manage devices
+    - `firmware`       - Device firmware (publish, list, delete)
+    - `key`            - Firmware signing keys
+    - `org`            - Organization management
+    - `product`        - Product management
+    - `help`           - Prints this message
 
     To get more information about a specific command, run:
 
-      #{executable()} help <command>
+        #{executable()} help <command>
 
     Examples:
-      $ #{executable()} user auth
-      $ #{executable()} device list
-      $ #{executable()} key create --name dev_key
+
+        $ #{executable()} user auth
+        $ #{executable()} device list
+        $ #{executable()} key create --name dev_key
     """
-    |> Shell.info()
+    |> Shell.markdown()
   end
 
-  defp header(args) do
+  defp description_or_error(args) do
     if Enum.empty?(args) do
-      "This is NervesHub CLI, the command line app to manage NervesHub resources."
+      Shell.info("""
+      Welcome to the NervesHub CLI, the best way to manage your organizations,
+      products, and devices via the command line.
+      """)
     else
-      "Command not recognized: #{executable()} #{Enum.join(args, " ")}"
+      Shell.error("Command not recognized: #{executable()} #{Enum.join(args, " ")}\n")
     end
   end
 
-  defp executable, do: "nhcli"
+  def executable, do: "nhcli"
 end

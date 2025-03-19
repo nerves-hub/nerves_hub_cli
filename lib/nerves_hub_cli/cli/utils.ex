@@ -47,7 +47,8 @@ defmodule NervesHubCLI.CLI.Utils do
       Shell.raise("NervesHub URI was not set")
     end
 
-    Shell.info("NervesHub server: #{uri.host}:#{uri.port}")
+    port = if(uri.port == 443, do: "", else: ":#{uri.port}")
+    Shell.info([:cyan, "NervesHub Host: ", :reset, "#{uri.host}#{port}"])
   end
 
   @spec org(keyword()) :: String.t()
@@ -77,7 +78,7 @@ defmodule NervesHubCLI.CLI.Utils do
             nhcli config set org "org_name"
         """)
 
-    Shell.info("NervesHub organization: #{org}")
+    Shell.info([:cyan, "Organization:   ", :reset, "#{org}"])
     org
   end
 

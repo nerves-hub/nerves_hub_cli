@@ -8,30 +8,53 @@ defmodule NervesHubCLI.CLI.User do
   Manage your NervesHub user account.
 
   Users are authenticated to the NervesHub API with a user access token
-  presented in each request. This token can be manually supplied with the
-  `NERVES_HUB_TOKEN` or `NH_TOKEN` environment variables. Or you can use
-  `nerves_hub user auth` to authenticate with the web, generate a token,
-  and save it locally in your config in `$NERVES_HUB_HOME`
+  presented in each request.
+
+  You can use `nhcli user auth` to authenticate with NervesHub,
+  saving the token locally in your local config found in `$NERVES_HUB_HOME`
+
+  Or this token can be manually supplied with the `NERVES_HUB_TOKEN` environment
+  variable. This approach is recommended when using CLI in CI/CD systems.
+
+  # Available commands
+
+    - `whoami`  display which account is logged in
+    - `auth`    authenticate with NervesHub
+    - `logout`  logout from NervesHub
 
   ## whoami
 
-      nhcli user whoami
+  Check which account is currently logged in.
+
+  This command is useful for verifying that you are logged in to the correct account.
+
+  Usage:
+
+      $ nhcli user whoami
 
   ## auth
 
-      nhcli user auth
+  Authenticate with NervesHub.
 
-  ### Command-line options
+  Usage:
 
-    * `--note` - (Optional) Note for the access token that is generated. Defaults to `hostname`
+      $ nhcli user auth
+
+  Options:
+
+    * `--note` - Note for the access token that is generated. Defaults to `hostname`
 
   ## logout
 
-      nhcli user logout
+  Logout from the currently authenticated account.
 
-  ### Command-line options
+  Usage:
 
-    * `--path` - (Optional) A local location for exporting certificate.
+      $ nhcli user logout
+
+  Options:
+
+    * `--path` - A local path where the certificate should be exported to.
   """
 
   @switches [
@@ -43,8 +66,6 @@ defmodule NervesHubCLI.CLI.User do
   def run(args) do
     {opts, args} = OptionParser.parse!(args, strict: @switches)
 
-    show_api_endpoint()
-
     case args do
       ["whoami"] ->
         whoami()
@@ -53,32 +74,31 @@ defmodule NervesHubCLI.CLI.User do
         auth(opts)
 
       ["logout"] ->
-        deauth()
+        logout()
 
-      ["deauth"] ->
-        deauth()
-
-      _ ->
+      ["help"] ->
         render_help()
+
+      [] ->
+        render_help()
+
+      unrecognized_command ->
+        render_error(unrecognized_command)
     end
+  end
+
+  @spec render_error(unrecognized_command :: [String.t()]) :: no_return()
+  def render_error(unrecognized_command) do
+    Shell.unrecognized_command(unrecognized_command, "user")
   end
 
   @spec render_help() :: no_return()
   def render_help() do
-    Shell.raise("""
-    Invalid arguments to `nhcli user`.
-
-    Usage:
-
-      nhcli user whoami
-      nhcli user auth
-      nhcli user deauth
-
-    Run `nhcli help user` for more information.
-    """)
+    Shell.module_help("User", @moduledoc)
   end
 
   def whoami do
+    show_api_endpoint()
     auth = Shell.request_auth()
 
     case NervesHubCLI.API.User.me(auth) do
@@ -86,8 +106,9 @@ defmodule NervesHubCLI.CLI.User do
         %{"name" => name, "email" => email} = data
 
         Shell.info("""
-        name:  #{name}
-        email: #{email}
+
+        Name:  #{name}
+        Email: #{email}
         """)
 
       error ->
@@ -96,7 +117,9 @@ defmodule NervesHubCLI.CLI.User do
   end
 
   def auth(opts) do
-    username_or_email = Shell.prompt("Username or email address:") |> String.trim()
+    show_api_endpoint()
+
+    username_or_email = Shell.prompt("\nUsername or email address:") |> String.trim()
     password = Shell.password_get("NervesHub password:") |> String.trim()
     Shell.info("Authenticating...")
 
@@ -116,8 +139,11 @@ defmodule NervesHubCLI.CLI.User do
     end
   end
 
-  def deauth() do
-    if Shell.yes?("Deauthorize the current user?") do
+  def logout() do
+    # this isn't needed, but it looks better to show it
+    show_api_endpoint()
+
+    if Shell.yes?("\nAre you sure you want to logout?") do
       _ = NervesHubCLI.Config.delete(:token)
       :ok
     end

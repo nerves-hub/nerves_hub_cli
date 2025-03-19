@@ -6,6 +6,35 @@ defmodule NervesHubCLI.CLI.Shell do
     IO.puts(IO.ANSI.format(message))
   end
 
+  def header(message) do
+    IO.ANSI.Docs.print_headings([message])
+  end
+
+  def module_help(module, help_text) do
+    header(module)
+    markdown(help_text)
+  end
+
+  def unrecognized_command(command, module) do
+    error("Unrecognized command: `#{module} #{Enum.join(command, " ")}`\n")
+
+    markdown("""
+    Use `help` to get information on the available commands:
+
+        $ nhcli #{module} help
+    """)
+  end
+
+  # taken from https://github.com/elixir-lang/elixir/blob/v1.17.2/lib/elixir/lib/io/ansi/docs.ex
+  def markdown(text) do
+    IO.ANSI.Docs.print(text, "text/markdown", [])
+  end
+
+  def command_example(header, command_example) do
+    IO.puts(IO.ANSI.format([:green, :bright, "#{header}\n"]))
+    IO.puts(IO.ANSI.format([:blue, :bright, "$ nhcli #{command_example}\n"]))
+  end
+
   @spec error(IO.ANSI.ansidata()) :: :ok
   def error(message) do
     IO.puts(:stderr, IO.ANSI.format(red(message)))
@@ -112,10 +141,10 @@ defmodule NervesHubCLI.CLI.Shell do
   end
 
   def do_render_error({:error, %{"status" => "forbidden"}}) do
-    error("Invalid credentials")
-    error("Your user token has either expired or has been revoked.")
-    error("Please authenticate again:")
-    error("  nhcli user auth")
+    error("Invalid credentials\n")
+    info("Your user token has either expired or has been revoked.")
+    info("Please authenticate again:\n")
+    info("  nhcli user auth")
   end
 
   def do_render_error({:error, %{"status" => reason}}) do

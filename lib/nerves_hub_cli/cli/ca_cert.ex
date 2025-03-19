@@ -1,27 +1,56 @@
-defmodule NervesHubCLI.CLI.CaCertificate do
+defmodule NervesHubCLI.CLI.CACert do
   import NervesHubCLI.CLI.Utils
-  alias NervesHubCLI.CLI.Shell
 
   @moduledoc """
   Manages CA certificates for validating device connections
 
-  When a device connects for the first time to NervesHub, it
-  is possible to automatically register it if its certificate
-  has been signed by a trusted CA certificate. This set of
-  utilities helps manage the trusted CA certificates.
+  When a device connects for the first time to NervesHub, it's possible to automatically
+  register it if its certificate has been signed by a trusted CA certificate.
 
-  ## list
+  This set of utilities helps manage the trusted CA certificates.
 
-      nhcli ca_certificate list
+  # Available commands
 
-  ## register
+    - `list`         List CA Certificates
+    - `register`     Register a CA Certificate with an Organization
+    - `unregister`   Remove a CA Certificate from an Organization
 
-      nhcli ca_certificate register CERT_PATH
 
-  ## unregister
+  ## List CA Certificates
 
-      nhcli ca_certificate unregister CERT_SERIAL
+  List all CA certificates registered with an organization.
+
+  Usage:
+
+      $ nhcli cacert list
+
+
+  ## Register a CA Certificate
+
+  Register a CA Certificate with an Organization.
+
+  Required arguments:
+
+    - `CERT_PATH` - path to the CA certificate file
+
+  Usage:
+
+      $ nhcli cacert register CERT_PATH
+
+
+  ## Unregister a CA Certificate
+
+  Remove a CA Certificate from an Organization.
+
+  Required arguments:
+
+  - `CERT_SERIAL` : The serial of the CA certificate
+
+  Usage:
+      $ nhcli cacert unregister CERT_SERIAL
   """
+
+  alias NervesHubCLI.CLI.Shell
 
   @switches [
     org: :string,
@@ -31,53 +60,54 @@ defmodule NervesHubCLI.CLI.CaCertificate do
   def run(args) do
     {opts, args} = OptionParser.parse!(args, strict: @switches)
 
-    show_api_endpoint()
-    org = org(opts)
-
     case args do
       ["list"] ->
-        list(org)
+        list(opts)
 
       ["register", certificate_path] ->
-        register(certificate_path, org, opts)
+        register(certificate_path, opts)
 
       ["unregister", serial] ->
-        unregister(serial, org)
+        unregister(serial, opts)
 
-      _ ->
+      ["help"] ->
         render_help()
+
+      [] ->
+        render_help()
+
+      unrecognized_command ->
+        render_error(unrecognized_command)
     end
+  end
+
+  @spec render_error(unrecognized_command :: [String.t()]) :: no_return()
+  def render_error(unrecognized_command) do
+    Shell.unrecognized_command(unrecognized_command, "cacert")
   end
 
   @spec render_help() :: no_return()
   def render_help() do
-    Shell.raise("""
-    Invalid arguments to `nhcli ca_certificate`.
-
-    Usage:
-      nhcli ca_certificate list
-      nhcli ca_certificate register CERT_PATH
-      nhcli ca_certificate unregister CERT_SERIAL
-
-    Run `nhcli help ca_certificate` for more information.
-    """)
+    Shell.module_help("CA Certificates", @moduledoc)
   end
 
-  def list(org) do
-    auth = Shell.request_auth()
+  def list(opts) do
+    {auth, org} = common_api_requirements(opts)
 
     case NervesHubCLI.API.CACertificate.list(org, auth) do
       {:ok, %{"data" => ca_certificates}} ->
         render_ca_certificates(ca_certificates)
 
       error ->
-        Shell.info("Failed to list CA certificates \nreason: #{inspect(error)}")
+        Shell.error("\nFailed to list CA certificates")
+        Shell.info("\nReason: #{inspect(error)}")
     end
   end
 
-  def register(cert_path, org, opts \\ []) do
+  def register(cert_path, opts \\ []) do
+    {auth, org} = common_api_requirements(opts)
+
     with {:ok, cert_pem} <- File.read(cert_path),
-         auth <- Shell.request_auth(),
          description <- Keyword.get(opts, :description),
          {:ok, %{"data" => %{"serial" => serial}}} <-
            NervesHubCLI.API.CACertificate.create(org, cert_pem, auth, description) do
@@ -88,9 +118,10 @@ defmodule NervesHubCLI.CLI.CaCertificate do
     end
   end
 
-  def unregister(serial, org) do
+  def unregister(serial, opts) do
+    {auth, org} = common_api_requirements(opts)
+
     if Shell.yes?("Unregister CA certificate '#{serial}'?") do
-      auth = Shell.request_auth()
       Shell.info("Unregistering CA certificate '#{serial}'")
 
       serial = if String.contains?(serial, ":"), do: serial_from_hex(serial), else: serial
@@ -105,8 +136,15 @@ defmodule NervesHubCLI.CLI.CaCertificate do
     end
   end
 
+  defp common_api_requirements(opts) do
+    show_api_endpoint()
+    auth = Shell.request_auth()
+    org = org(opts)
+    {auth, org}
+  end
+
   defp render_ca_certificates([]) do
-    Shell.info("No CA certificates have been registered on NervesHub.")
+    Shell.info([:blue, "\nNo CA Certificates registered.\n"])
   end
 
   defp render_ca_certificates(ca_certificates) when is_list(ca_certificates) do
