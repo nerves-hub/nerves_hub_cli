@@ -6,5 +6,13 @@ defmodule NervesHubCLI.EntryPoint do
     |> NervesHubCLI.CLI.main()
 
     System.halt(0)
+  rescue
+    error ->
+      IO.puts("An error occurred: #{inspect(error)}")
+      System.halt(1)
+  catch
+    error ->
+      IO.puts("An error was caught: #{inspect(error)}")
+      System.halt(1)
   end
 end

@@ -1,7 +1,7 @@
 defmodule NervesHubCLI.CLI do
   alias NervesHubCLI.CLI.Shell
 
-  @valid_commands ~w"ca_certificate deployment device firmware key org product user help config"
+  @valid_commands ~w"ca_certificate deployment device firmware key org product user config"
 
   def main([command | args]) when command in @valid_commands do
     case command do
@@ -19,6 +19,7 @@ defmodule NervesHubCLI.CLI do
 
   def main(_args) do
     """
+
     This is NervesHub CLI, the command line app to manage NervesHub resources.
 
     Usage:
@@ -37,6 +38,7 @@ defmodule NervesHubCLI.CLI do
       help:           Prints this message
 
     To get more information about a specific command, run:
+
     #{executable()} help <command>
 
     Examples:
