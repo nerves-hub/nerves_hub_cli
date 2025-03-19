@@ -93,10 +93,10 @@ jobs:
           cp burrito_out/nerves_hub_cli_macos-x86_64 release_files/macos-x86_64/nhcli
           cp burrito_out/nerves_hub_cli_linux-x86_64 release_files/linux-x86_64/nhcli
           cp burrito_out/nerves_hub_cli_windows-x86_64.exe release_files/windows-x86_64/nhcli.exe
-          tar -cJf macos-aarch64.tar.xz release_files/macos-aarch64/nhcli
-          tar -cJf macos-x86_64.tar.xz release_files/macos-x86_64/nhcli
-          tar -cJf linux-x86_64.tar.xz release_files/linux-x86_64/nhcli
-          tar -cJf windows-x86_64.tar.xz release_files/windows-x86_64/nhcli.exe
+          cd release_files/macos-aarch64 && tar -cJf macos-aarch64.tar.xz nhcli && cd ../..
+          cd release_files/macos-x86_64 && tar -cJf macos-x86_64.tar.xz nhcli && cd ../..
+          cd release_files/linux-x86_64 && tar -cJf linux-x86_64.tar.xz nhcli && cd ../..
+          cd release_files/windows-x86_64 && tar -cJf windows-x86_64.tar.xz nhcli.exe && cd ../..
 
       - name: Extract tag version
         id: extract-version
@@ -120,10 +120,10 @@ jobs:
           prerelease: ${{ contains(github.ref, '-rc') }}
           body: ${{ steps.extract-release-notes.outputs.notes }}
           files: |
-            macos-aarch64.tar.xz
-            macos-x86_64.tar.xz
-            linux-x86_64.tar.xz
-            windows-x86_64.tar.xz
+            release_files/macos-aarch64/macos-aarch64.tar.xz
+            release_files/macos-x86_64/macos-x86_64.tar.xz
+            release_files/linux-x86_64/linux-x86_64.tar.xz
+            release_files/windows-x86_64/windows-x86_64.tar.xz
 
       - name: Clean release
         run: rm -rf _build/prod/rel
