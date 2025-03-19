@@ -1,6 +1,14 @@
 # Changelog
 
-## unreleased
+## v3.0.0.rc.1 (pre-release)
+
+This is a pre-release version of NervesHubCLI.
+
+The major change in v3 is the move to using [Burrito](https://github.com/burrito-elixir/burrito)
+for building binaries for MacOS (x86_64 and aarch64), Linux (x86_64), and Windows (x86_64).
+
+This new packaging of the NervesHubCLI simplifies the installation process, and provides a more
+consistent experience across platforms and projects.
 
 ## v2.1.0
 

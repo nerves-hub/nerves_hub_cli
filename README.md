@@ -1,15 +1,8 @@
 # NervesHubCLI
 
-[![CircleCI](https://circleci.com/gh/nerves-hub/nerves_hub_cli.svg?style=svg)](https://circleci.com/gh/nerves-hub/nerves_hub_cli)
+The recommended CLI tool for working with [NervesHub](https://www.nerves-hub.org) and
+[NervesCloud](https://nervescloud.com) from the command-line
 
-**Important**
-
-This is the 2.0 development branch of NervesHubCLI. If you have been using NervesHub prior to around April, 2023 and are not following 2.0 development, see the `maint-v0` branch. The `maint-v0` branch is being used in production. 2.0 development is in progress, and we don't have guides or good documentation yet. If you use the 2.0 development branch, we don't expect breaking changes, but please bear with us as we complete the 2.0 release.
-
----
-
-`NervesHubCLI` is an [escript](https://hexdocs.pm/mix/main/Mix.Tasks.Escript.Build.html)
-CLI tool for working with [NervesHub](https://www.nerves-hub.org) from the command-line.
 Features include:
 
 * Uploading firmware to NervesHub
@@ -19,18 +12,22 @@ Features include:
 * Manage firmware deployments
 * Manage user and organization accounts
 
-The recommended way of using the CLI is to run `mix escript.install hex nerves_hub_cli`.
-Note that you may have to add the binary installation directory to your PATH
 
-Once installed, you can access available commands and documentation from the
-command-line using `nerves_hub help`:
+## Installation
 
-```sh
-$ nerves_hub help
-$ nerves_hub help device
+The CLI is a compiled binary that can be downloaded from the [releases page](https://github.com/nerves-hub/nerves_hub_cli/releases).
+
+Once downloaded, you can run the binary directly, although we recommend adding it to your PATH.
+
+You can access available commands and documentation from the command-line using `nhcli help`. eg.
+
+```
+$ nhcli help
+$ nhcli help device
 ```
 
-To uninstall, run `mix escript.uninstall nerves_hub_cli`.
+To uninstall, just delete the binary.
+
 
 ## Environment variables
 
@@ -50,8 +47,6 @@ automation. The following variables are available:
 * `NERVES_HUB_SCHEME` - NervesHub API endpoint scheme
 * `NERVES_HUB_NON_INTERACTIVE` - Force all yes/no user interaction to be yes
 
-For more information on using the CLI, see the
-[`nerves_hub_link`](https://github.com/nerves-hub/nerves_hub_link) documentation.
 
 ## Connecting to NervesHub
 
@@ -60,12 +55,18 @@ NervesHubCLI must be configured to connect to your chosen NervesHub host.
 To configure the NervesHub URI, run:
 
 ```sh
-$ nerves_hub config set uri "https://my.nerveshub.instance/"
+$ nhcli config set uri "https://my.nerveshub.instance/"
+```
+
+and for [NervesCloud](https://nervescloud.com):
+
+```sh
+$ nhcli config set uri "https://manage.nervescloud.com/"
 ```
 
 Finally, you need to authorize your account on the NervesHub instance by running:
 
 ```sh
-$ nerves_hub user whoami
-$ nerves_hub user auth
+$ nhcli user whoami
+$ nhcli user auth
 ```
