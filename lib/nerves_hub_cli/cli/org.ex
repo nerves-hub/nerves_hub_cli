@@ -29,25 +29,25 @@ defmodule NervesHubCLI.CLI.Org do
 
   List the users and their role for the organization.
 
-      nerves_hub user list
+      nhcli user list
 
   ## user add
 
   Add an existing user to an org with a role.
 
-      nerves_hub user add USERNAME ROLE
+      nhcli user add USERNAME ROLE
 
   ## user update
 
   Update an existing user in your org with a new role.
 
-      nerves_hub user update USERNAME ROLE
+      nhcli user update USERNAME ROLE
 
   ## user remove
 
   Remove an existing user from having a role in your organization.
 
-      nerves_hub user remove USERNAME
+      nhcli user remove USERNAME
   """
 
   @switches [
@@ -81,15 +81,15 @@ defmodule NervesHubCLI.CLI.Org do
   @spec render_help() :: no_return()
   def render_help() do
     Shell.raise("""
-    Invalid arguments to `nerves_hub user`.
+    Invalid arguments to `nhcli user`.
 
     Usage:
-      nerves_hub user list
-      nerves_hub user add USERNAME ROLE
-      nerves_hub user update USERNAME ROLE
-      nerves_hub user remove USERNAME
+      nhcli user list
+      nhcli user add USERNAME ROLE
+      nhcli user update USERNAME ROLE
+      nhcli user remove USERNAME
 
-    Run `nerves_hub help org` for more information.
+    Run `nhcli help org` for more information.
     """)
   end
 

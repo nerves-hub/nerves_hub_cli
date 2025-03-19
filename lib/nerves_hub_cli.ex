@@ -1,7 +1,5 @@
 defmodule NervesHubCLI do
-  @moduledoc """
-  TBD
-  """
+  @moduledoc false
 
   @typedoc """
   Firmware update public keys can be referred to by their contents.
@@ -16,8 +14,7 @@ defmodule NervesHubCLI do
 
   @spec home_dir() :: String.t()
   def home_dir() do
-    override_dir =
-      Application.get_env(:nerves_hub_cli, :home_dir) || System.get_env("NERVES_HUB_HOME")
+    override_dir = System.get_env("NERVES_HUB_HOME")
 
     if override_dir == nil or override_dir == "" do
       Path.expand("~/.nerves-hub")
