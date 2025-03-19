@@ -1,6 +1,6 @@
 # Changelog
 
-## v3.0.0.rc.1 (pre-release)
+## v3.0.0-rc.1
 
 This is a pre-release version of NervesHubCLI.
 
