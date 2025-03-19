@@ -19,10 +19,10 @@ defmodule NervesHubCLI.CLI do
 
   def main(_args) do
     """
-    This is nerves_hub CLI, the command line app to manage NervesHub resources.
+    This is NervesHub CLI, the command line app to manage NervesHub resources.
 
     Usage:
-      #{executable()} <command> <subcommand> [flags] 
+      #{executable()} <command> <subcommand> [flags]
 
     Commands:
       user:           Manage the signed in NervesHub user
@@ -47,5 +47,5 @@ defmodule NervesHubCLI.CLI do
     |> Shell.info()
   end
 
-  defp executable, do: "nerves_hub"
+  defp executable, do: "nhcli"
 end

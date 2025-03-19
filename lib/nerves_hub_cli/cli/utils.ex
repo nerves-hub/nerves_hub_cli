@@ -27,8 +27,8 @@ defmodule NervesHubCLI.CLI.Utils do
               export NERVES_HUB_PRODUCT=product_name
 
             Via global configuration (this applies to all projects)
-            
-              nerves_hub config set product "product_name"
+
+              nhcli config set product "product_name"
         """)
 
     Shell.info("NervesHub product: #{product}")
@@ -61,6 +61,7 @@ defmodule NervesHubCLI.CLI.Utils do
       Keyword.get(opts, :org) || System.get_env("NERVES_HUB_ORG") || Config.get(:org) ||
         Shell.raise("""
         Cound not determine organization
+
         Organization is set in the following order
 
           From the command line
@@ -71,14 +72,9 @@ defmodule NervesHubCLI.CLI.Utils do
 
             export NERVES_HUB_ORG=org_name
 
-          By setting it in the project's config.exs
+          Via global configuration (this applies to all projects)
 
-            config :nerves_hub_cli,
-              org: "org_name"
-
-          Your user org from the NervesHub config
-
-            NervesHubCLI.Config.get(:org)
+            nhcli config set org "org_name"
         """)
 
     Shell.info("NervesHub organization: #{org}")

@@ -15,19 +15,19 @@ defmodule NervesHubCLI.CLI.User do
 
   ## whoami
 
-      nerves_hub user whoami
+      nhcli user whoami
 
   ## auth
 
-      nerves_hub user auth
+      nhcli user auth
 
   ### Command-line options
 
     * `--note` - (Optional) Note for the access token that is generated. Defaults to `hostname`
 
-  ## deauth
+  ## logout
 
-      nerves_hub user deauth
+      nhcli user logout
 
   ### Command-line options
 
@@ -52,6 +52,9 @@ defmodule NervesHubCLI.CLI.User do
       ["auth"] ->
         auth(opts)
 
+      ["logout"] ->
+        deauth()
+
       ["deauth"] ->
         deauth()
 
@@ -63,15 +66,15 @@ defmodule NervesHubCLI.CLI.User do
   @spec render_help() :: no_return()
   def render_help() do
     Shell.raise("""
-    Invalid arguments to `nerves_hub user`.
+    Invalid arguments to `nhcli user`.
 
     Usage:
 
-      nerves_hub user whoami
-      nerves_hub user auth
-      nerves_hub user deauth
+      nhcli user whoami
+      nhcli user auth
+      nhcli user deauth
 
-    Run `nerves_hub help user` for more information.
+    Run `nhcli help user` for more information.
     """)
   end
 

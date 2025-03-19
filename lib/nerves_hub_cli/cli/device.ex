@@ -15,7 +15,7 @@ defmodule NervesHubCLI.CLI.Device do
   device. This information can be passed by specifying one or all of the command
   line options.
 
-      nerves_hub device create
+      nhcli device create
 
   ### Command-line options
 
@@ -31,7 +31,7 @@ defmodule NervesHubCLI.CLI.Device do
 
   Create many NervesHub devices via a csv file.
 
-      nerves_hub device bulk_create
+      nhcli device bulk_create
 
   The CSV file should be formated as:
   ```csv
@@ -64,7 +64,7 @@ defmodule NervesHubCLI.CLI.Device do
 
   List all devices
 
-      nerves_hub device list
+      nhcli device list
 
   ### Command-line options
 
@@ -81,13 +81,13 @@ defmodule NervesHubCLI.CLI.Device do
 
   Update device tags
 
-      nerves_hub device update 1234 tags dev qa
+      nhcli device update 1234 tags dev qa
 
   ## delete
 
   Delete a device on NervesHub
 
-      nerves_hub device delete DEVICE_IDENTIFIER
+      nhcli device delete DEVICE_IDENTIFIER
 
   ## burn
 
@@ -97,7 +97,7 @@ defmodule NervesHubCLI.CLI.Device do
   generate a new cert pair for the device. The command will end with calling
   mix firmware.burn.
 
-      nerves_hub device burn DEVICE_IDENTIFIER
+      nhcli device burn DEVICE_IDENTIFIER
 
   ### Command-line options
 
@@ -114,7 +114,7 @@ defmodule NervesHubCLI.CLI.Device do
 
   List all certificates for a device.
 
-      nerves_hub device cert list DEVICE_IDENTIFIER
+      nhcli device cert list DEVICE_IDENTIFIER
 
   ### Command-line options
 
@@ -127,7 +127,7 @@ defmodule NervesHubCLI.CLI.Device do
   Creates a new device certificate pair. The certificates will be placed in the
   current working directory if no path is specified.
 
-      nerves_hub device cert create DEVICE_IDENTIFIER
+      nhcli device cert create DEVICE_IDENTIFIER
 
   You must take on the role of the CA by providing your own signer certificate
   and key and using the `--signer-cert` and `--signer-key` options.
@@ -148,7 +148,7 @@ defmodule NervesHubCLI.CLI.Device do
 
   Import a trusted certificate for authenticating a device.
 
-      nerves_hub device cert import DEVICE_IDENTIFIER CERT_PATH
+      nhcli device cert import DEVICE_IDENTIFIER CERT_PATH
 
   ### Command-line options
 
@@ -225,19 +225,19 @@ defmodule NervesHubCLI.CLI.Device do
   @spec render_help() :: no_return()
   def render_help() do
     Shell.raise("""
-    Invalid arguments to `nerves_hub device`.
+    Invalid arguments to `nhcli device`.
 
     Usage:
-      nerves_hub device list
-      nerves_hub device create
-      nerves_hub device update KEY VALUE
-      nerves_hub device delete DEVICE_IDENTIFIER
-      nerves_hub device burn DEVICE_IDENTIFIER
-      nerves_hub device cert list DEVICE_IDENTIFIER
-      nerves_hub device cert create DEVICE_IDENTIFIER
-      nerves_hub device cert import DEVICE_IDENTIFIER CERT_PATH
+      nhcli device list
+      nhcli device create
+      nhcli device update KEY VALUE
+      nhcli device delete DEVICE_IDENTIFIER
+      nhcli device burn DEVICE_IDENTIFIER
+      nhcli device cert list DEVICE_IDENTIFIER
+      nhcli device cert create DEVICE_IDENTIFIER
+      nhcli device cert import DEVICE_IDENTIFIER CERT_PATH
 
-    Run `nerves_hub help device` for more information.
+    Run `nhcli help device` for more information.
     """)
   end
 
@@ -288,7 +288,7 @@ defmodule NervesHubCLI.CLI.Device do
         key, create and register a certificate and key pair manually by
         running:
 
-          nerves_hub device cert create #{identifier} --signer-key key.pem --signer-cert cert.pem
+          nhcli device cert create #{identifier} --signer-key key.pem --signer-cert cert.pem
         """)
 
       error ->
@@ -379,7 +379,7 @@ defmodule NervesHubCLI.CLI.Device do
 
             To generate certificates for #{identifier}
 
-              nerves_hub device cert create #{identifier}
+              nhcli device cert create #{identifier}
 
           """)
         end

@@ -35,16 +35,16 @@ defmodule NervesHubCLI.CLI.Config do
   @spec render_help() :: no_return()
   def render_help() do
     Shell.raise("""
-    Invalid arguments to `nerves_hub config`.
+    Invalid arguments to `nhcli config`.
 
     Usage:
-      nerves_hub config set KEY VALUE
-      nerves_hub device get KEY
-      nerves_hub config clear KEY
+      nhcli config set KEY VALUE
+      nhcli device get KEY
+      nhcli config clear KEY
 
     Valid keys are: #{Enum.join(@valid_config_keys, ", ")}
 
-    Run `nerves_hub help config` for more information.
+    Run `nhcli help config` for more information.
     """)
   end
 end

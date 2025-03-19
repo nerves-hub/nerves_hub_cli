@@ -115,7 +115,7 @@ defmodule NervesHubCLI.CLI.Shell do
     error("Invalid credentials")
     error("Your user token has either expired or has been revoked.")
     error("Please authenticate again:")
-    error("  mix nerves_hub.user auth")
+    error("  nhcli user auth")
   end
 
   def do_render_error({:error, %{"status" => reason}}) do

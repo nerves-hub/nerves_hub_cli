@@ -12,15 +12,15 @@ defmodule NervesHubCLI.CLI.CaCertificate do
 
   ## list
 
-      nerves_hub ca_certificate list
+      nhcli ca_certificate list
 
   ## register
 
-      nerves_hub ca_certificate register CERT_PATH
+      nhcli ca_certificate register CERT_PATH
 
   ## unregister
 
-      nerves_hub ca_certificate unregister CERT_SERIAL
+      nhcli ca_certificate unregister CERT_SERIAL
   """
 
   @switches [
@@ -52,14 +52,14 @@ defmodule NervesHubCLI.CLI.CaCertificate do
   @spec render_help() :: no_return()
   def render_help() do
     Shell.raise("""
-    Invalid arguments to `nerves_hub ca_certificate`.
+    Invalid arguments to `nhcli ca_certificate`.
 
     Usage:
-      nerves_hub ca_certificate list
-      nerves_hub ca_certificate register CERT_PATH
-      nerves_hub ca_certificate unregister CERT_SERIAL
+      nhcli ca_certificate list
+      nhcli ca_certificate register CERT_PATH
+      nhcli ca_certificate unregister CERT_SERIAL
 
-    Run `nerves_hub help ca_certificate` for more information.
+    Run `nhcli help ca_certificate` for more information.
     """)
   end
 
