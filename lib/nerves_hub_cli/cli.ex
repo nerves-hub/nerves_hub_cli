@@ -1,7 +1,7 @@
 defmodule NervesHubCLI.CLI do
   alias NervesHubCLI.CLI.Shell
 
-  @valid_commands ~w"ca_certificate deployment device firmware key org product user config"
+  @valid_commands ~w"ca_certificate deployment device firmware key org product user config help"
 
   def main([command | args]) when command in @valid_commands do
     case command do
@@ -14,15 +14,17 @@ defmodule NervesHubCLI.CLI do
       "product" -> NervesHubCLI.CLI.Product.run(args)
       "user" -> NervesHubCLI.CLI.User.run(args)
       "config" -> NervesHubCLI.CLI.Config.run(args)
+      "help" -> main([])
     end
   end
 
-  def main(_args) do
+  def main(args) do
     """
 
-    This is NervesHub CLI, the command line app to manage NervesHub resources.
+    #{header(args)}
 
     Usage:
+
       #{executable()} <command> <subcommand> [flags]
 
     Commands:
@@ -39,7 +41,7 @@ defmodule NervesHubCLI.CLI do
 
     To get more information about a specific command, run:
 
-    #{executable()} help <command>
+      #{executable()} help <command>
 
     Examples:
       $ #{executable()} user auth
@@ -47,6 +49,14 @@ defmodule NervesHubCLI.CLI do
       $ #{executable()} key create --name dev_key
     """
     |> Shell.info()
+  end
+
+  defp header(args) do
+    if Enum.empty?(args) do
+      "This is NervesHub CLI, the command line app to manage NervesHub resources."
+    else
+      "Command not recognized: #{executable()} #{Enum.join(args, " ")}"
+    end
   end
 
   defp executable, do: "nhcli"
