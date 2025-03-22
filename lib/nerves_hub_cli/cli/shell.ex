@@ -21,7 +21,7 @@ defmodule NervesHubCLI.CLI.Shell do
     markdown("""
     Use `help` to get information on the available commands:
 
-        $ nhcli #{module} help
+        $ nh #{module} help
     """)
   end
 
@@ -32,7 +32,7 @@ defmodule NervesHubCLI.CLI.Shell do
 
   def command_example(header, command_example) do
     IO.puts(IO.ANSI.format([:green, :bright, "#{header}\n"]))
-    IO.puts(IO.ANSI.format([:blue, :bright, "$ nhcli #{command_example}\n"]))
+    IO.puts(IO.ANSI.format([:blue, :bright, "$ nh #{command_example}\n"]))
   end
 
   @spec error(IO.ANSI.ansidata()) :: :ok
@@ -144,7 +144,7 @@ defmodule NervesHubCLI.CLI.Shell do
     error("Invalid credentials\n")
     info("Your user token has either expired or has been revoked.")
     info("Please authenticate again:\n")
-    info("  nhcli user auth")
+    info("  nh user auth")
   end
 
   def do_render_error({:error, %{"status" => reason}}) do

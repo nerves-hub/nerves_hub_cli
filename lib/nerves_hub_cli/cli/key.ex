@@ -30,7 +30,7 @@ defmodule NervesHubCLI.CLI.Key do
 
   List the keys known to NervesHub
 
-      nhcli key list
+      nh key list
 
   ### Command-line options
 
@@ -41,7 +41,7 @@ defmodule NervesHubCLI.CLI.Key do
   Create a new firmware signing key pair with the specified name and register
   the public key with NervesHub
 
-      nhcli key create NAME
+      nh key create NAME
 
   ### Command-line options
 
@@ -51,7 +51,7 @@ defmodule NervesHubCLI.CLI.Key do
 
   Delete a signing key locally and on NervesHub
 
-      nhcli key delete NAME
+      nh key delete NAME
 
   ### Command-line options
 
@@ -62,7 +62,7 @@ defmodule NervesHubCLI.CLI.Key do
 
   Import an existing key locally and on NervesHub
 
-      nhcli key import NAME PUBLIC_KEY_FILE PRIVATE_KEY_FILE
+      nh key import NAME PUBLIC_KEY_FILE PRIVATE_KEY_FILE
 
   ### Command-line options
 
@@ -72,7 +72,7 @@ defmodule NervesHubCLI.CLI.Key do
 
   Export a signing key to a tar.gz archive.
 
-      nhcli key export NAME
+      nh key export NAME
 
   ### Command-line options
 
@@ -115,16 +115,16 @@ defmodule NervesHubCLI.CLI.Key do
   @spec render_help() :: no_return()
   def render_help() do
     Shell.raise("""
-    Invalid arguments to `nhcli key`.
+    Invalid arguments to `nh key`.
 
     Usage:
-      nhcli key list
-      nhcli key create NAME
-      nhcli key delete NAME
-      nhcli key import NAME PUBLIC_KEY_FILE PRIVATE_KEY_FILE
-      nhcli key export NAME
+      nh key list
+      nh key create NAME
+      nh key delete NAME
+      nh key import NAME PUBLIC_KEY_FILE PRIVATE_KEY_FILE
+      nh key export NAME
 
-    Run `nhcli help key` for more information.
+    Run `nh help key` for more information.
     """)
   end
 
@@ -160,7 +160,7 @@ defmodule NervesHubCLI.CLI.Key do
       The key '#{name}' already exists.
 
       Please choose a different name or delete by
-      running `nhcli key delete #{name} [--local]`
+      running `nh key delete #{name} [--local]`
       """)
     else
       if Keyword.get(opts, :local, false) do

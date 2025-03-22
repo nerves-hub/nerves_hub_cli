@@ -12,7 +12,7 @@ defmodule NervesHubCLI.CLI.Product do
   product. This information can be passed by specifying one or all of the command
   line options.
 
-      nhcli product create
+      nh product create
 
   ### Command-line options
 
@@ -20,11 +20,11 @@ defmodule NervesHubCLI.CLI.Product do
 
   ## list
 
-      nhcli product list
+      nh product list
 
   ## delete
 
-      nhcli product delete [product_name]
+      nh product delete [product_name]
 
   ## update
 
@@ -36,7 +36,7 @@ defmodule NervesHubCLI.CLI.Product do
 
   Change product name
 
-      nhcli product update example name example_new
+      nh product update example name example_new
 
   # Managing user roles
 
@@ -61,25 +61,25 @@ defmodule NervesHubCLI.CLI.Product do
 
   List the users and their role for the product.
 
-      nhcli product user list PRODUCT_NAME
+      nh product user list PRODUCT_NAME
 
   ## user add
 
   Add an existing user to a product with a role.
 
-      nhcli product user add PRODUCT_NAME USERNAME ROLE
+      nh product user add PRODUCT_NAME USERNAME ROLE
 
   ## user update
 
   Update an existing user for your product with a new role.
 
-      nhcli product user update PRODUCT_NAME USERNAME ROLE
+      nh product user update PRODUCT_NAME USERNAME ROLE
 
   ## user remove
 
   Remove an existing user from having a role for your product.
 
-      nhcli product user remove PRODUCT_NAME USERNAME
+      nh product user remove PRODUCT_NAME USERNAME
   """
 
   @switches [
@@ -126,20 +126,20 @@ defmodule NervesHubCLI.CLI.Product do
   @spec render_help() :: no_return()
   def render_help() do
     Shell.raise("""
-    Invalid arguments to `nhcli product`.
+    Invalid arguments to `nh product`.
 
     Usage:
-      nhcli product list
-      nhcli product create
-      nhcli product delete PRODUCT_NAME
-      nhcli product update PRODUCT_NAME KEY VALUE
+      nh product list
+      nh product create
+      nh product delete PRODUCT_NAME
+      nh product update PRODUCT_NAME KEY VALUE
 
-      nhcli product user list PRODUCT_NAME
-      nhcli product user add PRODUCT_NAME USERNAME ROLE
-      nhcli product user update PRODUCT_NAME USERNAME ROLE
-      nhcli product user remove PRODUCT_NAME USERNAME ROLE
+      nh product user list PRODUCT_NAME
+      nh product user add PRODUCT_NAME USERNAME ROLE
+      nh product user update PRODUCT_NAME USERNAME ROLE
+      nh product user remove PRODUCT_NAME USERNAME ROLE
 
-    Run `nhcli help product` for more information.
+    Run `nh help product` for more information.
     """)
   end
 

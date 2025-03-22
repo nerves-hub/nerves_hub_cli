@@ -10,7 +10,7 @@ defmodule NervesHubCLI.CLI.User do
   Users are authenticated to the NervesHub API with a user access token
   presented in each request.
 
-  You can use `nhcli user auth` to authenticate with NervesHub,
+  You can use `nh user auth` to authenticate with NervesHub,
   saving the token locally in your local config found in `$NERVES_HUB_HOME`
 
   Or this token can be manually supplied with the `NERVES_HUB_TOKEN` environment
@@ -30,7 +30,7 @@ defmodule NervesHubCLI.CLI.User do
 
   Usage:
 
-      $ nhcli user whoami
+      $ nh user whoami
 
   ## auth
 
@@ -38,7 +38,7 @@ defmodule NervesHubCLI.CLI.User do
 
   Usage:
 
-      $ nhcli user auth
+      $ nh user auth
 
   Options:
 
@@ -50,7 +50,7 @@ defmodule NervesHubCLI.CLI.User do
 
   Usage:
 
-      $ nhcli user logout
+      $ nh user logout
 
   Options:
 

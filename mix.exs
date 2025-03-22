@@ -19,7 +19,7 @@ defmodule NervesHubCLI.MixProject do
 
   def releases do
     [
-      nerves_hub_cli: [
+      nh: [
         steps: [:assemble, &Burrito.wrap/1],
         burrito: [
           targets: [

@@ -65,5 +65,5 @@ defmodule NervesHubCLI.CLI do
     end
   end
 
-  def executable, do: "nhcli"
+  def executable, do: "nh"
 end

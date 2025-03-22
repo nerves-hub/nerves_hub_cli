@@ -4,7 +4,7 @@ defmodule NervesHubCLI.CLI.Deployment do
 
   ## list
 
-      nhcli deployment list
+      nh deployment list
 
   ### Command-line options
 
@@ -16,7 +16,7 @@ defmodule NervesHubCLI.CLI.Deployment do
 
   Create a new deployment
 
-      nhcli deployment create
+      nh deployment create
 
   ### Command-line options
 
@@ -35,15 +35,15 @@ defmodule NervesHubCLI.CLI.Deployment do
 
   Update active firmware version
 
-      nhcli deployment update dev firmware fd53d87c-99ca-5770-5540-edb5058ced5b
+      nh deployment update dev firmware fd53d87c-99ca-5770-5540-edb5058ced5b
 
   Activate / Deactivate a deployment
 
-      nhcli deployment update dev state on
+      nh deployment update dev state on
 
   General usage:
 
-      nhcli deployment update [deployment_name] [key] [value]
+      nh deployment update [deployment_name] [key] [value]
 
   """
 
@@ -85,14 +85,14 @@ defmodule NervesHubCLI.CLI.Deployment do
   @spec render_help() :: no_return()
   def render_help() do
     Shell.raise("""
-    Invalid arguments to `nhcli deployment`.
+    Invalid arguments to `nh deployment`.
 
     Usage:
-      nhcli deployment list
-      nhcli deployment create
-      nhcli deployment update DEPLOYMENT_NAME KEY VALUE
+      nh deployment list
+      nh deployment create
+      nh deployment update DEPLOYMENT_NAME KEY VALUE
 
-    Run `nhcli help deployment` for more information.
+    Run `nh help deployment` for more information.
     """)
   end
 
@@ -149,7 +149,7 @@ defmodule NervesHubCLI.CLI.Deployment do
 
         This deployment is not on by default. To turn it on, run:
 
-        nhcli deployment update #{name} state on
+        nh deployment update #{name} state on
         """)
 
       error ->
@@ -163,7 +163,7 @@ defmodule NervesHubCLI.CLI.Deployment do
 
       #{IO.ANSI.yellow()}warning: #{IO.ANSI.default_color()}Using #{IO.ANSI.yellow()}is_active#{IO.ANSI.default_color()} is deprecated. Please change your request to use #{IO.ANSI.cyan()}state#{IO.ANSI.default_color()} instead ¬
 
-      #{IO.ANSI.cyan()}  nhcli deployment update #{deployment} state (on|off)#{IO.ANSI.default_color()}
+      #{IO.ANSI.cyan()}  nh deployment update #{deployment} state (on|off)#{IO.ANSI.default_color()}
       """)
     end
 

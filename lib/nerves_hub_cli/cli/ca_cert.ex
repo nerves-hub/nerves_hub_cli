@@ -22,7 +22,7 @@ defmodule NervesHubCLI.CLI.CACert do
 
   Usage:
 
-      $ nhcli cacert list
+      $ nh cacert list
 
 
   ## Register a CA Certificate
@@ -35,7 +35,7 @@ defmodule NervesHubCLI.CLI.CACert do
 
   Usage:
 
-      $ nhcli cacert register CERT_PATH
+      $ nh cacert register CERT_PATH
 
 
   ## Unregister a CA Certificate
@@ -47,7 +47,7 @@ defmodule NervesHubCLI.CLI.CACert do
   - `CERT_SERIAL` : The serial of the CA certificate
 
   Usage:
-      $ nhcli cacert unregister CERT_SERIAL
+      $ nh cacert unregister CERT_SERIAL
   """
 
   alias NervesHubCLI.CLI.Shell

@@ -17,16 +17,33 @@ Features include:
 
 The CLI is a compiled binary that can be downloaded from the [releases page](https://github.com/nerves-hub/nerves_hub_cli/releases).
 
-Once downloaded, you can run the binary directly, although we recommend adding it to your PATH.
+Once downloaded, you can run the binary directly, although we recommend adding it to your `PATH` so
+that it's accessible across terminal sessions.
 
-You can access available commands and documentation from the command-line using `nhcli help`. eg.
+You can access available commands and documentation from the command-line using `nh help`. eg.
 
 ```
-$ nhcli help
-$ nhcli help device
+$ nh help
+$ nh help device
 ```
 
-To uninstall, just delete the binary.
+Burritos magic is how it creates a platform specific Erlang release, compresses it into a binary, which is then
+extracted to a directory managed by Burrito when the binary is executed for the first time.
+
+Every other time you run the binary it will proxy the commands to the extracted release, invisible to the user.
+
+
+## Uninstalling the CLI
+
+When you uninstall the NervesHubCLI it is highly recommended to run:
+
+```
+$ nh maintenance uninstall
+```
+
+which tells Burrito to remove the cached contents.
+
+Once you have run the above command you can safely delete the `nh` binary.
 
 
 ## Environment variables
@@ -55,18 +72,18 @@ NervesHubCLI must be configured to connect to your chosen NervesHub host.
 To configure the NervesHub URI, run:
 
 ```sh
-$ nhcli config set uri "https://my.nerveshub.instance/"
+$ nh config set uri "https://my.nerveshub.instance/"
 ```
 
 and for [NervesCloud](https://nervescloud.com):
 
 ```sh
-$ nhcli config set uri "https://manage.nervescloud.com/"
+$ nh config set uri "https://manage.nervescloud.com/"
 ```
 
 Finally, you need to authorize your account on the NervesHub instance by running:
 
 ```sh
-$ nhcli user whoami
-$ nhcli user auth
+$ nh user whoami
+$ nh user auth
 ```

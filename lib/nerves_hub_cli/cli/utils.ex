@@ -28,7 +28,7 @@ defmodule NervesHubCLI.CLI.Utils do
 
             Via global configuration (this applies to all projects)
 
-              nhcli config set product "product_name"
+              nh config set product "product_name"
         """)
 
     Shell.info("NervesHub product: #{product}")
@@ -75,7 +75,7 @@ defmodule NervesHubCLI.CLI.Utils do
 
           Via global configuration (this applies to all projects)
 
-            nhcli config set org "org_name"
+            nh config set org "org_name"
         """)
 
     Shell.info([:cyan, "Organization:   ", :reset, "#{org}"])

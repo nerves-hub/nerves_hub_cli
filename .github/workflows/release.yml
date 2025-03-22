@@ -89,14 +89,14 @@ jobs:
           mkdir -p release_files/macos-x86_64
           mkdir -p release_files/linux-x86_64
           mkdir -p release_files/windows-x86_64
-          cp burrito_out/nerves_hub_cli_macos-aarch64 release_files/macos-aarch64/nhcli
-          cp burrito_out/nerves_hub_cli_macos-x86_64 release_files/macos-x86_64/nhcli
-          cp burrito_out/nerves_hub_cli_linux-x86_64 release_files/linux-x86_64/nhcli
-          cp burrito_out/nerves_hub_cli_windows-x86_64.exe release_files/windows-x86_64/nhcli.exe
-          cd release_files/macos-aarch64 && tar -cJf macos-aarch64.tar.xz nhcli && cd ../..
-          cd release_files/macos-x86_64 && tar -cJf macos-x86_64.tar.xz nhcli && cd ../..
-          cd release_files/linux-x86_64 && tar -cJf linux-x86_64.tar.xz nhcli && cd ../..
-          cd release_files/windows-x86_64 && tar -cJf windows-x86_64.tar.xz nhcli.exe && cd ../..
+          cp burrito_out/nh_macos-aarch64 release_files/macos-aarch64/nh
+          cp burrito_out/nh_macos-x86_64 release_files/macos-x86_64/nh
+          cp burrito_out/nh_linux-x86_64 release_files/linux-x86_64/nh
+          cp burrito_out/nh_windows-x86_64.exe release_files/windows-x86_64/nh.exe
+          cd release_files/macos-aarch64 && tar -cJf macos-aarch64.tar.xz nh && cd ../..
+          cd release_files/macos-x86_64 && tar -cJf macos-x86_64.tar.xz nh && cd ../..
+          cd release_files/linux-x86_64 && tar -cJf linux-x86_64.tar.xz nh && cd ../..
+          cd release_files/windows-x86_64 && tar -cJf windows-x86_64.tar.xz nh.exe && cd ../..
 
       - name: Extract tag version
         id: extract-version
