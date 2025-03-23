@@ -37,7 +37,7 @@ defmodule NervesHubCLI.CLI.Shell do
 
   @spec error(IO.ANSI.ansidata()) :: :ok
   def error(message) do
-    IO.puts(:stderr, IO.ANSI.format(red(message)))
+    IO.puts(:stderr, IO.ANSI.format(red("\n#{message}")))
   end
 
   defp red(message) do
@@ -159,6 +159,11 @@ defmodule NervesHubCLI.CLI.Shell do
     error("HTTP error")
     for {key, reason} <- reasons, do: error("  #{key}: #{reason}")
     :ok
+  end
+
+  def do_render_error({:error, %{"errors" => %{"detail" => reason}}}) when is_binary(reason) do
+    error("HTTP error")
+    error(reason)
   end
 
   def do_render_error(error) do
