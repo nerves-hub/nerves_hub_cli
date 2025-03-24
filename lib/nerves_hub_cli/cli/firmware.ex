@@ -8,7 +8,7 @@ defmodule NervesHubCLI.CLI.Firmware do
   is optional. If it is not specified, NervesHub will locate the firmware
   based off the project settings.
 
-      nerves_hub firmware publish [Optional: /path/to/app.firmware]
+      nh firmware publish [Optional: /path/to/app.firmware]
 
   ### Command-line options
 
@@ -24,7 +24,7 @@ defmodule NervesHubCLI.CLI.Firmware do
 
   ## list
 
-      nerves_hub firmware list
+      nh firmware list
 
   ### Command-line options
 
@@ -38,7 +38,7 @@ defmodule NervesHubCLI.CLI.Firmware do
   Firmware can only be deleted if it is not associated to any deployment.
   Call `list` to retrieve firmware UUIDs
 
-      nerves_hub firmware delete [firmware_uuid]
+      nh firmware delete [firmware_uuid]
 
   ## sign
 
@@ -46,7 +46,7 @@ defmodule NervesHubCLI.CLI.Firmware do
   is optional. If it is not specified, NervesHub will locate the firmware
   based off the project settings.
 
-      nerves_hub firmware sign [Optional: /path/to/app.firmware]
+      nh firmware sign [Optional: /path/to/app.firmware]
 
   ### Command-line options
 
@@ -99,12 +99,12 @@ defmodule NervesHubCLI.CLI.Firmware do
     Invalid arguments
 
     Usage:
-      nerves_hub firmware list
-      nerves_hub firmware publish
-      nerves_hub firmware delete
-      nerves_hub firmware sign
+      nh firmware list
+      nh firmware publish
+      nh firmware delete
+      nh firmware sign
 
-    Run `nerves_hub help firmware` for more information.
+    Run `nh help firmware` for more information.
     """)
   end
 

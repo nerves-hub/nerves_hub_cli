@@ -6,9 +6,9 @@ defmodule NervesHubCLI.CLI.Key do
   @moduledoc """
   Manages firmware signing keys
 
-  Firmware signing keys consist of public and private keys. The `nerves_hub key` 
-  task manages both pieces for you. Private signing keys are password-protected 
-  and are NEVER sent to NervesHub or any other server. Public keys, however, are 
+  Firmware signing keys consist of public and private keys. The `nerves_hub key`
+  task manages both pieces for you. Private signing keys are password-protected
+  and are NEVER sent to NervesHub or any other server. Public keys, however, are
   registered with NervesHub and embedded in your firmware.
 
   Signing keys are stored in `~/.nerves-hub/keys`. Keys may be shared between
@@ -30,7 +30,7 @@ defmodule NervesHubCLI.CLI.Key do
 
   List the keys known to NervesHub
 
-      nerves_hub key list
+      nh key list
 
   ### Command-line options
 
@@ -41,7 +41,7 @@ defmodule NervesHubCLI.CLI.Key do
   Create a new firmware signing key pair with the specified name and register
   the public key with NervesHub
 
-      nerves_hub key create NAME
+      nh key create NAME
 
   ### Command-line options
 
@@ -51,7 +51,7 @@ defmodule NervesHubCLI.CLI.Key do
 
   Delete a signing key locally and on NervesHub
 
-      nerves_hub key delete NAME
+      nh key delete NAME
 
   ### Command-line options
 
@@ -62,7 +62,7 @@ defmodule NervesHubCLI.CLI.Key do
 
   Import an existing key locally and on NervesHub
 
-      nerves_hub key import NAME PUBLIC_KEY_FILE PRIVATE_KEY_FILE
+      nh key import NAME PUBLIC_KEY_FILE PRIVATE_KEY_FILE
 
   ### Command-line options
 
@@ -72,7 +72,7 @@ defmodule NervesHubCLI.CLI.Key do
 
   Export a signing key to a tar.gz archive.
 
-      nerves_hub key export NAME
+      nh key export NAME
 
   ### Command-line options
 
@@ -115,16 +115,16 @@ defmodule NervesHubCLI.CLI.Key do
   @spec render_help() :: no_return()
   def render_help() do
     Shell.raise("""
-    Invalid arguments to `nerves_hub key`.
+    Invalid arguments to `nh key`.
 
     Usage:
-      nerves_hub key list
-      nerves_hub key create NAME
-      nerves_hub key delete NAME
-      nerves_hub key import NAME PUBLIC_KEY_FILE PRIVATE_KEY_FILE
-      nerves_hub key export NAME
+      nh key list
+      nh key create NAME
+      nh key delete NAME
+      nh key import NAME PUBLIC_KEY_FILE PRIVATE_KEY_FILE
+      nh key export NAME
 
-    Run `nerves_hub help key` for more information.
+    Run `nh help key` for more information.
     """)
   end
 
@@ -160,7 +160,7 @@ defmodule NervesHubCLI.CLI.Key do
       The key '#{name}' already exists.
 
       Please choose a different name or delete by
-      running `nerves_hub key delete #{name} [--local]`
+      running `nh key delete #{name} [--local]`
       """)
     else
       if Keyword.get(opts, :local, false) do

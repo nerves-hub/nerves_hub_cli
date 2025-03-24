@@ -1,6 +1,14 @@
 # Changelog
 
-## unreleased
+## v3.0.0
+
+The NervesHubCLI has been updated to use [Burrito](https://github.com/burrito-elixir/burrito)
+for building native binaries.
+
+This includes support for MacOS (x86_64 and aarch64), Linux (x86_64 and aarch64), and Windows (x86_64).
+
+This new packaging of the NervesHubCLI simplifies the installation process, and provides a more
+consistent experience across platforms and projects.
 
 ## v2.1.0
 

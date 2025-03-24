@@ -27,8 +27,8 @@ defmodule NervesHubCLI.CLI.Utils do
               export NERVES_HUB_PRODUCT=product_name
 
             Via global configuration (this applies to all projects)
-            
-              nerves_hub config set product "product_name"
+
+              nh config set product "product_name"
         """)
 
     Shell.info("NervesHub product: #{product}")
@@ -47,7 +47,8 @@ defmodule NervesHubCLI.CLI.Utils do
       Shell.raise("NervesHub URI was not set")
     end
 
-    Shell.info("NervesHub server: #{uri.host}:#{uri.port}")
+    port = if(uri.port == 443, do: "", else: ":#{uri.port}")
+    Shell.info([:cyan, "NervesHub Host: ", :reset, "#{uri.host}#{port}"])
   end
 
   @spec org(keyword()) :: String.t()
@@ -61,6 +62,7 @@ defmodule NervesHubCLI.CLI.Utils do
       Keyword.get(opts, :org) || System.get_env("NERVES_HUB_ORG") || Config.get(:org) ||
         Shell.raise("""
         Cound not determine organization
+
         Organization is set in the following order
 
           From the command line
@@ -71,17 +73,12 @@ defmodule NervesHubCLI.CLI.Utils do
 
             export NERVES_HUB_ORG=org_name
 
-          By setting it in the project's config.exs
+          Via global configuration (this applies to all projects)
 
-            config :nerves_hub_cli,
-              org: "org_name"
-
-          Your user org from the NervesHub config
-
-            NervesHubCLI.Config.get(:org)
+            nh config set org "org_name"
         """)
 
-    Shell.info("NervesHub organization: #{org}")
+    Shell.info([:cyan, "Organization:   ", :reset, "#{org}"])
     org
   end
 

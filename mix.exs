@@ -1,43 +1,51 @@
 defmodule NervesHubCLI.MixProject do
   use Mix.Project
 
-  @version "2.1.0"
-  @source_url "https://github.com/nerves-hub/nerves_hub_cli"
+  @description "NervesHub CLI"
+  @version "3.0.0-rc.1"
 
   def project do
     [
       app: :nerves_hub_cli,
+      description: @description,
       version: @version,
       elixir: "~> 1.13",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      docs: docs(),
-      description: description(),
-      package: package(),
       dialyzer: dialyzer(),
-      escript: escript(),
-      preferred_cli_env: %{
-        docs: :docs,
-        "hex.publish": :docs,
-        "hex.build": :docs
-      }
+      releases: releases()
     ]
   end
 
-  defp description do
-    "NervesHub Mix command-line interface "
+  def releases do
+    [
+      nh: [
+        steps: [:assemble, &Burrito.wrap/1],
+        burrito: [
+          targets: [
+            "macos-aarch64": [os: :darwin, cpu: :aarch64],
+            "macos-x86_64": [os: :darwin, cpu: :x86_64],
+            "linux-aarch64": [os: :linux, cpu: :aarch64],
+            "linux-x86_64": [os: :linux, cpu: :x86_64],
+            "windows-x86_64": [os: :windows, cpu: :x86_64]
+          ],
+          no_clean: false,
+          debug: Mix.env() != :prod
+        ]
+      ]
+    ]
   end
 
-  defp package do
+  def application do
     [
-      licenses: ["Apache-2.0"],
-      links: %{"GitHub" => @source_url}
+      mod: {NervesHubCLI.EntryPoint, []}
     ]
   end
 
   defp deps do
     [
       # Avoid broken pbcs 0.1.3 version
+      {:burrito, "~> 1.0"},
       {:pbcs, "== 0.1.2 or ~> 0.1.4"},
       {:castore, "~> 0.1 or ~> 1.0", optional: true},
       {:dialyxir, "~> 1.2", only: [:dev, :test], runtime: false},
@@ -56,23 +64,6 @@ defmodule NervesHubCLI.MixProject do
       flags: [:missing_return, :extra_return, :unmatched_returns, :error_handling, :underspecs],
       plt_add_apps: [:public_key, :asn1, :crypto, :mix],
       ignore_warnings: "dialyzer.ignore-warnings"
-    ]
-  end
-
-  defp docs do
-    [
-      extras: ["README.md", "CHANGELOG.md"],
-      main: "readme",
-      skip_undefined_reference_warnings_on: ["CHANGELOG.md"],
-      source_ref: "v#{@version}",
-      source_url: @source_url
-    ]
-  end
-
-  def escript do
-    [
-      main_module: NervesHubCLI.CLI,
-      name: :nerves_hub
     ]
   end
 end

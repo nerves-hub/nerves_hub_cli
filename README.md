@@ -1,16 +1,8 @@
 # NervesHubCLI
 
-[![CircleCI](https://circleci.com/gh/nerves-hub/nerves_hub_cli.svg?style=svg)](https://circleci.com/gh/nerves-hub/nerves_hub_cli)
-[![Hex version](https://img.shields.io/hexpm/v/nerves_hub_cli.svg "Hex version")](https://hex.pm/packages/nerves_hub_cli)
+The recommended CLI tool for working with [NervesHub](https://www.nerves-hub.org) and
+[NervesCloud](https://nervescloud.com) from the command-line.
 
-**Important**
-
-This is the 2.0 development branch of NervesHubCLI. If you have been using NervesHub prior to around April, 2023 and are not following 2.0 development, see the `maint-v0` branch. The `maint-v0` branch is being used in production. 2.0 development is in progress, and we don't have guides or good documentation yet. If you use the 2.0 development branch, we don't expect breaking changes, but please bear with us as we complete the 2.0 release.
-
----
-
-`NervesHubCLI` is an [escript](https://hexdocs.pm/mix/main/Mix.Tasks.Escript.Build.html) 
-CLI tool for working with [NervesHub](https://www.nerves-hub.org) from the command-line. 
 Features include:
 
 * Uploading firmware to NervesHub
@@ -20,18 +12,85 @@ Features include:
 * Manage firmware deployments
 * Manage user and organization accounts
 
-The recommended way of using the CLI is to run `mix escript.install hex nerves_hub_cli`. 
-Note that you may have to add the binary installation directory to your PATH
+---
 
-Once installed, you can access available commands and documentation from the
-command-line using `nerves_hub help`:
+### Quick Installation (Mac and Linux)
 
-```sh
-$ nerves_hub help
-$ nerves_hub help device
+#### Using Homebrew
+
+```bash
+brew install nerves-hub/tap/nh
 ```
 
-To uninstall, run `mix escript.uninstall nerves_hub_cli`.
+#### Using Curl
+
+```bash
+curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/nerves-hub/nerves_hub_cli/master/install.sh | sh
+```
+
+This installs the `nh` binary to `/usr/local/bin`.
+
+> [!NOTE]
+> It's best practice to read any installation scripts before running them
+
+#### Using a Mac?
+
+If you are using a Mac and your get an error message that the binary isn't trusted, please follow these steps:
+
+1. Open the System Settings.
+2. Click on the "Privacy & Security" icon.
+3. Scroll down to the "Security" section.
+4. Click open next to the warning about the `nh` executable.
+5. Click on the "Open Anyway" button in the warning dialog.
+6. Run the `nh` command again.
+
+For more information, see the [Apple Support article](https://support.apple.com/en-nz/guide/mac-help/mh40616/mac).
+
+---
+
+## Custom Installation
+
+The CLI is a compiled binary that can be downloaded from the [releases page](https://github.com/nerves-hub/nerves_hub_cli/releases).
+
+Once downloaded you can run the binary directly, although we recommend adding it to your `PATH` so
+that it's accessible across terminal sessions.
+
+You can access available commands and documentation from the command-line using `nh help`. eg.
+
+```
+$ nh help
+$ nh help device
+```
+
+Burritos magic is how it creates a platform specific Erlang release, compresses it into a binary, which is then
+extracted to a directory managed by Burrito when the binary is executed for the first time.
+
+Subsquent use of the binary will proxy the commands to the extracted release, invisible to the user.
+
+
+## Connecting to NervesHub
+
+NervesHubCLI must be configured to connect to your chosen NervesHub host.
+
+To configure the NervesHub URI, run:
+
+```sh
+$ nh config set uri "https://my.nerveshub.instance/"
+```
+
+and for [NervesCloud](https://nervescloud.com):
+
+```sh
+$ nh config set uri "https://manage.nervescloud.com/"
+```
+
+Finally, you need to authorize your account on the NervesHub instance by running:
+
+```sh
+$ nh user whoami
+$ nh user auth
+```
+
 
 ## Environment variables
 
@@ -51,22 +110,16 @@ automation. The following variables are available:
 * `NERVES_HUB_SCHEME` - NervesHub API endpoint scheme
 * `NERVES_HUB_NON_INTERACTIVE` - Force all yes/no user interaction to be yes
 
-For more information on using the CLI, see the
-[`nerves_hub_link`](https://github.com/nerves-hub/nerves_hub_link) documentation.
 
-## Connecting to NervesHub
 
-NervesHubCLI must be configured to connect to your chosen NervesHub host.
+## Uninstalling the CLI
 
-To configure the NervesHub URI, run:
+When you uninstall the NervesHubCLI it is highly recommended to run:
 
-```sh
-$ nerves_hub config set uri "https://my.nerveshub.instance/"
+```
+$ nh maintenance uninstall
 ```
 
-Finally, you need to authorize your account on the NervesHub instance by running:
+which tells Burrito to remove the cached contents.
 
-```sh
-$ nerves_hub user whoami
-$ nerves_hub user auth
-```
+Once you have run the above command you can safely delete the `nh` binary.
