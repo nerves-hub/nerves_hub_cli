@@ -16,6 +16,14 @@ Features include:
 
 ### Quick Installation (Mac and Linux)
 
+#### Using Homebrew
+
+```bash
+brew install nerves-hub/tap/nh
+```
+
+#### Using Curl
+
 ```bash
 curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/nerves-hub/nerves_hub_cli/master/install.sh | sh
 ```
