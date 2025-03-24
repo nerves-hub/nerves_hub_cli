@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+Updated:
+
+- A better help message when the URI isn't set (thanks @fhunleth) (#263)
+- Use the correct Erlang (thanks @fhunleth) (#264)
+
 ## v3.0.0
 
 The NervesHubCLI has been updated to use [Burrito](https://github.com/burrito-elixir/burrito)
