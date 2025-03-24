@@ -25,6 +25,7 @@ defmodule NervesHubCLI.MixProject do
           targets: [
             "macos-aarch64": [os: :darwin, cpu: :aarch64],
             "macos-x86_64": [os: :darwin, cpu: :x86_64],
+            "linux-aarch64": [os: :linux, cpu: :aarch64],
             "linux-x86_64": [os: :linux, cpu: :x86_64],
             "windows-x86_64": [os: :windows, cpu: :x86_64]
           ],
