@@ -44,7 +44,22 @@ defmodule NervesHubCLI.CLI.Utils do
     uri = URI.parse(endpoint)
 
     if is_nil(uri.host) do
-      Shell.raise("NervesHub URI was not set")
+      Shell.raise("""
+      NervesHub URI was not set.
+
+      To configure the NervesHub URI, run:
+
+        nh config set uri "https://my.nerveshub.instance/"
+
+      and for NervesCloud:
+
+        nh config set uri "https://manage.nervescloud.com/"
+
+      Finally, you need to authorize your account on the NervesHub instance by running:
+
+        nh user whoami
+        nh user auth
+      """)
     end
 
     port = if(uri.port == 443, do: "", else: ":#{uri.port}")
