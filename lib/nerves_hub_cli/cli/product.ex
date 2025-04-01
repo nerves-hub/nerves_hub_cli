@@ -196,7 +196,7 @@ defmodule NervesHubCLI.CLI.Product do
       auth = Shell.request_auth()
 
       case NervesHubCLI.API.Product.delete(org, product_name, auth) do
-        {:ok, ""} ->
+        {:ok, nil} ->
           Shell.info("Product deleted successfully.")
 
         error ->
