@@ -2,10 +2,14 @@ defmodule NervesHubCLI.EntryPoint do
   @moduledoc false
 
   def start(_, _) do
-    Burrito.Util.Args.argv()
-    |> NervesHubCLI.CLI.main()
+    if System.get_env("__BURRITO") do
+      Burrito.Util.Args.argv()
+      |> NervesHubCLI.CLI.main()
 
-    System.halt(0)
+      System.halt(0)
+    else
+      {:ok, self()}
+    end
   rescue
     error ->
       IO.puts("An error occurred: #{inspect(error)}")
