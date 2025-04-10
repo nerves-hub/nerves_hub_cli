@@ -7,6 +7,11 @@ Updated:
 - A better help message when the URI isn't set (thanks @fhunleth) (#263)
 - Use the correct Erlang (thanks @fhunleth) (#264)
 
+Fixes:
+
+- Fix a function match when a product is deleted (thanks @gworkman) (#265)
+- Don't start the Burrito app in the `EntryPoint` during testing (#267)
+
 ## v3.0.0
 
 The NervesHubCLI has been updated to use [Burrito](https://github.com/burrito-elixir/burrito)
