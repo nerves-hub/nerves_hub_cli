@@ -191,7 +191,11 @@ defmodule NervesHubCLI.API do
   end
 
   defp append_path(%URI{} = uri, path) do
-    [maj, min] = System.version() |> String.split(".") |> Enum.take(2)
+    [maj, min] =
+      System.version()
+      |> String.split(".")
+      |> Enum.take(2)
+      |> Enum.map(&String.to_integer/1)
 
     if maj >= 1 && min >= 15 do
       URI.append_path(uri, path)
