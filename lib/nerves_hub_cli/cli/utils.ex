@@ -150,13 +150,13 @@ defmodule NervesHubCLI.CLI.Utils do
 
   Invalid tags raise.
 
-    iex> Mix.NervesHubCLI.Utils.split_tag_string("a, b, c")
+    iex> NervesHubCLI.CLI.Utils.split_tag_string("a, b, c")
     ["a", "b", "c"]
 
-    iex> Mix.NervesHubCLI.Utils.split_tag_string("a space tag, b, c")
+    iex> NervesHubCLI.CLI.Utils.split_tag_string("a space tag, b, c")
     ** (RuntimeError) Tag 'a space tag' should not contain white space
 
-    iex> Mix.NervesHubCLI.Utils.split_tag_string("\\"tag_in_quotes\\"")
+    iex> NervesHubCLI.CLI.Utils.split_tag_string("\\"tag_in_quotes\\"")
     ** (RuntimeError) Tag '\"tag_in_quotes\"' should not contain quotes
 
   """
