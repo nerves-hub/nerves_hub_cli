@@ -16,7 +16,7 @@ defmodule NervesHubCLI.API do
   def endpoint() do
     if server = System.get_env("NERVES_HUB_URI") || NervesHubCLI.Config.get(:uri) do
       URI.parse(server)
-      |> URI.append_path("/api")
+      |> append_path("/api")
       |> URI.to_string()
     else
       scheme = System.get_env("NERVES_HUB_SCHEME")
@@ -164,6 +164,39 @@ defmodule NervesHubCLI.API do
     case System.get_env(str) do
       nil -> nil
       value -> String.to_integer(value)
+    end
+  end
+
+  defmodule VendoredURI do
+    @doc """
+      This function is copied straight out of `URI.append_path/1`'s implementation.
+      It can be removed once the minimum version of the library is raised to 1.5 or above
+    """
+    @spec append_path(URI.t(), String.t()) :: URI.t()
+    def append_path(%URI{}, "//" <> _ = path) do
+      raise ArgumentError, ~s|path cannot start with "//", got: #{inspect(path)}|
+    end
+
+    def append_path(%URI{path: path} = uri, "/" <> rest = all) do
+      cond do
+        path == nil -> %{uri | path: all}
+        path != "" and :binary.last(path) == ?/ -> %{uri | path: path <> rest}
+        true -> %{uri | path: path <> all}
+      end
+    end
+
+    def append_path(%URI{}, path) when is_binary(path) do
+      raise ArgumentError, ~s|path must start with "/", got: #{inspect(path)}|
+    end
+  end
+
+  defp append_path(%URI{} = uri, path) do
+    [maj, min] = System.version() |> String.split(".") |> Enum.take(2)
+
+    if maj >= 1 && min >= 15 do
+      URI.append_path(uri, path)
+    else
+      VendoredURI.append_path(uri, path)
     end
   end
 end
