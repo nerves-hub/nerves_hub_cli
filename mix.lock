@@ -1,6 +1,6 @@
 %{
   "burrito": {:hex, :burrito, "1.3.0", "4be8504185250756ff4a8770d0c0d91dbfe518d2faa5f1888f13b00540028c59", [:mix], [{:jason, "~> 1.4", [hex: :jason, repo: "hexpm", optional: false]}, {:req, ">= 0.5.0", [hex: :req, repo: "hexpm", optional: false]}, {:typed_struct, "~> 0.2.0 or ~> 0.3.0", [hex: :typed_struct, repo: "hexpm", optional: false]}], "hexpm", "a53f6bc0644bfd998164d68714c9af04291c220f5f7d0c90cb9616780cc60165"},
-  "castore": {:hex, :castore, "1.0.12", "053f0e32700cbec356280c0e835df425a3be4bc1e0627b714330ad9d0f05497f", [:mix], [], "hexpm", "3dca286b2186055ba0c9449b4e95b97bf1b57b47c1f2644555879e659960c224"},
+  "castore": {:hex, :castore, "1.0.16", "8a4f9a7c8b81cda88231a08fe69e3254f16833053b23fa63274b05cbc61d2a1e", [:mix], [], "hexpm", "33689203a0eaaf02fcd0e86eadfbcf1bd636100455350592e7e2628564022aaf"},
   "dialyxir": {:hex, :dialyxir, "1.4.5", "ca1571ac18e0f88d4ab245f0b60fa31ff1b12cbae2b11bd25d207f865e8ae78a", [:mix], [{:erlex, ">= 0.2.7", [hex: :erlex, repo: "hexpm", optional: false]}], "hexpm", "b0fb08bb8107c750db5c0b324fa2df5ceaa0f9307690ee3c1f6ba5b9eb5d35c3"},
   "earmark_parser": {:hex, :earmark_parser, "1.4.44", "f20830dd6b5c77afe2b063777ddbbff09f9759396500cdbe7523efd58d7a339c", [:mix], [], "hexpm", "4778ac752b4701a5599215f7030989c989ffdc4f6df457c5f36938cc2d2a2750"},
   "erlex": {:hex, :erlex, "0.2.7", "810e8725f96ab74d17aac676e748627a07bc87eb950d2b83acd29dc047a30595", [:mix], [], "hexpm", "3ed95f79d1a844c3f6bf0cea61e0d5612a42ce56da9c03f01df538685365efb0"},
