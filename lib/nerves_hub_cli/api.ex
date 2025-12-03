@@ -27,6 +27,21 @@ defmodule NervesHubCLI.API do
     end
   end
 
+  def socket(auth_token) do
+    if server = System.get_env("NERVES_HUB_URI") || NervesHubCLI.Config.get(:uri) do
+      URI.parse(server)
+      |> Map.put(:path, "/events-socket/websocket")
+      |> URI.append_query("token=#{auth_token}")
+      |> Map.put(:scheme, "wss")
+    else
+      host = System.get_env("NERVES_HUB_HOST")
+      port = get_env_as_integer("NERVES_HUB_PORT")
+
+      %URI{scheme: "wss", host: host, port: port, path: "/events-socket"}
+      |> URI.append_query("token=#{auth_token}")
+    end
+  end
+
   def request(:get, path, params) when is_map(params) do
     client()
     |> Tesla.request(
