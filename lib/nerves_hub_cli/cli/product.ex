@@ -186,6 +186,11 @@ defmodule NervesHubCLI.CLI.Product do
       {:ok, %{"data" => %{} = _product}} ->
         Shell.info("Product '#{name}' created.")
 
+      {:error, :invalid_name} ->
+        Shell.error(
+          "Invalid product name. Product name can only contain letters, numbers, dashes and underscores"
+        )
+
       error ->
         Shell.render_error(error)
     end

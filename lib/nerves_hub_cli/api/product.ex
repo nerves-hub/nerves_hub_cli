@@ -23,7 +23,8 @@ defmodule NervesHubCLI.API.Product do
   end
 
   @doc """
-  Create a new product.
+  Create a new product. Only allows product names which are nicely formatted (ie, only lowercase,
+  uppercase, numbers, underscores, dashes, and periods)
 
   Verb: POST
   Path: /orgs/:org_name/products
@@ -31,8 +32,14 @@ defmodule NervesHubCLI.API.Product do
   @spec create(String.t(), any(), NervesHubCLI.API.Auth.t()) ::
           {:error, any()} | {:ok, any()}
   def create(org_name, product_name, %Auth{} = auth) do
-    params = %{name: product_name}
-    API.request(:post, path(org_name), params, auth)
+    cond do
+      String.match?(product_name, ~r/^[a-zA-Z0-9_-]+$/) ->
+        params = %{name: product_name}
+        API.request(:post, path(org_name), params, auth)
+
+      true ->
+        {:error, :invalid_name}
+    end
   end
 
   @doc """
