@@ -39,7 +39,7 @@ defmodule NervesHubCLI.CLI.Config do
 
     Usage:
       nh config set KEY VALUE
-      nh device get KEY
+      nh config get KEY
       nh config clear KEY
 
     Valid keys are: #{Enum.join(@valid_config_keys, ", ")}
