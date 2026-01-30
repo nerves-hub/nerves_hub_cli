@@ -155,6 +155,56 @@ defmodule NervesHubCLI.CLI.Device do
     * `--product` - (Optional) The product name.
       This defaults to the NERVES_HUB_PRODUCT environment variable (if set) or
       the global configuration via `nerves_hub config set product "product_name"`
+
+  ## code
+
+  Send Elixir code to execute on a device's IEx console. The code can be
+  provided via stdin, a file, or interactively.
+
+      nh device code DEVICE_IDENTIFIER
+
+  ### Command-line options
+
+    * `--product` - (Optional) The product name.
+    * `--file` - (Optional) Path to a file containing the code to execute
+
+  ### Examples
+
+      # Interactive prompt
+      nh device code my-device-123
+
+      # From a file
+      nh device code my-device-123 --file script.exs
+
+      # From stdin
+      echo "NervesHubLink.status()" | nh device code my-device-123
+
+  ## script list
+
+  List available support scripts for a product.
+
+      nh device script list
+
+  ### Command-line options
+
+    * `--product` - (Optional) The product name.
+
+  ## script send
+
+  Send a support script to a device for execution.
+
+      nh device script send DEVICE_IDENTIFIER SCRIPT_NAME
+
+  ### Command-line options
+
+    * `--product` - (Optional) The product name.
+    * `--timeout` - (Optional) Timeout in milliseconds to wait for response.
+      Defaults to 30000 (30 seconds).
+
+  ### Examples
+
+      nh device script send my-device-123 health-check
+      nh device script send my-device-123 diagnostics --timeout 60000
   """
 
   @switches [
@@ -178,7 +228,13 @@ defmodule NervesHubCLI.CLI.Device do
     version: :string,
 
     # device bulk_create
-    csv: :string
+    csv: :string,
+
+    # device code
+    file: :string,
+
+    # device script send
+    timeout: :integer
   ]
 
   @spec run([String.t()]) :: :ok | no_return()
@@ -217,6 +273,15 @@ defmodule NervesHubCLI.CLI.Device do
       ["update", identifier | update_data] ->
         update(org, product, identifier, update_data)
 
+      ["code", identifier] ->
+        code(org, product, identifier, opts)
+
+      ["script", "list"] ->
+        script_list(org, product)
+
+      ["script", "send", identifier, name_or_id] ->
+        script_send(org, product, identifier, name_or_id, opts)
+
       _ ->
         render_help()
     end
@@ -236,6 +301,9 @@ defmodule NervesHubCLI.CLI.Device do
       nh device cert list DEVICE_IDENTIFIER
       nh device cert create DEVICE_IDENTIFIER
       nh device cert import DEVICE_IDENTIFIER CERT_PATH
+      nh device code DEVICE_IDENTIFIER
+      nh device script list
+      nh device script send DEVICE_IDENTIFIER SCRIPT_NAME
 
     Run `nh help device` for more information.
     """)
@@ -466,6 +534,97 @@ defmodule NervesHubCLI.CLI.Device do
       error ->
         Shell.render_error(error)
     end
+  end
+
+  @spec code(String.t(), String.t(), String.t(), keyword()) :: :ok
+  def code(org, product, identifier, opts) do
+    body = get_code_body(opts)
+
+    if body == "" or body == nil do
+      Shell.render_error({:error, "No code provided"})
+    else
+      auth = Shell.request_auth()
+
+      case NervesHubCLI.API.Device.code(org, product, identifier, body, auth) do
+        {:ok, _} ->
+          Shell.info("Code sent to device #{identifier}")
+
+        error ->
+          Shell.render_error(error)
+      end
+    end
+  end
+
+  defp get_code_body(opts) do
+    cond do
+      opts[:file] ->
+        case File.read(opts[:file]) do
+          {:ok, content} -> content
+          {:error, reason} -> Shell.render_error({:error, "Failed to read file: #{reason}"})
+        end
+
+      true ->
+        Shell.info("Enter Elixir code to execute. Press Ctrl+D when finished.\n")
+        IO.read(:stdio, :eof)
+    end
+  end
+
+  defp io_tty? do
+    case :io.getopts(:standard_io) do
+      {:ok, opts} -> Keyword.get(opts, :terminal, false)
+      _ -> false
+    end
+  end
+
+  @spec script_list(String.t(), String.t()) :: :ok
+  def script_list(org, product) do
+    auth = Shell.request_auth()
+
+    case NervesHubCLI.API.Script.list(org, product, auth) do
+      {:ok, %{"data" => scripts}} ->
+        render_scripts(product, scripts)
+
+      error ->
+        Shell.render_error(error)
+    end
+  end
+
+  @spec script_send(String.t(), String.t(), String.t(), String.t(), keyword()) :: :ok
+  def script_send(org, product, identifier, name_or_id, opts) do
+    auth = Shell.request_auth()
+    timeout = opts[:timeout] || 30_000
+
+    Shell.info("Sending script '#{name_or_id}' to device #{identifier}...")
+
+    case NervesHubCLI.API.Script.send(org, product, identifier, name_or_id, [timeout: timeout], auth) do
+      {:ok, response} when is_binary(response) ->
+        Shell.info("Response:\n#{response}")
+
+      {:ok, %{"data" => data}} ->
+        Shell.info("Response:\n#{inspect(data, pretty: true)}")
+
+      {:ok, response} ->
+        Shell.info("Response:\n#{inspect(response, pretty: true)}")
+
+      error ->
+        Shell.render_error(error)
+    end
+  end
+
+  defp render_scripts(product, scripts) when is_list(scripts) do
+    Shell.info("\nScripts for product: #{product}")
+
+    if scripts == [] do
+      Shell.info("  No scripts available")
+    else
+      Enum.each(scripts, fn script ->
+        tags = script["tags"] || []
+        tag_str = if tags == [], do: "", else: " [#{Enum.join(tags, ", ")}]"
+        Shell.info("  - #{script["name"]}#{tag_str}")
+      end)
+    end
+
+    Shell.info("")
   end
 
   defp render_certs(identifier, certs) when is_list(certs) do
