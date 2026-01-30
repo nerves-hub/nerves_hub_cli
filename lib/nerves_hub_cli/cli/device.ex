@@ -179,6 +179,16 @@ defmodule NervesHubCLI.CLI.Device do
       # From stdin
       echo "NervesHubLink.status()" | nh device code my-device-123
 
+  ## console
+
+  Open an interactive IEx console to a device. Send Elixir code and see the
+  output streamed back in real-time.
+
+      nh device console DEVICE_IDENTIFIER
+
+  Type Elixir expressions and press Enter to send them to the device.
+  Press Ctrl+C to exit.
+
   ## script list
 
   List available support scripts for a product.
@@ -188,6 +198,9 @@ defmodule NervesHubCLI.CLI.Device do
   ### Command-line options
 
     * `--product` - (Optional) The product name.
+
+      This defaults to the NERVES_HUB_PRODUCT environment variable (if set) or
+      the global configuration via `nerves_hub config set product "product_name"`
 
   ## script send
 
@@ -276,11 +289,15 @@ defmodule NervesHubCLI.CLI.Device do
       ["code", identifier] ->
         code(org, product, identifier, opts)
 
+      ["console", identifier] ->
+        console(org, product, identifier)
+
       ["script", "list"] ->
         script_list(org, product)
 
       ["script", "send", identifier, name_or_id] ->
         script_send(org, product, identifier, name_or_id, opts)
+
 
       _ ->
         render_help()
@@ -302,6 +319,7 @@ defmodule NervesHubCLI.CLI.Device do
       nh device cert create DEVICE_IDENTIFIER
       nh device cert import DEVICE_IDENTIFIER CERT_PATH
       nh device code DEVICE_IDENTIFIER
+      nh device console DEVICE_IDENTIFIER
       nh device script list
       nh device script send DEVICE_IDENTIFIER SCRIPT_NAME
 
@@ -625,6 +643,90 @@ defmodule NervesHubCLI.CLI.Device do
     end
 
     Shell.info("")
+  end
+
+  @spec console(String.t(), String.t(), String.t()) :: :ok
+  def console(org, product, identifier) do
+    auth = Shell.request_auth()
+
+    Shell.info("Connecting to device #{identifier}...")
+    Shell.info("Type Elixir expressions and press Enter to send. Press Ctrl+C to exit.\n")
+
+    console_loop(org, product, identifier, auth, nil)
+  end
+
+  defp console_loop(org, product, identifier, auth, stream_pid) do
+    # Kill any previous stream process and drain its output
+    if stream_pid && Process.alive?(stream_pid) do
+      Process.unlink(stream_pid)
+      Process.exit(stream_pid, :kill)
+      drain_console_output()
+    end
+
+    # Read user input
+    case IO.gets("iex> ") do
+      :eof ->
+        Shell.info("\nExiting console.")
+        :ok
+
+      {:error, reason} ->
+        Shell.render_error({:error, reason})
+
+      line when is_binary(line) ->
+        code = String.trim(line)
+
+        if code != "" do
+          # Start streaming request
+          case NervesHubCLI.API.Device.console(org, product, identifier, code, auth) do
+            {:ok, pid} ->
+              # Print output as it arrives
+              receive_console_output()
+              console_loop(org, product, identifier, auth, pid)
+
+            {:error, reason} ->
+              Shell.render_error({:error, reason})
+              console_loop(org, product, identifier, auth, nil)
+          end
+        else
+          console_loop(org, product, identifier, auth, stream_pid)
+        end
+    end
+  end
+
+  defp receive_console_output do
+    receive do
+      {:chunk, data} ->
+        IO.write(data)
+        receive_console_output()
+
+      :done ->
+        :ok
+
+      {:error, reason} ->
+        Shell.error("Stream error: #{inspect(reason)}")
+    after
+      # Wait a bit for initial response, then return to prompt
+      # The streaming will continue in background
+      5000 ->
+        :ok
+    end
+  end
+
+  defp drain_console_output do
+    receive do
+      {:chunk, data} ->
+        IO.write(data)
+        drain_console_output()
+
+      :done ->
+        :ok
+
+      {:error, _reason} ->
+        :ok
+    after
+      100 ->
+        :ok
+    end
   end
 
   defp render_certs(identifier, certs) when is_list(certs) do

@@ -49,6 +49,138 @@ defmodule NervesHubCLI.API do
     |> resp()
   end
 
+  @doc """
+  Make a streaming HTTP request. Returns {:ok, pid} where pid will send chunks to the caller.
+
+  The caller will receive messages in the form:
+    {:chunk, data} - A chunk of response data
+    {:done, status} - The response is complete
+    {:error, reason} - An error occurred
+  """
+  def stream_request(verb, path, params, auth) do
+    caller = self()
+    url = URI.parse(endpoint() <> "/" <> URI.encode(path))
+
+    pid =
+      spawn_link(fn ->
+        do_stream_request(caller, verb, url, params, auth)
+      end)
+
+    {:ok, pid}
+  end
+
+  defp do_stream_request(caller, verb, url, params, auth) do
+    scheme = if url.scheme == "https", do: :https, else: :http
+    port = url.port || if scheme == :https, do: 443, else: 80
+
+    connect_opts =
+      if scheme == :https do
+        [
+          transport_opts: [
+            verify: :verify_peer,
+            cacerts: ca_certs(),
+            server_name_indication: to_charlist(url.host),
+            customize_hostname_check: [match_fun: :public_key.pkix_verify_hostname_match_fun(:https)]
+          ]
+        ]
+      else
+        []
+      end
+
+    case Mint.HTTP.connect(scheme, url.host, port, connect_opts) do
+      {:ok, conn} ->
+        body = Jason.encode!(params)
+        req_headers = stream_headers(auth, byte_size(body))
+        path_with_query = url.path || "/"
+
+        case Mint.HTTP.request(conn, String.upcase(to_string(verb)), path_with_query, req_headers, body) do
+          {:ok, conn, request_ref} ->
+            stream_response_loop(caller, conn, request_ref)
+
+          {:error, _conn, reason} ->
+            send(caller, {:error, reason})
+        end
+
+      {:error, reason} ->
+        send(caller, {:error, reason})
+    end
+  end
+
+  defp stream_headers(%{token: "nh" <> _ = token}, content_length) do
+    [
+      {"authorization", "token #{token}"},
+      {"content-type", "application/json"},
+      {"accept", "text/plain"},
+      {"content-length", to_string(content_length)}
+    ]
+  end
+
+  defp stream_headers(_, content_length) do
+    [
+      {"content-type", "application/json"},
+      {"accept", "text/plain"},
+      {"content-length", to_string(content_length)}
+    ]
+  end
+
+  defp stream_response_loop(caller, conn, request_ref) do
+    receive do
+      message ->
+        case Mint.HTTP.stream(conn, message) do
+          :unknown ->
+            stream_response_loop(caller, conn, request_ref)
+
+          {:ok, conn, responses} ->
+            case process_stream_responses(caller, responses, request_ref) do
+              :continue ->
+                stream_response_loop(caller, conn, request_ref)
+
+              :done ->
+                Mint.HTTP.close(conn)
+            end
+
+          {:error, _conn, reason, _responses} ->
+            send(caller, {:error, reason})
+        end
+    after
+      120_000 ->
+        send(caller, {:error, :timeout})
+    end
+  end
+
+  defp process_stream_responses(caller, responses, request_ref) do
+    Enum.reduce_while(responses, :continue, fn
+      {:status, ^request_ref, status}, _acc ->
+        if status >= 200 and status < 300 do
+          {:cont, :continue}
+        else
+          send(caller, {:error, {:http_status, status}})
+          {:halt, :done}
+        end
+
+      {:headers, ^request_ref, _headers}, acc ->
+        {:cont, acc}
+
+      {:data, ^request_ref, data}, acc ->
+        if byte_size(data) > 0 do
+          send(caller, {:chunk, data})
+        end
+
+        {:cont, acc}
+
+      {:done, ^request_ref}, _acc ->
+        send(caller, :done)
+        {:halt, :done}
+
+      {:error, ^request_ref, reason}, _acc ->
+        send(caller, {:error, reason})
+        {:halt, :done}
+
+      _other, acc ->
+        {:cont, acc}
+    end)
+  end
+
   def file_request(verb, path, file, params, auth) do
     content_length = :filelib.file_size(file)
     {:ok, pid} = Agent.start_link(fn -> 0 end)

@@ -96,6 +96,22 @@ defmodule NervesHubCLI.API.Device do
     API.request(:post, code_path, params, auth)
   end
 
+  @doc """
+  Send Elixir code to execute on a device's console with streaming response.
+
+  Returns a stream of console output chunks. The connection stays open until
+  the caller stops reading or the server closes.
+
+  Verb: POST
+  Path: /orgs/:org_name/products/:product_name/devices/:device_identifier/code
+  """
+  @spec console(String.t(), String.t(), String.t(), String.t(), NervesHubCLI.API.Auth.t()) ::
+          {:ok, pid()} | {:error, any()}
+  def console(org_name, product_name, device_identifier, body, %Auth{} = auth) do
+    code_path = Path.join(path(org_name, product_name, device_identifier), "code")
+    API.stream_request(:post, code_path, %{body: body, stream: true}, auth)
+  end
+
   @deprecated "use NervesHubCLI.API.DeviceCertificate.list/4 instead"
   def cert_list(org_name, product_name, device_identifier, %Auth{} = auth) do
     DeviceCertificate.list(org_name, product_name, device_identifier, auth)
