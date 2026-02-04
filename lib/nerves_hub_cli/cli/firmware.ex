@@ -88,6 +88,10 @@ defmodule NervesHubCLI.CLI.Firmware do
       ["sign", firmware] ->
         sign(firmware, org, opts)
 
+      ["sign"] ->
+        firmware = firmware_path()
+        sign(firmware, org, opts)
+
       _ ->
         render_help()
     end

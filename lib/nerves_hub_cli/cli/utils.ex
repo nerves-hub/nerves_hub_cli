@@ -200,6 +200,33 @@ defmodule NervesHubCLI.CLI.Utils do
       Config.get(:token)
   end
 
+  @doc """
+  Derive likely current firmware
+  """
+  def firmware_path() do
+    env = System.get_env("MIX_ENV", "dev")
+    target = System.get_env("MIX_TARGET", "host")
+
+    case target do
+      "host" ->
+        Shell.info("Target: host (cannot determine firmware path)")
+        Shell.prompt("Firmware path:")
+
+      target ->
+        Shell.info("Checking for firmware in base path: ./build/#{target}_#{env}/nerves/images/")
+
+        case Path.wildcard("./_build/#{target}_#{env}/nerves/images/*.fw") do
+          [fw_path] ->
+            Shell.info("Detected firmware path: #{fw_path}")
+            fw_path
+
+          [] ->
+            Shell.info("Target: host (cannot determine firmware path)")
+            Shell.prompt("Firmware path:")
+        end
+    end
+  end
+
   defp check_valid_tag(tag) do
     cond do
       String.contains?(tag, [" ", "\t", "\n"]) ->
