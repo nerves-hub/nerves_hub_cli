@@ -9,6 +9,7 @@ defmodule NervesHubCLI.Socket do
   require Logger
 
   @device_prefix "device:"
+  @console_prefix "device:console:"
 
   def config(identifiers, auth_token) do
     %{
@@ -45,6 +46,7 @@ defmodule NervesHubCLI.Socket do
 
         socket
         |> join(@device_prefix <> identifier)
+        |> join(@console_prefix <> identifier)
       end)
 
     {:ok, socket}

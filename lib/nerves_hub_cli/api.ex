@@ -29,10 +29,13 @@ defmodule NervesHubCLI.API do
 
   def socket(auth_token) do
     if server = System.get_env("NERVES_HUB_URI") || NervesHubCLI.Config.get(:uri) do
-      URI.parse(server)
+      parsed = URI.parse(server)
+      ws_scheme = if parsed.scheme == "http", do: "ws", else: "wss"
+
+      parsed
       |> Map.put(:path, "/events-socket/websocket")
       |> URI.append_query("token=#{auth_token}")
-      |> Map.put(:scheme, "wss")
+      |> Map.put(:scheme, ws_scheme)
     else
       host = System.get_env("NERVES_HUB_HOST")
       port = get_env_as_integer("NERVES_HUB_PORT")
