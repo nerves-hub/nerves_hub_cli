@@ -2,37 +2,61 @@ defmodule NervesHubCLI.CLI.Utils do
   alias NervesHubCLI.Config
   alias NervesHubCLI.CLI.Shell
 
-  @spec product(keyword()) :: String.t()
-  def product(opts) do
+  @spec product(keyword(), String.t()) :: String.t()
+  def product(opts, org) do
     # Currently, in order of priority:
     # - check if the product was passed into the command
     # - read the environment variables for product
     # - global config, which was set via `nerves_hub config set product "my_product_name"`
+    # - fetch list from API and suggest available products
     # - raise with error message
-    #
-    # TODO: the default product name was changed to the directory that `nerves_hub product create` was called from.
-    # Should we make current directory name a default option as well?
     product =
       Keyword.get(opts, :product) || System.get_env("NERVES_HUB_PRODUCT") || Config.get(:product) ||
-        Shell.raise("""
-          Cound not determine product
-          Product is set in the following order
-
-            From the command line
-
-              --product product_name
-
-            By setting the environment variable NERVES_HUB_PRODUCT
-
-              export NERVES_HUB_PRODUCT=product_name
-
-            Via global configuration (this applies to all projects)
-
-              nh config set product "product_name"
-        """)
+        suggest_product(org)
 
     Shell.info("NervesHub product: #{product}")
     product
+  end
+
+  defp suggest_product(org) do
+    auth = Shell.request_auth()
+
+    product_names =
+      case NervesHubCLI.API.Product.list(org, auth) do
+        {:ok, %{"data" => products}} when is_list(products) ->
+          Enum.map(products, & &1["name"])
+
+        _ ->
+          []
+      end
+
+    if product_names != [] do
+      Shell.info("\nAvailable products for org '#{org}':\n")
+
+      product_names
+      |> Enum.with_index(1)
+      |> Enum.each(fn {name, i} -> Shell.info("  #{i}) #{name}") end)
+
+      Shell.info("")
+    end
+
+    Shell.raise("""
+    Could not determine product
+
+    Product is set in the following order
+
+      From the command line
+
+        --product product_name
+
+      By setting the environment variable NERVES_HUB_PRODUCT
+
+        export NERVES_HUB_PRODUCT=product_name
+
+      Via global configuration (this applies to all projects)
+
+        nh config set product "product_name"
+    """)
   end
 
   @doc """
