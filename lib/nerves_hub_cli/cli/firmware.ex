@@ -71,7 +71,7 @@ defmodule NervesHubCLI.CLI.Firmware do
 
     show_api_endpoint()
     org = org(opts)
-    product = product(opts)
+    product = product(opts, org)
 
     case args do
       ["list"] ->
