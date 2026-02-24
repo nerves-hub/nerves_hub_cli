@@ -31,7 +31,9 @@ defmodule NervesHubCLI.CLI.Utils do
               nh config set product "product_name"
         """)
 
-    Shell.info("NervesHub product: #{product}")
+    Shell.info([:cyan, "Product:        ", :reset, "#{product}"])
+    Shell.info("")
+
     product
   end
 
@@ -209,7 +211,7 @@ defmodule NervesHubCLI.CLI.Utils do
 
     case target do
       "host" ->
-        Shell.info("Target: host (cannot determine firmware path)")
+        Shell.info("\nTarget: host (cannot determine firmware path)")
         Shell.prompt("Firmware path:")
 
       target ->

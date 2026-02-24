@@ -133,6 +133,8 @@ defmodule NervesHubCLI.CLI.Firmware do
           render_firmware(metadata)
           |> String.trim_trailing()
           |> Shell.info()
+
+          Shell.info("")
         end)
 
         Shell.info("")
@@ -145,12 +147,13 @@ defmodule NervesHubCLI.CLI.Firmware do
   defp publish_confirm(firmware, org, opts) do
     with true <- File.exists?(firmware),
          {:ok, metadata} <- metadata(firmware) do
-      Shell.info("------------")
-      Shell.info("Organization: #{org}")
+      Shell.info("")
 
       render_firmware(metadata)
       |> String.trim_trailing()
       |> Shell.info()
+
+      Shell.info("")
 
       if Shell.yes?("Publish Firmware?") do
         product = metadata["product"]
@@ -188,7 +191,8 @@ defmodule NervesHubCLI.CLI.Firmware do
 
     case NervesHubCLI.API.Firmware.create(org, product, firmware, ttl, auth) do
       {:ok, %{"data" => %{} = firmware}} ->
-        Shell.info("\nFirmware published successfully")
+        Shell.info("\n\nFirmware published successfully")
+        Shell.info("")
 
         Keyword.get_values(opts, :deploy)
         |> maybe_deploy(firmware, org, product, auth)
@@ -233,16 +237,16 @@ defmodule NervesHubCLI.CLI.Firmware do
     Shell.info("Signing #{firmware}")
 
     if key = opts[:key] do
-      Shell.info("With key #{key}")
+      Shell.info("  with key #{key}\n")
     end
 
     if System.get_env("NERVES_HUB_FW_PUBLIC_KEY") && System.get_env("NERVES_HUB_FW_PRIVATE_KEY") do
-      Shell.info("Using public and private keys from environment variables")
+      Shell.info("  using public and private keys from the environment\n")
     end
 
     if System.get_env("NERVES_HUB_FW_PUBLIC_KEY_PATH") &&
          System.get_env("NERVES_HUB_FW_PRIVATE_KEY_PATH") do
-      Shell.info("Using public and private key file paths from environment variables")
+      Shell.info("  using public and private key file paths from the environment\n")
     end
 
     with {:ok, style, keys} <- Shell.request_keys(org, opts[:key]),
@@ -263,7 +267,7 @@ defmodule NervesHubCLI.CLI.Firmware do
           File.cwd!()
         )
 
-      Shell.info("Finished signing")
+      Shell.info("Finished signing\n")
     else
       error -> Shell.render_error(error)
     end
