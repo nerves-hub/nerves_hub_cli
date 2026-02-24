@@ -2,7 +2,7 @@ defmodule NervesHubCLI.MixProject do
   use Mix.Project
 
   @description "NervesHub CLI"
-  @version "3.0.0-rc.1"
+  @version "3.0.1-dev"
 
   def project do
     [
