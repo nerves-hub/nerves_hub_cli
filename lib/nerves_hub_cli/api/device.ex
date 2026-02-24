@@ -82,6 +82,20 @@ defmodule NervesHubCLI.API.Device do
     API.request(:post, path, params, auth)
   end
 
+  @doc """
+  Send Elixir code to execute on a device's console.
+
+  Verb: POST
+  Path: /orgs/:org_name/products/:product_name/devices/:device_identifier/code
+  """
+  @spec code(String.t(), String.t(), String.t(), String.t(), NervesHubCLI.API.Auth.t()) ::
+          {:error, any()} | {:ok, any()}
+  def code(org_name, product_name, device_identifier, body, %Auth{} = auth) do
+    params = %{body: body}
+    code_path = Path.join(path(org_name, product_name, device_identifier), "code")
+    API.request(:post, code_path, params, auth)
+  end
+
   @deprecated "use NervesHubCLI.API.DeviceCertificate.list/4 instead"
   def cert_list(org_name, product_name, device_identifier, %Auth{} = auth) do
     DeviceCertificate.list(org_name, product_name, device_identifier, auth)
