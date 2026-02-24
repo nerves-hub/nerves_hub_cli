@@ -202,6 +202,9 @@ defmodule NervesHubCLI.CLI.Device do
       ["delete", identifier] ->
         delete(org, product, identifier)
 
+      ["watch" | identifiers] ->
+        watch(identifiers)
+
       ["burn", identifier] ->
         burn(identifier, opts)
 
@@ -359,6 +362,14 @@ defmodule NervesHubCLI.CLI.Device do
       error ->
         Shell.render_error(error)
     end
+  end
+
+  def watch(identifiers) do
+    %{token: token} = Shell.request_auth()
+
+    uri = NervesHubCLI.API.socket(token)
+    {:ok, _pid} = NervesHubCLI.Socket.start_link(%{config: [uri: uri], devices: identifiers})
+    :timer.sleep(:infinity)
   end
 
   @spec burn(String.t(), keyword()) :: :ok
