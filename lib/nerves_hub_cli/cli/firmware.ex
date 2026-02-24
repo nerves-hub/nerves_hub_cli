@@ -82,6 +82,10 @@ defmodule NervesHubCLI.CLI.Firmware do
         |> Path.expand()
         |> publish_confirm(org, opts)
 
+      ["publish"] ->
+        firmware_path()
+        |> publish_confirm(org, opts)
+
       ["delete", uuid] when is_binary(uuid) ->
         delete_confirm(uuid, org, product)
 
@@ -89,8 +93,8 @@ defmodule NervesHubCLI.CLI.Firmware do
         sign(firmware, org, opts)
 
       ["sign"] ->
-        firmware = firmware_path()
-        sign(firmware, org, opts)
+        firmware_path()
+        |> sign(org, opts)
 
       _ ->
         render_help()
@@ -170,7 +174,11 @@ defmodule NervesHubCLI.CLI.Firmware do
   end
 
   defp publish(firmware, org, product, opts) do
-    if opts[:key] do
+    if (System.get_env("NERVES_HUB_FW_PRIVATE_KEY_PATH") &&
+          System.get_env("NERVES_HUB_FW_PUBLIC_KEY_PATH")) ||
+         (System.get_env("NERVES_HUB_FW_PRIVATE_KEY") &&
+            System.get_env("NERVES_HUB_FW_PUBLIC_KEY")) ||
+         opts[:key] do
       sign(firmware, org, opts)
     end
 
@@ -203,30 +211,74 @@ defmodule NervesHubCLI.CLI.Firmware do
   end
 
   def sign(firmware, org, opts) do
-    key = opts[:key] || Shell.raise("Must specify key with --key")
-    Shell.info("Signing #{firmware}")
-    Shell.info("With key #{key}")
+    System.get_env("NERVES_HUB_FW_PUBLIC_KEY") ||
+      System.get_env("NERVES_HUB_FW_PRIVATE_KEY") ||
+      System.get_env("NERVES_HUB_FW_PUBLIC_KEY_PATH") ||
+      System.get_env("NERVES_HUB_FW_PRIVATE_KEY_PATH") ||
+      opts[:key] ||
+      Shell.raise(
+        Enum.join(
+          [
+            "  Firmware signing key not found.",
+            "",
+            "  Please specify the firmware signing key with either:",
+            "    --key key_name",
+            "    or NERVES_HUB_FW_PUBLIC_KEY and NERVES_HUB_FW_PRIVATE_KEY env vars",
+            "    or NERVES_HUB_FW_PUBLIC_KEY_PATH and NERVES_HUB_FW_PRIVATE_KEY_PATH env vars"
+          ],
+          "\n"
+        )
+      )
 
-    with {:ok, public_key, private_key} <- Shell.request_keys(org, key),
-         :ok <-
-           Cmd.fwup(
-             [
-               "--sign",
-               "-i",
-               firmware,
-               "-o",
-               firmware,
-               "--private-key",
-               private_key,
-               "--public-key",
-               public_key
-             ],
-             File.cwd!()
-           ) do
+    Shell.info("Signing #{firmware}")
+
+    if key = opts[:key] do
+      Shell.info("With key #{key}")
+    end
+
+    if System.get_env("NERVES_HUB_FW_PUBLIC_KEY") && System.get_env("NERVES_HUB_FW_PRIVATE_KEY") do
+      Shell.info("Using public and private keys from environment variables")
+    end
+
+    if System.get_env("NERVES_HUB_FW_PUBLIC_KEY_PATH") &&
+         System.get_env("NERVES_HUB_FW_PRIVATE_KEY_PATH") do
+      Shell.info("Using public and private key file paths from environment variables")
+    end
+
+    with {:ok, style, keys} <- Shell.request_keys(org, opts[:key]),
+         {public_key, private_key} <- process_keys(style, keys) do
+      :ok =
+        Cmd.fwup(
+          [
+            "--sign",
+            "-i",
+            firmware,
+            "-o",
+            firmware,
+            "--private-key",
+            private_key,
+            "--public-key",
+            public_key
+          ],
+          File.cwd!()
+        )
+
       Shell.info("Finished signing")
     else
       error -> Shell.render_error(error)
     end
+  end
+
+  defp process_keys(:data, keys), do: keys
+
+  defp process_keys(:path, {public_key_path, private_key_path}) do
+    public_key = File.read!(public_key_path)
+
+    {:ok, private_key} =
+      File.read!(private_key_path)
+      |> NervesHubCLI.Crypto.decrypt("")
+
+    {public_key, private_key}
   end
 
   defp maybe_deploy([], _, _, _, _), do: :ok

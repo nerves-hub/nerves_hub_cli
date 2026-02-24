@@ -58,7 +58,7 @@ defmodule NervesHubCLI.Key do
     with {:ok, public_key} <- File.read(public_key_path),
          {:ok, encrypted_private_key} <- File.read(private_key_path),
          {:ok, private_key} <- Crypto.decrypt(encrypted_private_key, key_password) do
-      {:ok, public_key, private_key}
+      {:ok, :data, {public_key, private_key}}
     else
       {:error, :enoent} ->
         {:error, "Couldn't find #{public_key_path} or #{private_key_path}"}
