@@ -4,6 +4,7 @@
 
 Updated:
 
+- Bump deps, including Burrito, Zig, Erlang, and Elixir
 - A better help message when the URI isn't set (thanks @fhunleth) (#263)
 - Use the correct Erlang (thanks @fhunleth) (#264)
 
