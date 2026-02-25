@@ -92,14 +92,22 @@ defmodule NervesHubCLI.CLI.Shell do
   end
 
   def request_keys(org, name, prompt) do
+    env_pub_key_path = System.get_env("NERVES_HUB_FW_PUBLIC_KEY_PATH")
+    env_priv_key_path = System.get_env("NERVES_HUB_FW_PRIVATE_KEY_PATH")
+
     env_pub_key = System.get_env("NERVES_HUB_FW_PUBLIC_KEY")
     env_priv_key = System.get_env("NERVES_HUB_FW_PRIVATE_KEY")
 
-    if env_pub_key != nil and env_priv_key != nil do
-      {:ok, env_pub_key, env_priv_key}
-    else
-      key_password = password_get(prompt)
-      NervesHubCLI.Key.get(org, name, key_password)
+    cond do
+      env_pub_key_path != nil and env_priv_key_path != nil ->
+        {:ok, :path, {env_pub_key_path, env_priv_key_path}}
+
+      env_pub_key != nil and env_priv_key != nil ->
+        {:ok, :data, {env_pub_key, env_priv_key}}
+
+      true ->
+        key_password = password_get(prompt)
+        NervesHubCLI.Key.get(org, name, key_password)
     end
   end
 

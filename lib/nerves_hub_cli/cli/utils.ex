@@ -14,7 +14,9 @@ defmodule NervesHubCLI.CLI.Utils do
       Keyword.get(opts, :product) || System.get_env("NERVES_HUB_PRODUCT") || Config.get(:product) ||
         suggest_product(org)
 
-    Shell.info("NervesHub product: #{product}")
+    Shell.info([:cyan, "Product:        ", :reset, "#{product}"])
+    Shell.info("")
+
     product
   end
 
@@ -233,7 +235,7 @@ defmodule NervesHubCLI.CLI.Utils do
 
     case target do
       "host" ->
-        Shell.info("Target: host (cannot determine firmware path)")
+        Shell.info("\nTarget: host (cannot determine firmware path)")
         Shell.prompt("Firmware path:")
 
       target ->
