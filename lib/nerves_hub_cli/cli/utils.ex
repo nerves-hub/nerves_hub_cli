@@ -239,11 +239,9 @@ defmodule NervesHubCLI.CLI.Utils do
         Shell.prompt("Firmware path:")
 
       target ->
-        Shell.info("Checking for firmware in base path: ./build/#{target}_#{env}/nerves/images/")
-
         case Path.wildcard("./_build/#{target}_#{env}/nerves/images/*.fw") do
           [fw_path] ->
-            Shell.info("Detected firmware path: #{fw_path}")
+            Shell.info("Detected firmware: #{fw_path}")
             fw_path
 
           [] ->
