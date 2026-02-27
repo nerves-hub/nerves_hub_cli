@@ -66,7 +66,8 @@ defmodule NervesHubCLI.CLI.Shell do
 
   @spec yes?(String.t()) :: boolean()
   def yes?(message) do
-    System.get_env("NERVES_HUB_NON_INTERACTIVE") ||
+    System.get_env("DEBIAN_FRONTEND") == "noninteractive" ||
+      System.get_env("NERVES_HUB_NON_INTERACTIVE") ||
       IO.ANSI.format([message, :yellow, " yN "])
       |> IO.gets()
       |> then(fn resp ->
