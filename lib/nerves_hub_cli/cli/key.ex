@@ -229,7 +229,7 @@ defmodule NervesHubCLI.CLI.Key do
     path = opts[:path] || NervesHubCLI.home_dir()
 
     with :ok <- File.mkdir_p(path),
-         {:ok, public_key, private_key} <- Shell.request_keys(org, key),
+         {:ok, public_key, private_key} <- Shell.request_keys(org, key, show_key_info: false),
          filename <- key_tar_file_name(path, org, key),
          {:ok, tar} <- :erl_tar.open(to_charlist(filename), [:write, :compressed]),
          :ok <- :erl_tar.add(tar, {~c"#{key}.pub", public_key}, []),

@@ -215,58 +215,11 @@ defmodule NervesHubCLI.CLI.Firmware do
   end
 
   def sign(firmware, org, opts) do
-    System.get_env("NERVES_HUB_FW_PUBLIC_KEY") ||
-      System.get_env("NERVES_HUB_FW_PRIVATE_KEY") ||
-      System.get_env("NERVES_HUB_FW_PUBLIC_KEY_PATH") ||
-      System.get_env("NERVES_HUB_FW_PRIVATE_KEY_PATH") ||
-      opts[:key] ||
-      Shell.raise(
-        Enum.join(
-          [
-            "  Firmware signing key not found.",
-            "",
-            "  Please specify the firmware signing key with either:",
-            "    --key key_name",
-            "    or NERVES_HUB_FW_PUBLIC_KEY and NERVES_HUB_FW_PRIVATE_KEY env vars",
-            "    or NERVES_HUB_FW_PUBLIC_KEY_PATH and NERVES_HUB_FW_PRIVATE_KEY_PATH env vars"
-          ],
-          "\n"
-        )
-      )
-
-    Shell.info("Signing #{firmware}")
-
-    if key = opts[:key] do
-      Shell.info("  with key #{key}\n")
-    end
-
-    if System.get_env("NERVES_HUB_FW_PUBLIC_KEY") && System.get_env("NERVES_HUB_FW_PRIVATE_KEY") do
-      Shell.info("  using public and private keys from the environment\n")
-    end
-
-    if System.get_env("NERVES_HUB_FW_PUBLIC_KEY_PATH") &&
-         System.get_env("NERVES_HUB_FW_PRIVATE_KEY_PATH") do
-      Shell.info("  using public and private key file paths from the environment\n")
-    end
+    Shell.info("\nSigning #{firmware}")
 
     with {:ok, style, keys} <- Shell.request_keys(org, opts[:key]),
-         {public_key, private_key} <- process_keys(style, keys) do
-      :ok =
-        Cmd.fwup(
-          [
-            "--sign",
-            "-i",
-            firmware,
-            "-o",
-            firmware,
-            "--private-key",
-            private_key,
-            "--public-key",
-            public_key
-          ],
-          File.cwd!()
-        )
-
+         {public_key, private_key} <- process_keys(style, keys),
+         :ok <- sign_firmware(firmware, private_key, public_key) do
       Shell.info("Finished signing\n")
     else
       error -> Shell.render_error(error)
@@ -283,6 +236,23 @@ defmodule NervesHubCLI.CLI.Firmware do
       |> NervesHubCLI.Crypto.decrypt("")
 
     {public_key, private_key}
+  end
+
+  defp sign_firmware(firmware, private_key, public_key) do
+    Cmd.fwup(
+      [
+        "--sign",
+        "-i",
+        firmware,
+        "-o",
+        firmware,
+        "--private-key",
+        private_key,
+        "--public-key",
+        public_key
+      ],
+      File.cwd!()
+    )
   end
 
   defp maybe_deploy([], _, _, _, _), do: :ok

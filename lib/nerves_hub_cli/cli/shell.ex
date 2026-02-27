@@ -1,4 +1,5 @@
 defmodule NervesHubCLI.CLI.Shell do
+  alias NervesHubCLI.CLI.Shell
   alias NervesHubCLI.CLI.Utils
 
   @spec info(IO.ANSI.ansidata()) :: :ok
@@ -88,11 +89,9 @@ defmodule NervesHubCLI.CLI.Shell do
     {:error, :failed_password}
   end
 
-  def request_keys(org, name) do
-    request_keys(org, name, "Local signing key password for '#{name}': ")
-  end
+  def request_keys(org, name, opts \\ []) do
+    show_key_info = Keyword.get(opts, :show_key_info, true)
 
-  def request_keys(org, name, prompt) do
     env_pub_key_path = System.get_env("NERVES_HUB_FW_PUBLIC_KEY_PATH")
     env_priv_key_path = System.get_env("NERVES_HUB_FW_PRIVATE_KEY_PATH")
 
@@ -100,15 +99,32 @@ defmodule NervesHubCLI.CLI.Shell do
     env_priv_key = System.get_env("NERVES_HUB_FW_PRIVATE_KEY")
 
     cond do
+      not is_nil(name) ->
+        show_key_info && info("  with key #{name}\n")
+        key_password = password_get("Local signing key password for '#{name}': ")
+        NervesHubCLI.Key.get(org, name, key_password)
+
       env_pub_key_path != nil and env_priv_key_path != nil ->
+        show_key_info && info("  using public and private key file paths from the environment\n")
         {:ok, :path, {env_pub_key_path, env_priv_key_path}}
 
       env_pub_key != nil and env_priv_key != nil ->
+        show_key_info && info("  using public and private keys from the environment\n")
         {:ok, :data, {env_pub_key, env_priv_key}}
 
       true ->
-        key_password = password_get(prompt)
-        NervesHubCLI.Key.get(org, name, key_password)
+        Enum.join(
+          [
+            "  Firmware signing key not found.",
+            "",
+            "  Please specify the firmware signing key with either:",
+            "    --key key_name",
+            "    or NERVES_HUB_FW_PUBLIC_KEY_PATH and NERVES_HUB_FW_PRIVATE_KEY_PATH env vars",
+            "    or NERVES_HUB_FW_PUBLIC_KEY and NERVES_HUB_FW_PRIVATE_KEY env vars"
+          ],
+          "\n"
+        )
+        |> Shell.raise()
     end
   end
 
