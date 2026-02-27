@@ -250,23 +250,8 @@ defmodule NervesHubCLI.CLI.Firmware do
     end
 
     with {:ok, style, keys} <- Shell.request_keys(org, opts[:key]),
-         {public_key, private_key} <- process_keys(style, keys) do
-      :ok =
-        Cmd.fwup(
-          [
-            "--sign",
-            "-i",
-            firmware,
-            "-o",
-            firmware,
-            "--private-key",
-            private_key,
-            "--public-key",
-            public_key
-          ],
-          File.cwd!()
-        )
-
+         {public_key, private_key} <- process_keys(style, keys),
+         :ok <- sign_firmware(firmware, private_key, public_key) do
       Shell.info("Finished signing\n")
     else
       error -> Shell.render_error(error)
@@ -283,6 +268,23 @@ defmodule NervesHubCLI.CLI.Firmware do
       |> NervesHubCLI.Crypto.decrypt("")
 
     {public_key, private_key}
+  end
+
+  defp sign_firmware(firmware, private_key, public_key) do
+    Cmd.fwup(
+      [
+        "--sign",
+        "-i",
+        firmware,
+        "-o",
+        firmware,
+        "--private-key",
+        private_key,
+        "--public-key",
+        public_key
+      ],
+      File.cwd!()
+    )
   end
 
   defp maybe_deploy([], _, _, _, _), do: :ok
