@@ -1,12 +1,20 @@
 # Changelog
 
-## Unreleased
+## v3.1.0
+
+Added:
+
+- Allow for firmware signing key paths to be specified via environment variables
+- Support Scripts can be listed and sent to devices (thanks @lawik) (#316)
+- Support `DEBIAN_FRONTEND=noninteractive` to avoid interactive prompts
 
 Updated:
 
-- Bump deps, including Burrito, Zig, Erlang, and Elixir
+- Automatically detect firmware path if not provided (thanks @lawik) (#275)
 - A better help message when the URI isn't set (thanks @fhunleth) (#263)
 - Use the correct Erlang (thanks @fhunleth) (#264)
+- Improve error messages when firmware signing fails
+- Bump deps, including Burrito, Zig, Erlang, and Elixir
 
 Fixes:
 

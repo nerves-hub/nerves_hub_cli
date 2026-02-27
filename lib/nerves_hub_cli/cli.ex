@@ -49,7 +49,7 @@ defmodule NervesHubCLI.CLI do
 
         $ #{executable()} user auth
         $ #{executable()} device list
-        $ #{executable()} key create --name dev_key
+        $ #{executable()} key create dev_key
     """
     |> Shell.markdown()
   end
