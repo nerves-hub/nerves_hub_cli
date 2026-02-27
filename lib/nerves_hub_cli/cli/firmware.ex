@@ -215,39 +215,7 @@ defmodule NervesHubCLI.CLI.Firmware do
   end
 
   def sign(firmware, org, opts) do
-    System.get_env("NERVES_HUB_FW_PUBLIC_KEY") ||
-      System.get_env("NERVES_HUB_FW_PRIVATE_KEY") ||
-      System.get_env("NERVES_HUB_FW_PUBLIC_KEY_PATH") ||
-      System.get_env("NERVES_HUB_FW_PRIVATE_KEY_PATH") ||
-      opts[:key] ||
-      Shell.raise(
-        Enum.join(
-          [
-            "  Firmware signing key not found.",
-            "",
-            "  Please specify the firmware signing key with either:",
-            "    --key key_name",
-            "    or NERVES_HUB_FW_PUBLIC_KEY and NERVES_HUB_FW_PRIVATE_KEY env vars",
-            "    or NERVES_HUB_FW_PUBLIC_KEY_PATH and NERVES_HUB_FW_PRIVATE_KEY_PATH env vars"
-          ],
-          "\n"
-        )
-      )
-
-    Shell.info("Signing #{firmware}")
-
-    if key = opts[:key] do
-      Shell.info("  with key #{key}\n")
-    end
-
-    if System.get_env("NERVES_HUB_FW_PUBLIC_KEY") && System.get_env("NERVES_HUB_FW_PRIVATE_KEY") do
-      Shell.info("  using public and private keys from the environment\n")
-    end
-
-    if System.get_env("NERVES_HUB_FW_PUBLIC_KEY_PATH") &&
-         System.get_env("NERVES_HUB_FW_PRIVATE_KEY_PATH") do
-      Shell.info("  using public and private key file paths from the environment\n")
-    end
+    Shell.info("\nSigning #{firmware}")
 
     with {:ok, style, keys} <- Shell.request_keys(org, opts[:key]),
          {public_key, private_key} <- process_keys(style, keys),
