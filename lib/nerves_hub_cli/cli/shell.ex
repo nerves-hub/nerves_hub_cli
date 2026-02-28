@@ -53,8 +53,13 @@ defmodule NervesHubCLI.CLI.Shell do
 
   @spec prompt(String.t()) :: String.t()
   def prompt(message) do
-    IO.gets(message <> " ")
-    |> String.trim()
+    if System.get_env("DEBIAN_FRONTEND") == "noninteractive" ||
+         System.get_env("NERVES_HUB_NON_INTERACTIVE") do
+      Shell.raise("\nCouldn't determine firmware path, please specify it manually.")
+    else
+      IO.gets(message <> " ")
+      |> String.trim()
+    end
   end
 
   @spec prompt(String.t(), String.t()) :: String.t()

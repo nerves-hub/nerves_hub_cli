@@ -153,7 +153,9 @@ defmodule NervesHubCLI.API do
   end
 
   defp progress?() do
-    System.get_env("NERVES_LOG_DISABLE_PROGRESS_BAR") == nil
+    System.get_env("NERVES_LOG_DISABLE_PROGRESS_BAR") == nil &&
+      System.get_env("NERVES_HUB_NON_INTERACTIVE") in [nil, ""] &&
+      System.get_env("DEBIAN_FRONTEND") != "noninteractive"
   end
 
   defp ca_certs do
