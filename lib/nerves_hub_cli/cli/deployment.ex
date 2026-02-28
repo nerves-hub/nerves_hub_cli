@@ -9,7 +9,7 @@ defmodule NervesHubCLI.CLI.Deployment do
   ### Command-line options
 
     * `--product` - (Optional) Only show deployments for one product.
-      This defaults to the NERVES_HUB_PRODUCT environment variable (if set) or
+      This defaults to the NERVES_CLOUD_PRODUCT or NERVES_HUB_PRODUCT environment variable (if set) or
       the global configuration via `nerves_hub config set product "product_name"`
 
   ## create

@@ -20,7 +20,7 @@ defmodule NervesHubCLI.CLI.Device do
   ### Command-line options
 
     * `--product` - (Optional) The product name.
-      This defaults to the NERVES_HUB_PRODUCT environment variable (if set) or
+      This defaults to the NERVES_CLOUD_PRODUCT or NERVES_HUB_PRODUCT environment variable (if set) or
       the global configuration via `nerves_hub config set product "product_name"`
     * `--identifier` - (Optional) The device identifier
     * `--description` - (Optional) The description of the device
@@ -53,7 +53,7 @@ defmodule NervesHubCLI.CLI.Device do
     * `--csv` - Path to a CSV file
 
     * `--product` - (Optional) The product name.
-      This defaults to the NERVES_HUB_PRODUCT environment variable (if set) or
+      This defaults to the NERVES_CLOUD_PRODUCT or NERVES_HUB_PRODUCT environment variable (if set) or
       the global configuration via `nerves_hub config set product "product_name"`
 
   ## update
@@ -69,7 +69,7 @@ defmodule NervesHubCLI.CLI.Device do
   ### Command-line options
 
   * `--product` - (Optional) The product name.
-      This defaults to the NERVES_HUB_PRODUCT environment variable (if set) or
+      This defaults to the NERVES_CLOUD_PRODUCT or NERVES_HUB_PRODUCT environment variable (if set) or
       the global configuration via `nerves_hub config set product "product_name"`
   * `--identifier` - (Optional) Only show device matching an identifier
   * `--description` - (Optional) Only show devices matching a description
@@ -89,27 +89,6 @@ defmodule NervesHubCLI.CLI.Device do
 
       nh device delete DEVICE_IDENTIFIER
 
-  ## burn
-
-  Combine a firmware image with NervesHub provisioning information and burn the
-  result to an attached MicroSD card or file. This requires that the device
-  was already created. Calling burn without passing command-line options will
-  generate a new cert pair for the device. The command will end with calling
-  mix firmware.burn.
-
-      nh device burn DEVICE_IDENTIFIER
-
-  ### Command-line options
-
-    * `--product` - (Optional) The product name.
-      This defaults to the NERVES_HUB_PRODUCT environment variable (if set) or
-      the global configuration via `nerves_hub config set product "product_name"`
-    * `--cert` - (Optional) A path to an existing device certificate
-    * `--key` - (Optional) A path to an existing device private key
-    * `--path` - (Optional) The path to put the device certificates
-    * `--firmware` - (Optional) The path to the fw file to use. Defaults to
-      `<image_path>/<otp_app>.fw`
-
   ## cert list
 
   List all certificates for a device.
@@ -119,7 +98,7 @@ defmodule NervesHubCLI.CLI.Device do
   ### Command-line options
 
     * `--product` - (Optional) The product name.
-      This defaults to the NERVES_HUB_PRODUCT environment variable (if set) or
+      This defaults to the NERVES_CLOUD_PRODUCT or NERVES_HUB_PRODUCT environment variable (if set) or
       the global configuration via `nerves_hub config set product "product_name"`
 
   ## cert create
@@ -137,7 +116,7 @@ defmodule NervesHubCLI.CLI.Device do
   ### Command-line options
 
     * `--product` - (Optional) The product name.
-      This defaults to the NERVES_HUB_PRODUCT environment variable (if set) or
+      This defaults to the NERVES_CLOUD_PRODUCT or NERVES_HUB_PRODUCT environment variable (if set) or
       the global configuration via `nerves_hub config set product "product_name"`
     * `--path` - (Optional) A local location for storing certificates
     * `--signer-cert` - (required) Path to the signer certificate
@@ -153,7 +132,7 @@ defmodule NervesHubCLI.CLI.Device do
   ### Command-line options
 
     * `--product` - (Optional) The product name.
-      This defaults to the NERVES_HUB_PRODUCT environment variable (if set) or
+      This defaults to the NERVES_CLOUD_PRODUCT or NERVES_HUB_PRODUCT environment variable (if set) or
       the global configuration via `nerves_hub config set product "product_name"`
 
   ## script list
@@ -235,9 +214,6 @@ defmodule NervesHubCLI.CLI.Device do
       ["delete", identifier] ->
         delete(org, product, identifier)
 
-      ["burn", identifier] ->
-        burn(identifier, opts)
-
       ["cert", "list", device] ->
         cert_list(org, product, device)
 
@@ -271,7 +247,6 @@ defmodule NervesHubCLI.CLI.Device do
       nh device create
       nh device update KEY VALUE
       nh device delete DEVICE_IDENTIFIER
-      nh device burn DEVICE_IDENTIFIER
       nh device cert list DEVICE_IDENTIFIER
       nh device cert create DEVICE_IDENTIFIER
       nh device cert import DEVICE_IDENTIFIER CERT_PATH
@@ -402,53 +377,6 @@ defmodule NervesHubCLI.CLI.Device do
     end
   end
 
-  @spec burn(String.t(), keyword()) :: :ok
-  def burn(identifier, opts) do
-    path = opts[:path] || NervesHubCLI.home_dir()
-    cert_path = opts[:cert]
-    key_path = opts[:key]
-
-    {cert_path, key_path} =
-      if key_path == nil and cert_path == nil do
-        cert_path = Path.join(path, identifier <> "-cert.pem")
-        key_path = Path.join(path, identifier <> "-key.pem")
-
-        unless File.exists?(key_path) and File.exists?(cert_path) do
-          Shell.raise("""
-            A private key and certificate for #{identifier}
-            does not exists at path #{path}.
-
-            To generate certificates for #{identifier}
-
-              nh device cert create #{identifier}
-
-          """)
-        end
-
-        {cert_path, key_path}
-      else
-        if key_path == nil or cert_path == nil do
-          Shell.raise("Must specify both --key and --cert")
-        end
-
-        {cert_path, key_path}
-      end
-
-    Shell.info("Burning firmware")
-    System.put_env("NERVES_SERIAL_NUMBER", identifier)
-    System.put_env("NERVES_HUB_CERT", File.read!(cert_path))
-    System.put_env("NERVES_HUB_KEY", File.read!(key_path))
-
-    burn_args =
-      opts
-      |> Keyword.take([:firmware])
-      |> OptionParser.to_argv()
-
-    System.cmd("mix", ["burn" | burn_args])
-
-    :ok
-  end
-
   @spec cert_list(String.t(), String.t(), String.t()) :: :ok
   def cert_list(org, product, identifier) do
     auth = Shell.request_auth()
@@ -469,7 +397,7 @@ defmodule NervesHubCLI.CLI.Device do
         ) :: :ok
   def cert_create(org, identifier, opts) do
     Shell.info("Creating certificate for #{identifier}")
-    path = opts[:path] || NervesHubCLI.home_dir()
+    path = opts[:path] || NervesHubCLI.data_dir()
     File.mkdir_p!(path)
 
     key = X509.PrivateKey.new_ec(:secp256r1)

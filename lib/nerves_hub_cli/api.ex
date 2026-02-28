@@ -1,5 +1,7 @@
 defmodule NervesHubCLI.API do
   @moduledoc false
+  alias NervesHubCLI.CLI.Utils
+
   require Logger
 
   @file_chunk 4096
@@ -14,17 +16,10 @@ defmodule NervesHubCLI.API do
   """
   @spec endpoint() :: String.t()
   def endpoint() do
-    if server = System.get_env("NERVES_HUB_URI") || NervesHubCLI.Config.get(:uri) do
-      URI.parse(server)
-      |> append_path("/api")
-      |> URI.to_string()
-    else
-      scheme = System.get_env("NERVES_HUB_SCHEME")
-      host = System.get_env("NERVES_HUB_HOST")
-      port = get_env_as_integer("NERVES_HUB_PORT")
-
-      %URI{scheme: scheme, host: host, port: port, path: "/api"} |> URI.to_string()
-    end
+    NervesHubCLI.Config.uri()
+    |> URI.parse()
+    |> append_path("/api")
+    |> URI.to_string()
   end
 
   def request(:get, path, params) when is_map(params) do
@@ -59,7 +54,7 @@ defmodule NervesHubCLI.API do
       |> Stream.each(fn chunk ->
         Agent.update(pid, fn sent ->
           size = sent + byte_size(chunk)
-          if progress?(), do: put_progress(size, content_length)
+          if Utils.interactive?(), do: put_progress(size, content_length)
           size
         end)
       end)
@@ -113,26 +108,37 @@ defmodule NervesHubCLI.API do
   defp headers(_), do: []
 
   defp opts() do
-    ssl_options =
-      [
+    default_opts = [
+      recv_timeout: 60_000,
+      protocols: [:http1],
+      timeout: 300_000
+    ]
+
+    if ssl?() do
+      ssl_options = [
         verify: :verify_peer,
         server_name_indication: server_name_indication(),
         cacerts: ca_certs(),
         customize_hostname_check: [match_fun: :public_key.pkix_verify_hostname_match_fun(:https)]
       ]
 
-    [
-      ssl_options: ssl_options,
-      recv_timeout: 60_000,
-      protocols: [:http1],
-      timeout: 300_000
-    ]
+      default_opts ++ [ssl_options: ssl_options]
+    else
+      default_opts
+    end
+  end
+
+  defp ssl?() do
+    endpoint()
+    |> URI.parse()
+    |> then(& &1.host)
+    |> String.starts_with?("https")
   end
 
   defp server_name_indication do
-    server = System.get_env("NERVES_HUB_URI") || NervesHubCLI.Config.get(:uri)
-
-    URI.parse(server).host
+    endpoint()
+    |> URI.parse()
+    |> then(& &1.host)
     |> to_charlist()
   end
 
@@ -152,21 +158,8 @@ defmodule NervesHubCLI.API do
     trunc(bytes / 1024 / 1024)
   end
 
-  defp progress?() do
-    System.get_env("NERVES_LOG_DISABLE_PROGRESS_BAR") == nil &&
-      System.get_env("NERVES_HUB_NON_INTERACTIVE") in [nil, ""] &&
-      System.get_env("DEBIAN_FRONTEND") != "noninteractive"
-  end
-
   defp ca_certs do
     :public_key.cacerts_get()
-  end
-
-  defp get_env_as_integer(str) do
-    case System.get_env(str) do
-      nil -> nil
-      value -> String.to_integer(value)
-    end
   end
 
   defmodule VendoredURI do

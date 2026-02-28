@@ -17,24 +17,5 @@
 
 /tmp
 
-/.elixir_ls
-
 # If the VM crashes, it generates a dump, let's ignore it too.
 erl_crash.dump
-
-# Also ignore archive artifacts (built via "mix archive.build").
-*.ez
-
-# Ignore package tarball (built via "mix hex.build").
-nerves_hub_cli-*.tar
-
-# Ignore any dev home_dir
-/.nerves-hub/
-
-# Ignore any test home_dir
-/test/.nerves-hub
-
-
-# Ignore any nerves-hub certificates
-/nerves-hub
-/*.pem

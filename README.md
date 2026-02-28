@@ -1,7 +1,6 @@
-# NervesHubCLI
+# NervesCloud and NervesHub CLI
 
-The recommended CLI tool for working with [NervesHub](https://www.nerves-hub.org) and
-[NervesCloud](https://nervescloud.com) from the command-line.
+The recommended CLI tool for working with [NervesCloud](https://nervescloud.com) and self-hosted [NervesHub](https://github.com/nerves-hub/nerves_hub_web) platforms.
 
 Features include:
 
@@ -62,65 +61,45 @@ $ nh help
 $ nh help device
 ```
 
-Burritos magic is how it creates a platform specific Erlang release, compresses it into a binary, which is then
-extracted to a directory managed by Burrito when the binary is executed for the first time.
+## Connecting to your NervesHub
 
-Subsquent use of the binary will proxy the commands to the extracted release, invisible to the user.
+When using the CLI, the default URI points to [NervesCloud](https://nervescloud.com) : `https://manage.nervescloud.com`.  
 
-
-## Connecting to NervesHub
-
-NervesHubCLI must be configured to connect to your chosen NervesHub host.
-
-To configure the NervesHub URI, run:
+To configure a different URI you can use:
 
 ```sh
-$ nh config set uri "https://my.nerveshub.instance/"
+$ nh config set uri "https://my.selfhosted.instance/"
 ```
 
-and for [NervesCloud](https://nervescloud.com):
+Finally, you need to authorize your account with the choosen platform by running:
 
 ```sh
-$ nh config set uri "https://manage.nervescloud.com/"
-```
-
-Finally, you need to authorize your account on the NervesHub instance by running:
-
-```sh
-$ nh user whoami
 $ nh user auth
 ```
 
 
 ## Environment variables
 
-`NervesHubCLI` may be configured using environment variables to simplify
-automation. The following variables are available:
+The CLI can be configured using environment variables to simplify automation. 
 
-* `NERVES_HUB_TOKEN` (or `NH_TOKEN`) - Token used to authenticate API requests
-* `NERVES_HUB_CERT` - Certificate contents for authenticating with NervesHub
-* `NERVES_HUB_KEY`  - The private key associated with `NERVES_HUB_CERT`
-* `NERVES_HUB_ORG`  - NervesHub organization to use
-* `NERVES_HUB_PRODUCT`  - NervesHub product to use
-* `NERVES_HUB_FW_PRIVATE_KEY` - Fwup signing private key
-* `NERVES_HUB_FW_PUBLIC_KEY`  - Fwup signing public key
-* `NERVES_HUB_HOME` - NervesHub CLI data directory (defaults to `~/.nerves-hub`)
-* `NERVES_HUB_URI` - NervesHub API host, port, scheme (all in one)
-* `NERVES_HUB_HOST` - NervesHub API endpoint IP address or hostname
-* `NERVES_HUB_PORT` - NervesHub API endpoint port
-* `NERVES_HUB_SCHEME` - NervesHub API endpoint scheme
-* `NERVES_HUB_NON_INTERACTIVE` - Force all yes/no user interaction to be yes
+The following variables are available:
 
+* `NERVES_CLOUD_TOKEN`/`NERVES_HUB_TOKEN` - Token used to authenticate API requests
+* `NERVES_CLOUD_ORG`/`NERVES_HUB_ORG` - Organization used for API requests
+* `NERVES_CLOUD_PRODUCT`/`NERVES_HUB_PRODUCT` - Product to used for API requests
+* `NERVES_CLOUD_FW_PRIVATE_KEY`/`NERVES_HUB_FW_PRIVATE_KEY` - Private key used for signing firmware
+* `NERVES_CLOUD_FW_PUBLIC_KEY`/`NERVES_HUB_FW_PUBLIC_KEY` - Public key used for verifying firmware
+* `NERVES_CLOUD_DATA_DIR`/`NERVES_HUB_DATA_DIR` - Directory used for storing config and signing keys (defaults to `~/.nerves-cloud`/`~/.nerves-hub`)
+* `NERVES_CLOUD_URI`/`NERVES_HUB_URI` - Platform URI (defaults to `https://manage.nervescloud.com`)
+* `NERVES_CLOUD_NON_INTERACTIVE`/`NERVES_HUB_NON_INTERACTIVE` - Force all yes/no user interaction to be yes
 
 
 ## Uninstalling the CLI
 
-When you uninstall the NervesHubCLI it is highly recommended to run:
+When you uninstall the CLI, it's highly recommended to run:
 
 ```
 $ nh maintenance uninstall
 ```
-
-which tells Burrito to remove the cached contents.
 
 Once you have run the above command you can safely delete the `nh` binary.

@@ -10,9 +10,7 @@ defmodule NervesHubCLI.CLI.Utils do
     # - global config, which was set via `nerves_hub config set product "my_product_name"`
     # - fetch list from API and suggest available products
     # - raise with error message
-    product =
-      Keyword.get(opts, :product) || System.get_env("NERVES_HUB_PRODUCT") || Config.get(:product) ||
-        suggest_product(org)
+    product = Config.product(opts) || suggest_product(org)
 
     Shell.info([:cyan, "Product:        ", :reset, "#{product}"])
     Shell.info("")
@@ -51,9 +49,9 @@ defmodule NervesHubCLI.CLI.Utils do
 
         --product product_name
 
-      By setting the environment variable NERVES_HUB_PRODUCT
+      By setting the environment variable NERVES_CLOUD_PRODUCT or NERVES_HUB_PRODUCT
 
-        export NERVES_HUB_PRODUCT=product_name
+        export NERVES_CLOUD_PRODUCT=product_name
 
       Via global configuration (this applies to all projects)
 
@@ -83,7 +81,6 @@ defmodule NervesHubCLI.CLI.Utils do
 
       Finally, you need to authorize your account on the NervesHub instance by running:
 
-        nh user whoami
         nh user auth
       """)
     end
@@ -100,7 +97,7 @@ defmodule NervesHubCLI.CLI.Utils do
     # - global config, which was set via `nerves_hub config set org "my_product_name"`
     # - raise with error message
     org =
-      Keyword.get(opts, :org) || System.get_env("NERVES_HUB_ORG") || Config.get(:org) ||
+      Config.org(opts) ||
         Shell.raise("""
         Cound not determine organization
 
@@ -110,9 +107,9 @@ defmodule NervesHubCLI.CLI.Utils do
 
             --org org_name
 
-          By setting the environment variable NERVES_HUB_ORG
+          By setting the environment variable NERVES_CLOUD_ORG or NERVES_HUB_ORG
 
-            export NERVES_HUB_ORG=org_name
+            export NERVES_CLOUD_ORG=org_name
 
           Via global configuration (this applies to all projects)
 
@@ -218,15 +215,6 @@ defmodule NervesHubCLI.CLI.Utils do
   end
 
   @doc """
-  Get User Access Token for use with the session
-  """
-  def token(opts \\ []) do
-    opts[:token] ||
-      System.get_env("NERVES_HUB_TOKEN") || System.get_env("NH_TOKEN") ||
-      Config.get(:token)
-  end
-
-  @doc """
   Derive likely current firmware
   """
   def firmware_path() do
@@ -249,6 +237,61 @@ defmodule NervesHubCLI.CLI.Utils do
             Shell.prompt("\nFirmware path:")
         end
     end
+  end
+
+  def interactive?() do
+    System.get_env("NERVES_LOG_DISABLE_PROGRESS_BAR") == nil &&
+      System.get_env("NERVES_CLOUD_NON_INTERACTIVE") == nil &&
+      System.get_env("NERVES_HUB_NON_INTERACTIVE") == nil &&
+      System.get_env("DEBIAN_FRONTEND") != "noninteractive" &&
+      System.get_env("CI") == nil
+  end
+
+  def noninteractive?(), do: !interactive?()
+
+  def firmware_signing_key_paths?() do
+    all?(["NERVES_CLOUD_FW_PUBLIC_KEY_PATH", "NERVES_CLOUD_FW_PRIVATE_KEY_PATH"]) ||
+      all?(["NERVES_HUB_FW_PUBLIC_KEY_PATH", "NERVES_HUB_FW_PRIVATE_KEY_PATH"])
+  end
+
+  def firmware_signing_keys?() do
+    all?(["NERVES_CLOUD_FW_PUBLIC_KEY", "NERVES_CLOUD_FW_PRIVATE_KEY"]) ||
+      all?(["NERVES_HUB_FW_PUBLIC_KEY", "NERVES_HUB_FW_PRIVATE_KEY"])
+  end
+
+  def firmware_signing_key_paths() do
+    cond do
+      all?(["NERVES_CLOUD_FW_PUBLIC_KEY_PATH", "NERVES_CLOUD_FW_PRIVATE_KEY_PATH"]) ->
+        {System.get_env("NERVES_CLOUD_FW_PUBLIC_KEY_PATH"),
+         System.get_env("NERVES_CLOUD_FW_PRIVATE_KEY_PATH")}
+
+      all?(["NERVES_HUB_FW_PUBLIC_KEY_PATH", "NERVES_HUB_FW_PRIVATE_KEY_PATH"]) ->
+        {System.get_env("NERVES_HUB_FW_PUBLIC_KEY_PATH"),
+         System.get_env("NERVES_HUB_FW_PRIVATE_KEY_PATH")}
+
+      true ->
+        raise "No firmware signing key paths configured in via environment variables"
+    end
+  end
+
+  def firmware_signing_keys() do
+    cond do
+      all?(["NERVES_CLOUD_FW_PUBLIC_KEY", "NERVES_CLOUD_FW_PRIVATE_KEY"]) ->
+        {System.get_env("NERVES_CLOUD_FW_PUBLIC_KEY"),
+         System.get_env("NERVES_CLOUD_FW_PRIVATE_KEY")}
+
+      all?(["NERVES_HUB_FW_PUBLIC_KEY", "NERVES_HUB_FW_PRIVATE_KEY"]) ->
+        {System.get_env("NERVES_HUB_FW_PUBLIC_KEY"), System.get_env("NERVES_HUB_FW_PRIVATE_KEY")}
+
+      true ->
+        raise "No firmware signing keys configured in via environment variables"
+    end
+  end
+
+  defp all?(env_vars) do
+    env_vars
+    |> Enum.map(&System.get_env(&1))
+    |> Enum.all?(&(&1 not in [nil, ""]))
   end
 
   defp check_valid_tag(tag) do

@@ -226,7 +226,7 @@ defmodule NervesHubCLI.CLI.Key do
   end
 
   def export(key, org, opts) do
-    path = opts[:path] || NervesHubCLI.home_dir()
+    path = opts[:path] || NervesHubCLI.data_dir()
 
     with :ok <- File.mkdir_p(path),
          {:ok, public_key, private_key} <- Shell.request_keys(org, key, show_key_info: false),
