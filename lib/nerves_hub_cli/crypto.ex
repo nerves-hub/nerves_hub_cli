@@ -13,10 +13,19 @@ defmodule NervesHubCLI.Crypto do
 
   @spec decrypt(binary(), any(), binary()) :: {:ok, binary()} | {:error, String.t()}
   def decrypt(cipher_text, password, tag \\ "") do
-    case PBCS.decrypt({tag, cipher_text}, password: password) do
-      plain_text when is_binary(plain_text) -> {:ok, plain_text}
-      :error -> {:error, "unknown"}
-      other -> other
+    try do
+      case PBCS.decrypt({tag, cipher_text}, password: password) do
+        plain_text when is_binary(plain_text) -> {:ok, plain_text}
+        :error -> {:error, "unknown"}
+        other -> other
+      end
+    rescue
+      MatchError ->
+        {:error,
+         "Private key decryption failed. Please check that the contents of the private key are valid"}
+
+      _ ->
+        {:error, "Decryption failed"}
     end
   end
 end

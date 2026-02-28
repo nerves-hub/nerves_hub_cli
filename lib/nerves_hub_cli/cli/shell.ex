@@ -144,6 +144,7 @@ defmodule NervesHubCLI.CLI.Shell do
     _ = do_render_error(errors)
 
     if halt? do
+      IO.puts("")
       System.halt(1)
     else
       :ok
