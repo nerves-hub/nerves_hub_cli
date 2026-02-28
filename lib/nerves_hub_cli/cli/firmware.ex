@@ -218,7 +218,7 @@ defmodule NervesHubCLI.CLI.Firmware do
     Shell.info("\nSigning #{firmware}")
 
     with {:ok, style, keys} <- Shell.request_keys(org, opts[:key]),
-         {public_key, private_key} <- process_keys(style, keys),
+         {:ok, {public_key, private_key}} <- process_keys(style, keys),
          :ok <- sign_firmware(firmware, private_key, public_key) do
       Shell.info("Finished signing\n")
     else
@@ -226,16 +226,15 @@ defmodule NervesHubCLI.CLI.Firmware do
     end
   end
 
-  defp process_keys(:data, keys), do: keys
+  defp process_keys(:data, keys), do: {:ok, keys}
 
   defp process_keys(:path, {public_key_path, private_key_path}) do
     public_key = File.read!(public_key_path)
 
-    {:ok, private_key} =
-      File.read!(private_key_path)
-      |> NervesHubCLI.Crypto.decrypt("")
-
-    {public_key, private_key}
+    with {:ok, private_key_contents} <- File.read(private_key_path),
+         {:ok, private_key} <- NervesHubCLI.Crypto.decrypt(private_key_contents, "") do
+      {:ok, {public_key, private_key}}
+    end
   end
 
   defp sign_firmware(firmware, private_key, public_key) do
