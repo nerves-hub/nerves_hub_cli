@@ -1,7 +1,7 @@
 defmodule NervesHubCLI.CLI do
   alias NervesHubCLI.CLI.Shell
 
-  @valid_commands ~w"cacert deployment device firmware key org product user config help"
+  @valid_commands ~w"cacert deployment device firmware key org product user config version help"
 
   def main([command | args]) when command in @valid_commands do
     case command do
@@ -14,6 +14,7 @@ defmodule NervesHubCLI.CLI do
       "product" -> NervesHubCLI.CLI.Product.run(args)
       "user" -> NervesHubCLI.CLI.User.run(args)
       "config" -> NervesHubCLI.CLI.Config.run(args)
+      "version" -> display_version()
       "help" -> main([])
     end
   end
@@ -39,6 +40,7 @@ defmodule NervesHubCLI.CLI do
     - `key`            - Firmware signing keys
     - `org`            - Organization management
     - `product`        - Product management
+    - `version`        - Print the version of the CLI
     - `help`           - Prints this message
 
     To get more information about a specific command, run:
@@ -63,6 +65,11 @@ defmodule NervesHubCLI.CLI do
     else
       Shell.error("Command not recognized: #{executable()} #{Enum.join(args, " ")}\n")
     end
+  end
+
+  defp display_version() do
+    version = Application.spec(:nerves_hub_cli)[:vsn]
+    Shell.info("v#{version}")
   end
 
   def executable, do: "nh"
