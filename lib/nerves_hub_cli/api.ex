@@ -27,6 +27,14 @@ defmodule NervesHubCLI.API do
     end
   end
 
+  def endpoint_host() do
+    endpoint()
+    |> URI.parse()
+    |> URI.merge("/")
+    |> URI.to_string()
+    |> String.trim_trailing("/")
+  end
+
   def request(:get, path, params) when is_map(params) do
     client()
     |> Tesla.request(
