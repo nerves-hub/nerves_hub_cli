@@ -246,7 +246,7 @@ defmodule NervesHubCLI.CLI.Utils do
 
           [] ->
             Shell.info("Target: host (cannot determine firmware path)")
-            Shell.prompt("Firmware path:")
+            Shell.prompt("\nFirmware path:")
         end
     end
   end
