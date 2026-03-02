@@ -244,6 +244,10 @@ defmodule NervesHubCLI.CLI.Utils do
             Shell.info("Detected firmware: #{fw_path}")
             fw_path
 
+          [_ | _] ->
+            Shell.info("Multiple firmware files found. Please specify a path.")
+            Shell.prompt("\nFirmware path:")
+
           [] ->
             Shell.info("Target: host (cannot determine firmware path)")
             Shell.prompt("\nFirmware path:")

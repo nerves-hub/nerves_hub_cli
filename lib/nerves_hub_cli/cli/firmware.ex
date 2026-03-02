@@ -80,11 +80,11 @@ defmodule NervesHubCLI.CLI.Firmware do
       ["publish", firmware] when is_binary(firmware) ->
         firmware
         |> Path.expand()
-        |> publish_confirm(org, opts)
+        |> publish_confirm(org, product, opts)
 
       ["publish"] ->
         firmware_path()
-        |> publish_confirm(org, opts)
+        |> publish_confirm(org, product, opts)
 
       ["delete", uuid] when is_binary(uuid) ->
         delete_confirm(uuid, org, product)
@@ -144,22 +144,32 @@ defmodule NervesHubCLI.CLI.Firmware do
     end
   end
 
-  defp publish_confirm(firmware, org, opts) do
+  defp publish_confirm(firmware, org, product, opts) do
     with true <- File.exists?(firmware),
-         {:ok, metadata} <- metadata(firmware) do
+         {:ok, metadata} <- metadata(firmware),
+         {:product_names, product, metadata_product} when product == metadata_product <-
+           {:product_names, product, metadata["product"]} do
       Shell.info("")
 
       render_firmware(metadata)
       |> String.trim_trailing()
       |> Shell.info()
 
-      Shell.info("")
-
-      if Shell.yes?("Publish Firmware?") do
-        product = metadata["product"]
+      if Shell.yes?("\nPublish Firmware?") do
         publish(firmware, org, product, opts)
       end
     else
+      {:product_names, product, metadata_product} ->
+        Shell.error("""
+        Product information doesn't match
+
+        The product name in the firmware metadata (#{metadata_product}) doesn't
+        match the product name specified when using the CLI (#{product}).
+
+        Please check that the product name reference in your
+        firmwares `mix.exs` (`:app` or `:name`) is correct.
+        """)
+
       false ->
         Shell.info("Cannot find firmware at #{firmware}")
 
@@ -197,7 +207,17 @@ defmodule NervesHubCLI.CLI.Firmware do
         Keyword.get_values(opts, :deploy)
         |> maybe_deploy(firmware, org, product, auth)
 
+      {:error, %{"errors" => %{"product_id" => ["can't be blank"]}}} ->
+        Shell.error("""
+
+        Firmware upload failed
+
+        Please check that the product reference in your firmwares `mix.exs` (`:app` or `:name`)
+        matches the product name on #{NervesHubCLI.API.endpoint_host()}
+        """)
+
       error ->
+        Shell.error("\nFirmware upload failed\n")
         Shell.render_error(error)
     end
   end
