@@ -13,7 +13,7 @@ defmodule NervesHubCLI.CLI.Firmware do
   ### Command-line options
 
     * `--product` - (Optional) The product name to publish the firmware to.
-      This defaults to the NERVES_HUB_PRODUCT environment variable (if set) or
+      This defaults to the NERVES_CLOUD_PRODUCT or NERVES_HUB_PRODUCT environment variable (if set) or
       the global configuration via `nerves_hub config set product "product_name"`
 
     * `--deploy` - (Optional) The name of a deployment to update following
@@ -29,7 +29,7 @@ defmodule NervesHubCLI.CLI.Firmware do
   ### Command-line options
 
     * `--product` - (Optional) The product name to publish the firmware to.
-      This defaults to the NERVES_HUB_PRODUCT environment variable (if set) or
+      This defaults to the NERVES_CLOUD_PRODUCT or NERVES_HUB_PRODUCT environment variable (if set) or
       the global configuration via `nerves_hub config set product "product_name"`
 
 
@@ -55,6 +55,7 @@ defmodule NervesHubCLI.CLI.Firmware do
   """
 
   import NervesHubCLI.CLI.Utils
+
   alias NervesHubCLI.Cmd
   alias NervesHubCLI.CLI.Shell
 
@@ -187,11 +188,7 @@ defmodule NervesHubCLI.CLI.Firmware do
   end
 
   defp publish(firmware, org, product, opts) do
-    if (System.get_env("NERVES_HUB_FW_PRIVATE_KEY_PATH") &&
-          System.get_env("NERVES_HUB_FW_PUBLIC_KEY_PATH")) ||
-         (System.get_env("NERVES_HUB_FW_PRIVATE_KEY") &&
-            System.get_env("NERVES_HUB_FW_PUBLIC_KEY")) ||
-         opts[:key] do
+    if firmware_signing_key_paths?() || firmware_signing_keys?() || opts[:key] do
       sign(firmware, org, opts)
     end
 

@@ -120,7 +120,7 @@ defmodule NervesHubCLI.Key do
   def public_ext(), do: @public_ext
 
   defp data_dir(org) do
-    Path.join([NervesHubCLI.home_dir(), "keys", org])
+    Path.join([NervesHubCLI.data_dir(), "keys", org])
   end
 
   # Used to validate a fwup key import.

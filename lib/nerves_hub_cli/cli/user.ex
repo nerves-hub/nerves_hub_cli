@@ -11,10 +11,10 @@ defmodule NervesHubCLI.CLI.User do
   presented in each request.
 
   You can use `nh user auth` to authenticate with NervesHub,
-  saving the token locally in your local config found in `$NERVES_HUB_HOME`
+  saving the token locally in your local config found in `$NERVES_CLOUD_DATA_DIR` / `$NERVES_HUB_DATA_DIR`
 
-  Or this token can be manually supplied with the `NERVES_HUB_TOKEN` environment
-  variable. This approach is recommended when using CLI in CI/CD systems.
+  Or this token can be manually supplied with the `NERVES_CLOUD_TOKEN` or `NERVES_HUB_TOKEN` environment
+  variables. This approach is recommended when using CLI in CI/CD systems.
 
   # Available commands
 

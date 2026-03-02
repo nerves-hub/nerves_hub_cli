@@ -12,9 +12,10 @@ defmodule NervesHubCLI do
     to_string(hostname)
   end
 
-  @spec home_dir() :: String.t()
-  def home_dir() do
-    override_dir = System.get_env("NERVES_HUB_HOME")
+  @spec data_dir() :: String.t()
+  def data_dir() do
+    override_dir =
+      System.get_env("NERVES_CLOUD_DATA_DIR") || System.get_env("NERVES_HUB_DATA_DIR")
 
     if override_dir == nil or override_dir == "" do
       Path.expand("~/.nerves-hub")
