@@ -111,10 +111,12 @@ defmodule NervesHubCLI.CLI.Shell do
         {:ok, :data, Utils.firmware_signing_keys()}
 
       true ->
+        error("  Firmware signing key not specified.\n")
+
+        suggest_keys(org)
+
         Enum.join(
           [
-            "  Firmware signing key not found.",
-            "",
             "  Please specify the firmware signing key with either:",
             "    --key key_name",
             "    or NERVES_CLOUD_FW_PUBLIC_KEY_PATH and NERVES_CLOUD_FW_PRIVATE_KEY_PATH env vars",
@@ -125,6 +127,22 @@ defmodule NervesHubCLI.CLI.Shell do
           "\n"
         )
         |> Shell.raise()
+    end
+  end
+
+  defp suggest_keys(org) do
+    key_names =
+      NervesHubCLI.Key.local_keys(org)
+      |> Enum.map(& &1.name)
+
+    if key_names != [] do
+      info("\nAvailable local signing keys for org '#{org}':\n")
+
+      key_names
+      |> Enum.with_index(1)
+      |> Enum.each(fn {name, i} -> info("  #{i}) #{name}") end)
+
+      info("")
     end
   end
 
