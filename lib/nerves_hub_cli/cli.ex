@@ -1,7 +1,7 @@
 defmodule NervesHubCLI.CLI do
   alias NervesHubCLI.CLI.Shell
 
-  @valid_commands ~w"cacert deployment device firmware key org product user config version help"
+  @valid_commands ~w"cacert deployment device firmware key org product user config version help tui"
 
   def main([command | args]) when command in @valid_commands do
     case command do
@@ -16,6 +16,7 @@ defmodule NervesHubCLI.CLI do
       "config" -> NervesHubCLI.CLI.Config.run(args)
       "version" -> display_version()
       "help" -> main([])
+      "tui" -> NervesHubCLI.TUI.run()
     end
   end
 
@@ -40,6 +41,7 @@ defmodule NervesHubCLI.CLI do
     - `key`            - Firmware signing keys
     - `org`            - Organization management
     - `product`        - Product management
+    - `tui`            - Interactive terminal UI browser
     - `version`        - Print the version of the CLI
     - `help`           - Prints this message
 

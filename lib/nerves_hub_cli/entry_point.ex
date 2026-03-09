@@ -3,8 +3,12 @@ defmodule NervesHubCLI.EntryPoint do
 
   def start(_, _) do
     if System.get_env("__BURRITO") do
-      Burrito.Util.Args.argv()
-      |> NervesHubCLI.CLI.main()
+      if System.get_env("NERVES_HUB_TUI") == "1" do
+        NervesHubCLI.TUI.run()
+      else
+        Burrito.Util.Args.argv()
+        |> NervesHubCLI.CLI.main()
+      end
 
       System.halt(0)
     else
